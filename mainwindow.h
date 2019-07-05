@@ -2,21 +2,17 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
-namespace Ui {
-class MainWindow;
-}
+#include <interactivebuttonbase.h>
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    MainWindow(QWidget *parent = nullptr);
 
 private:
-    Ui::MainWindow *ui;
+    InteractiveButtonBase* btn;
 };
 
 #endif // MAINWINDOW_H

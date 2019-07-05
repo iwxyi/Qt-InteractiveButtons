@@ -1,14 +1,12 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
 
 MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
+    QMainWindow(parent)
 {
-    ui->setupUi(this);
-}
+    this->setFixedSize(500, 500);
 
-MainWindow::~MainWindow()
-{
-    delete ui;
+    btn = new InteractiveButtonBase(this);
+    btn->setFixedSize(100, 100);
+    btn->move(this->geometry().center());
+    btn->show();
 }
