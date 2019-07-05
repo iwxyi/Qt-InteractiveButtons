@@ -69,29 +69,22 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
     if (press_progress)
     {
-        if (!water_ripple)
+        if (!water_ripple || water_finished) // 淡化消失：无水波纹，或者水波纹出现结束了
         {
             QColor bg_color = press_bg;
             bg_color.setAlpha(press_bg.alpha() * press_progress / 100);
             painter.fillPath(path_back, QBrush(bg_color));
         }
-        else // 水波纹动画
+        else // 水波纹出现
         {
-            if (water_finished) // 淡化消失
-            {
-
-            }
-            else // 水波纹出现
-            {
-                int radius = (geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42;
-                QRect circle(press_pos.x() - radius*press_progress/100,
-                            press_pos.y() - radius*press_progress/100,
-                            radius*press_progress/50,
-                            radius*press_progress/50);
-                QPainterPath path;
-                path.addEllipse(circle);
-                painter.fillPath(path, QBrush(press_bg));
-            }
+            int radius = (geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42;
+            QRect circle(press_pos.x() - radius*press_progress/100,
+                        press_pos.y() - radius*press_progress/100,
+                        radius*press_progress/50,
+                        radius*press_progress/50);
+            QPainterPath path;
+            path.addEllipse(circle);
+            painter.fillPath(path, QBrush(press_bg));
         }
     }
 
@@ -146,10 +139,14 @@ void InteractiveButtonBase::anchorTimeOut()
                         water_finished = true;
                 }
                 else
+                {
                     press_progress -= press_speed;
+                }
             }
             else
+            {
                 press_progress -= press_speed;
+            }
         }
 
         if (entering) // 在框内：加深
