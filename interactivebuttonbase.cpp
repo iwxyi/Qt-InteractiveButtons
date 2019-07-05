@@ -2,7 +2,7 @@
 
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent),
-      enter_pos(-1, -1), press_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
+      enter_pos(-1, -1), press_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1), effect_pos(-1, -1),
       pressing(false), entering(false),
       water_ripple(false), water_finished(false),
       move_speed(5),
@@ -70,6 +70,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     QPainterPath path_back;
     path_back.setFillRule(Qt::WindingFill);
     painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter.setRenderHint(QPainter::Antialiasing,true);
     path_back.addRect(QRect(QPoint(0,0), geometry().size()));
 
     if (hover_progress)
@@ -102,8 +103,8 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
 
     // 绘制鼠标位置
-    painter.setRenderHint(QPainter::Antialiasing,true);
     painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10));
+    painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4));
 
 //    return QPushButton::paintEvent(event); // 不绘制父类背景了
 }
@@ -125,6 +126,44 @@ void InteractiveButtonBase::leaveEvent(QEvent *event)
     entering = false;
 
     return QPushButton::leaveEvent(event);
+}
+
+int quick_sqrt(long X)
+{
+    bool fu = false;
+    if (X < 0)
+    {
+        fu = true;
+        X = -X;
+    }
+    unsigned long M = static_cast<unsigned long>(X);
+    unsigned int N, i;
+    unsigned long tmp, ttp; // 结果、循环计数
+    if (M == 0) // 被开方数，开方结果也为0
+        return 0;
+    N = 0;
+    tmp = (M >> 30); // 获取最高位：B[m-1]
+    M <<= 2;
+    if (tmp > 1) // 最高位为1
+    {
+        N ++; // 结果当前位为1，否则为默认的0
+        tmp -= N;
+    }
+    for (i = 15; i > 0; i--) // 求剩余的15位
+    {
+        N <<= 1; // 左移一位
+        tmp <<= 2;
+        tmp += (M >> 30); // 假设
+        ttp = N;
+        ttp = (ttp << 1) + 1;
+        M <<= 2;
+        if (tmp >= ttp) // 假设成立
+        {
+            tmp -= ttp;
+            N ++;
+        }
+    }
+    return static_cast<int>(fu?N:-N);
 }
 
 /**
@@ -188,6 +227,9 @@ void InteractiveButtonBase::anchorTimeOut()
     		anchor_pos.setY( anchor_pos.y() + (move_speed > -delta_y ? -delta_y : move_speed) );
     	else if (delta_y > 0) // 左移
     		anchor_pos.setY( anchor_pos.y() - (move_speed > delta_y ? delta_y : move_speed) );
+
+        effect_pos.setX( (geometry().width()>>1) - quick_sqrt(static_cast<long>(anchor_pos.x()-(geometry().width()>>1))) );
+        effect_pos.setY( (geometry().height()>>1) - quick_sqrt(static_cast<long>(anchor_pos.y()-(geometry().height()>>1))) );
     }
 
     update();
