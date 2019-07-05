@@ -15,6 +15,8 @@ class InteractiveButtonBase : public QPushButton
 public:
     InteractiveButtonBase(QWidget* parent = nullptr);
 
+    void setWaterRipple(bool enable = true);
+
 protected:
     void enterEvent(QEvent* event) override;
     void leaveEvent(QEvent* event) override;

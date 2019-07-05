@@ -4,10 +4,10 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent),
       enter_pos(-1, -1), press_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       pressing(false), entering(false),
-      water_ripple(true), water_finished(false),
+      water_ripple(false), water_finished(false),
       move_speed(5),
       normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 25), press_bg(255, 128, 128, 200),
-      hover_speed(10), press_speed(10),
+      hover_speed(10), press_speed(20),
       hover_progress(0), press_progress(0)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
@@ -16,6 +16,18 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     anchor_timer->setInterval(20);
     connect(anchor_timer, SIGNAL(timeout()), this, SLOT(anchorTimeOut()));
 
+    setWaterRipple();
+}
+
+void InteractiveButtonBase::setWaterRipple(bool enable)
+{
+    if (water_ripple == enable) return ;
+
+    water_ripple = enable;
+    if (water_ripple)
+        press_speed >>= 1; // 水波纹模式需要减慢动画速度
+    else
+        press_speed <<= 1; // 恢复到原来的速度
 }
 
 void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
@@ -77,7 +89,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
         }
         else // 水波纹出现
         {
-            int radius = (geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42;
+            int radius = static_cast<int>((geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42);
             QRect circle(press_pos.x() - radius*press_progress/100,
                         press_pos.y() - radius*press_progress/100,
                         radius*press_progress/50,
