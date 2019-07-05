@@ -30,18 +30,15 @@ public slots:
     void anchorTimeOut();
 
 protected:
-    QPoint enter_pos;
-    QPoint press_pos;
-    QPoint mouse_pos;
-    QPoint anchor_pos;
-    bool pressing;
+    QPoint enter_pos, press_pos, mouse_pos, anchor_pos;
+    bool pressing, entering;
 
     QTimer* anchor_timer;
     QTimer* bg_timer;
 
-    QColor hover_bg;
-    QColor press_bg;
-    int bg_progress;
+    QColor normal_bg, hover_bg, press_bg;
+    int hover_speed, press_speed;
+    int hover_progress, press_progress;
 };
 
 #endif // INTERACTIVEBUTTONBASE_H
