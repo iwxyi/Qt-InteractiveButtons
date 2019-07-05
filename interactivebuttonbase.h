@@ -30,7 +30,8 @@ public slots:
     void anchorTimeOut();
 
 protected:
-    QPoint enter_pos, press_pos, mouse_pos, anchor_pos, effect_pos;
+    QPoint enter_pos, press_pos, mouse_pos, anchor_pos;
+    QPoint offset_pos, effect_pos;
     bool pressing, entering;
     bool water_ripple, water_finished;
 

@@ -228,8 +228,10 @@ void InteractiveButtonBase::anchorTimeOut()
     	else if (delta_y > 0) // 左移
     		anchor_pos.setY( anchor_pos.y() - (move_speed > delta_y ? delta_y : move_speed) );
 
-        effect_pos.setX( (geometry().width()>>1) - quick_sqrt(static_cast<long>(anchor_pos.x()-(geometry().width()>>1))) );
-        effect_pos.setY( (geometry().height()>>1) - quick_sqrt(static_cast<long>(anchor_pos.y()-(geometry().height()>>1))) );
+        offset_pos.setX(quick_sqrt(static_cast<long>(anchor_pos.x()-(geometry().width()>>1))));
+        offset_pos.setY(quick_sqrt(static_cast<long>(anchor_pos.y()-(geometry().height()>>1))));
+        effect_pos.setX( (geometry().width()>>1) -  offset_pos.x());
+        effect_pos.setY( (geometry().height()>>1) - offset_pos.y() );
     }
 
     update();
