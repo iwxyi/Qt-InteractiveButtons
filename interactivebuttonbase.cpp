@@ -114,8 +114,8 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
 
     // 绘制鼠标位置
-    painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10));
-    painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4));
+    //painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10));
+    //painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4));
 
 //    return QPushButton::paintEvent(event); // 不绘制父类背景了
 }

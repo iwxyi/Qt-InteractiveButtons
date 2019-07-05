@@ -9,6 +9,6 @@ MainWindow::MainWindow(QWidget *parent) :
     btn->setGeometry(300, 300, 100, 100);
 
     WinMinButton *min_btn = new WinMinButton(this);
-    min_btn->setGeometry(10, 10, 100, 100);
+    min_btn->setGeometry(400, 10, 32, 32);
 
 }
