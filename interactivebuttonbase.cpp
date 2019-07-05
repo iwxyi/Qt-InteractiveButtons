@@ -163,7 +163,7 @@ int quick_sqrt(long X)
             N ++;
         }
     }
-    return static_cast<int>(fu?N:-N);
+    return (fu ? -1 : 1) * static_cast<int>(N); // 不知道为什么计算出来的结果是反过来的
 }
 
 /**
@@ -230,8 +230,8 @@ void InteractiveButtonBase::anchorTimeOut()
 
         offset_pos.setX(quick_sqrt(static_cast<long>(anchor_pos.x()-(geometry().width()>>1))));
         offset_pos.setY(quick_sqrt(static_cast<long>(anchor_pos.y()-(geometry().height()>>1))));
-        effect_pos.setX( (geometry().width()>>1) -  offset_pos.x());
-        effect_pos.setY( (geometry().height()>>1) - offset_pos.y() );
+        effect_pos.setX( (geometry().width() >>1) + offset_pos.x());
+        effect_pos.setY( (geometry().height()>>1) + offset_pos.y());
     }
 
     update();
