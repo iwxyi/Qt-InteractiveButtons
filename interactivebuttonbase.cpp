@@ -4,8 +4,10 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent),
       enter_pos(-1, -1), press_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       pressing(false), entering(false),
-      normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 25), press_bg(128, 128, 128, 50),
-      hover_speed(10), press_speed(20),
+      water_ripple(true), water_finished(false),
+      move_speed(5),
+      normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 25), press_bg(255, 128, 128, 200),
+      hover_speed(10), press_speed(10),
       hover_progress(0), press_progress(0)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
@@ -23,6 +25,9 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)
     {
     	pressing = true;
+        press_pos = mouse_pos;
+        if (water_ripple)
+            water_finished = false;
     }
 
     return QPushButton::mousePressEvent(event);
@@ -54,20 +59,6 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     path_back.setFillRule(Qt::WindingFill);
     painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     path_back.addRect(QRect(QPoint(0,0), geometry().size()));
-    /*QColor bg_color(0, 0, 0, 0); // 背景颜色
-    if (hover_progress || press_progress)
-    {
-        float sum_weight = hover_progress + press_progress;
-        float hover_weigth = hover_progress / sum_weight;
-        float press_weight = press_progress / sum_weight;
-        int red = hover_bg.red() * hover_weigth + press_bg.red() * press_weight;
-        int green = hover_bg.green() * hover_weigth + press_bg.green() * press_weight;
-        int blue = hover_bg.blue() * hover_weigth + press_bg.blue() * press_weight;
-        int alpha = hover_bg.alpha() * hover_weigth + press_bg.alpha() * press_weight;
-        bg_color = QColor(red, green, blue, alpha);
-    }
-    qDebug() << hover_progress << press_progress << bg_color;
-    painter.fillPath(path_back, QBrush(bg_color));*/
 
     if (hover_progress)
     {
@@ -78,15 +69,36 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
     if (press_progress)
     {
-    	QColor bg_color = press_bg;
-    	bg_color.setAlpha(press_bg.alpha() * press_progress / 100);
-    	painter.fillPath(path_back, QBrush(bg_color));
+        if (!water_ripple)
+        {
+            QColor bg_color = press_bg;
+            bg_color.setAlpha(press_bg.alpha() * press_progress / 100);
+            painter.fillPath(path_back, QBrush(bg_color));
+        }
+        else // 水波纹动画
+        {
+            if (water_finished) // 淡化消失
+            {
+
+            }
+            else // 水波纹出现
+            {
+                int radius = (geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42;
+                QRect circle(press_pos.x() - radius*press_progress/100,
+                            press_pos.y() - radius*press_progress/100,
+                            radius*press_progress/50,
+                            radius*press_progress/50);
+                QPainterPath path;
+                path.addEllipse(circle);
+                painter.fillPath(path, QBrush(press_bg));
+            }
+        }
     }
 
 
     // 绘制鼠标位置
     painter.setRenderHint(QPainter::Antialiasing,true);
-    painter.drawEllipse(QRect(mouse_pos.x()-5, mouse_pos.y()-5, 10, 10));
+    painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10));
 
 //    return QPushButton::paintEvent(event); // 不绘制父类背景了
 }
@@ -115,6 +127,7 @@ void InteractiveButtonBase::leaveEvent(QEvent *event)
  */
 void InteractiveButtonBase::anchorTimeOut()
 {
+    // 背景色
     if (pressing) // 鼠标按下
     {
         if (press_progress < 100)
@@ -123,7 +136,21 @@ void InteractiveButtonBase::anchorTimeOut()
     else // 鼠标悬浮
     {
         if (press_progress>0) // 如果按下的效果还在
-            press_progress -= press_speed;
+        {
+            if (water_ripple) // 水波纹
+            {
+                if (!water_finished) // 按下的水波纹动画还没有结束
+                {
+                    press_progress += press_speed;
+                    if (press_progress >= 100)
+                        water_finished = true;
+                }
+                else
+                    press_progress -= press_speed;
+            }
+            else
+                press_progress -= press_speed;
+        }
 
         if (entering) // 在框内：加深
         {
@@ -135,6 +162,23 @@ void InteractiveButtonBase::anchorTimeOut()
             if (hover_progress > 0)
                 hover_progress -= hover_speed;
         }
+    }
+
+    // 锚点
+    if (anchor_pos != mouse_pos)
+    {
+        int delta_x = anchor_pos.x() - mouse_pos.x(),
+    		delta_y = anchor_pos.y() - mouse_pos.y();
+    	
+    	if (delta_x < 0) // 右移
+    		anchor_pos.setX( anchor_pos.x() + (move_speed > -delta_x ? -delta_x : move_speed) );
+    	else if (delta_x > 0) // 左移
+    		anchor_pos.setX( anchor_pos.x() - (move_speed > delta_x ? delta_x : move_speed) );
+
+    	if (delta_y < 0) // 右移
+    		anchor_pos.setY( anchor_pos.y() + (move_speed > -delta_y ? -delta_y : move_speed) );
+    	else if (delta_y > 0) // 左移
+    		anchor_pos.setY( anchor_pos.y() - (move_speed > delta_y ? delta_y : move_speed) );
     }
 
     update();

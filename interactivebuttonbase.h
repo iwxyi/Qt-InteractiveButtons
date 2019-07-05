@@ -9,8 +9,6 @@
 #include <QPainter>
 #include <QDebug>
 
-#define MOVE_SPEED 1
-
 class InteractiveButtonBase : public QPushButton
 {
     Q_OBJECT
@@ -32,9 +30,10 @@ public slots:
 protected:
     QPoint enter_pos, press_pos, mouse_pos, anchor_pos;
     bool pressing, entering;
+    bool water_ripple, water_finished;
 
     QTimer* anchor_timer;
-    QTimer* bg_timer;
+    int move_speed;
 
     QColor normal_bg, hover_bg, press_bg;
     int hover_speed, press_speed;
