@@ -15,7 +15,7 @@ void WinMinButton::paintEvent(QPaintEvent* event)
             mid(geometry().width()/2+offset_pos.x(), geometry().height()/2+offset_pos.y());
 
     QPainter painter(this);
-    if (left.y() != mid.y())
+    //if (left.y() != mid.y())
         painter.setRenderHint(QPainter::Antialiasing,true);
     QPainterPath path;
     path.moveTo(left);

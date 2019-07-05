@@ -129,7 +129,7 @@ void InteractiveButtonBase::enterEvent(QEvent *event)
     entering = true;
     if (mouse_pos == QPoint(-1,-1))
         mouse_pos = mapFromGlobal(QCursor::pos());
-qDebug() << mouse_pos;
+
     return QPushButton::enterEvent(event);
 }
 
@@ -179,6 +179,21 @@ int quick_sqrt(long X)
         }
     }
     return (fu ? -1 : 1) * static_cast<int>(N); // 不知道为什么计算出来的结果是反过来的
+}
+
+int max(int a, int b) { return a > b ? a : b; }
+
+int min(int a, int b) { return a < b ? a : b; }
+
+int moveSuitable(int speed, int delta)
+{
+    if (speed >= delta)
+        return delta;
+
+    if ((speed<<4) < delta)
+        return delta >> 4;
+
+    return speed;
 }
 
 /**
@@ -234,14 +249,14 @@ void InteractiveButtonBase::anchorTimeOut()
     		delta_y = anchor_pos.y() - mouse_pos.y();
     	
     	if (delta_x < 0) // 右移
-    		anchor_pos.setX( anchor_pos.x() + (move_speed > -delta_x ? -delta_x : move_speed) );
+            anchor_pos.setX( anchor_pos.x() + moveSuitable(move_speed, -delta_x) );
     	else if (delta_x > 0) // 左移
-    		anchor_pos.setX( anchor_pos.x() - (move_speed > delta_x ? delta_x : move_speed) );
+            anchor_pos.setX( anchor_pos.x() - moveSuitable(move_speed, delta_x) );
 
     	if (delta_y < 0) // 右移
-    		anchor_pos.setY( anchor_pos.y() + (move_speed > -delta_y ? -delta_y : move_speed) );
+            anchor_pos.setY( anchor_pos.y() + moveSuitable(move_speed, -delta_y) );
     	else if (delta_y > 0) // 左移
-    		anchor_pos.setY( anchor_pos.y() - (move_speed > delta_y ? delta_y : move_speed) );
+            anchor_pos.setY( anchor_pos.y() - moveSuitable(move_speed, delta_y) );
 
         offset_pos.setX(quick_sqrt(static_cast<long>(anchor_pos.x()-(geometry().width()>>1))));
         offset_pos.setY(quick_sqrt(static_cast<long>(anchor_pos.y()-(geometry().height()>>1))));
