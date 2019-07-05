@@ -20,5 +20,6 @@ void WinMinButton::paintEvent(QPaintEvent* event)
     QPainterPath path;
     path.moveTo(left);
     path.cubicTo(left, mid, right);
+    painter.setPen(QPen(icon_color));
     painter.drawPath(path);
 }

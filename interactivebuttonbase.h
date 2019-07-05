@@ -16,6 +16,7 @@ public:
     InteractiveButtonBase(QWidget* parent = nullptr);
 
     void setWaterRipple(bool enable = true);
+    void setIconColor(QColor color = QColor(0,0,0));
 
 protected:
     void enterEvent(QEvent* event) override;
@@ -39,6 +40,7 @@ protected:
     QTimer* anchor_timer;
     int move_speed;
 
+    QColor icon_color;
     QColor normal_bg, hover_bg, press_bg;
     int hover_speed, press_speed;
     int hover_progress, press_progress;

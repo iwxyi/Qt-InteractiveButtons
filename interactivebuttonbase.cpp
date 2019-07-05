@@ -6,6 +6,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       pressing(false), entering(false),
       water_ripple(false), water_finished(false),
       move_speed(5),
+      icon_color(0, 0, 0),
       normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 25), press_bg(255, 128, 128, 200),
       hover_speed(10), press_speed(20),
       hover_progress(0), press_progress(0)
@@ -28,6 +29,12 @@ void InteractiveButtonBase::setWaterRipple(bool enable)
         press_speed >>= 1; // 水波纹模式需要减慢动画速度
     else
         press_speed <<= 1; // 恢复到原来的速度
+}
+
+void InteractiveButtonBase::setIconColor(QColor color)
+{
+    icon_color = color;
+    update();
 }
 
 void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
@@ -262,6 +269,10 @@ void InteractiveButtonBase::anchorTimeOut()
         offset_pos.setY(quick_sqrt(static_cast<long>(anchor_pos.y()-(geometry().height()>>1))));
         effect_pos.setX( (geometry().width() >>1) + offset_pos.x());
         effect_pos.setY( (geometry().height()>>1) + offset_pos.y());
+    }
+    else if (!pressing && !entering && !hover_progress && !press_progress)
+    {
+        anchor_timer->stop();
     }
 
     update();
