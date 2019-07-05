@@ -27,11 +27,13 @@ CONFIG += c++11
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    interactivebuttonbase.cpp
+    interactivebuttonbase.cpp \
+    winminbutton.cpp
 
 HEADERS += \
         mainwindow.h \
-    interactivebuttonbase.h
+    interactivebuttonbase.h \
+    winminbutton.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <interactivebuttonbase.h>
+#include "interactivebuttonbase.h"
+#include "winminbutton.h"
 
 class MainWindow : public QMainWindow
 {
@@ -11,8 +12,6 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
 
-private:
-    InteractiveButtonBase* btn;
 };
 
 #endif // MAINWINDOW_H
