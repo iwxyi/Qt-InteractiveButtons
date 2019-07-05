@@ -42,7 +42,7 @@ protected:
 
     QColor icon_color;
     QColor normal_bg, hover_bg, press_bg;
-    int hover_speed, press_speed;
+    int hover_speed, press_start, press_speed;
     int hover_progress, press_progress;
 };
 

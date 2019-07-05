@@ -8,7 +8,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       move_speed(5),
       icon_color(0, 0, 0),
       normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 25), press_bg(255, 128, 128, 200),
-      hover_speed(10), press_speed(20),
+      hover_speed(10), press_start(40), press_speed(10),
       hover_progress(0), press_progress(0)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
@@ -17,7 +17,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     anchor_timer->setInterval(20);
     connect(anchor_timer, SIGNAL(timeout()), this, SLOT(anchorTimeOut()));
 
-    setWaterRipple();
+//    setWaterRipple();
 }
 
 void InteractiveButtonBase::setWaterRipple(bool enable)
@@ -47,6 +47,9 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
         press_pos = mouse_pos;
         if (water_ripple)
             water_finished = false;
+        else
+            if (press_progress < press_start)
+                press_progress = press_start;
     }
 
     return QPushButton::mousePressEvent(event);
@@ -197,8 +200,8 @@ int moveSuitable(int speed, int delta)
     if (speed >= delta)
         return delta;
 
-    if ((speed<<4) < delta)
-        return delta >> 4;
+    if ((speed<<3) < delta)
+        return delta >> 3;
 
     return speed;
 }
@@ -248,6 +251,11 @@ void InteractiveButtonBase::anchorTimeOut()
                 hover_progress -= hover_speed;
         }
     }
+
+    if (hover_progress > 100) hover_progress = 100;
+    if (hover_progress < 0) hover_progress = 0;
+    if (press_progress > 100) press_progress = 100;
+    if (press_progress < 0) press_progress = 0;
 
     // 锚点
     if (anchor_pos != mouse_pos)
