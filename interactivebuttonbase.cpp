@@ -62,6 +62,17 @@ void InteractiveButtonBase::mouseMoveEvent(QMouseEvent *event)
     return QPushButton::mouseMoveEvent(event);
 }
 
+void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
+{
+    if (!pressing && !entering)
+    {
+        mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
+        anchor_pos = mouse_pos;
+    }
+
+    return QPushButton::resizeEvent(event);
+}
+
 void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 {
     QPainter painter(this);
@@ -116,7 +127,9 @@ void InteractiveButtonBase::enterEvent(QEvent *event)
     	anchor_timer->start();
     }
     entering = true;
-
+    if (mouse_pos == QPoint(-1,-1))
+        mouse_pos = mapFromGlobal(QCursor::pos());
+qDebug() << mouse_pos;
     return QPushButton::enterEvent(event);
 }
 
@@ -124,6 +137,8 @@ void InteractiveButtonBase::enterEvent(QEvent *event)
 void InteractiveButtonBase::leaveEvent(QEvent *event)
 {
     entering = false;
+    if (!pressing)
+        mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
 
     return QPushButton::leaveEvent(event);
 }
