@@ -6,6 +6,7 @@
 #include "winminbutton.h"
 #include "winmaxbutton.h"
 #include "winrestorebutton.h"
+#include "winclosebutton.h"
 
 class MainWindow : public QMainWindow
 {

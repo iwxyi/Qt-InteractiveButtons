@@ -16,6 +16,7 @@ public:
     InteractiveButtonBase(QWidget* parent = nullptr);
 
     void setWaterRipple(bool enable = true);
+    void setBgColor(QColor hover, QColor press);
     void setIconColor(QColor color = QColor(0,0,0));
 
 protected:

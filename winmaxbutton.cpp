@@ -14,5 +14,5 @@ void WinMaxButton::paintEvent(QPaintEvent *event)
 
     QPainter painter(this);
     painter.setPen(QPen(icon_color));
-    painter.drawRect(QRect(w/4+offset_pos.x(), h/4+offset_pos.y(), w/2, h/2));
+    painter.drawRect(QRect(w/3+offset_pos.x(), h/3+offset_pos.y(), w/3, h/3));
 }

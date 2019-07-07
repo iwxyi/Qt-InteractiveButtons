@@ -31,6 +31,14 @@ void InteractiveButtonBase::setWaterRipple(bool enable)
         press_speed <<= 1; // 恢复到原来的速度 */
 }
 
+void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
+{
+    if (hover != Qt::black)
+        hover_bg = hover;
+    if (press != Qt::black)
+        press_bg = press;
+}
+
 void InteractiveButtonBase::setIconColor(QColor color)
 {
     icon_color = color;
