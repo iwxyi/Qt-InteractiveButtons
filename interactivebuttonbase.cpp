@@ -2,7 +2,8 @@
 
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent),
-      enter_pos(-1, -1), press_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1), effect_pos(-1, -1),
+      enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
+      offset_pos(0, 0), effect_pos(-1, -1), release_offset(0, 0),
       pressing(false), entering(false),
       water_ripple(false), water_finished(false),
       hover_timestamp(0), press_timestamp(0), release_timestamp(0),
@@ -22,6 +23,8 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     connect(anchor_timer, SIGNAL(timeout()), this, SLOT(anchorTimeOut()));
 
     setWaterRipple();
+
+    connect(this, SIGNAL(clicked()), this, SLOT(slotClicked()));
 }
 
 void InteractiveButtonBase::setWaterRipple(bool enable)
@@ -83,13 +86,12 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
     if (pressing && event->button() == Qt::LeftButton)
     {
         pressing = false;
+        release_pos = mapFromGlobal(QCursor::pos());
+        release_timestamp = getTimestamp();
 
-        qDebug() << mapFromGlobal(QCursor::pos()) << press_pos;
-        if (mapFromGlobal(QCursor::pos()) == press_pos) // 单击
+        if ((release_pos - press_pos).manhattanLength() < 2) // 单击
         {
-            click_ani_appearing = true;
-            click_ani_disappearing = false;
-            click_ani_progress = 0;
+            // slotClicked()
         }
     }
 
@@ -293,12 +295,12 @@ void InteractiveButtonBase::anchorTimeOut()
         }
     }
 
-
+    // 按下动画
     if (click_ani_disappearing) // 按下动画效果消失
     {
-        qint64 delta = getTimestamp()-press_timestamp-click_ani_duration;
+        qint64 delta = getTimestamp()-release_timestamp-click_ani_duration;
         if (delta <= 0) click_ani_progress = 100;
-        else click_ani_progress = 100 - (delta-click_ani_duration)*100 / click_ani_duration;
+        else click_ani_progress = 100 - delta*100 / click_ani_duration;
         if (click_ani_progress < 0)
         {
             click_ani_progress = 0;
@@ -307,7 +309,7 @@ void InteractiveButtonBase::anchorTimeOut()
     }
     if (click_ani_appearing) // 按下动画效果
     {
-        qint64 delta = getTimestamp()-press_timestamp;
+        qint64 delta = getTimestamp()-release_timestamp;
         if (delta <= 0) click_ani_progress = 0;
         else click_ani_progress = delta * 100 / click_ani_duration;
         if (click_ani_progress > 100)
@@ -350,4 +352,12 @@ void InteractiveButtonBase::anchorTimeOut()
     }
 
     update();
+}
+
+void InteractiveButtonBase::slotClicked()
+{
+    click_ani_appearing = true;
+    click_ani_disappearing = false;
+    click_ani_progress = 0;
+    release_offset = offset_pos;
 }
