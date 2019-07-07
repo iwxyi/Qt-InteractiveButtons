@@ -14,6 +14,13 @@ void WinMinButton::paintEvent(QPaintEvent* event)
     QPoint left(w/3, h/2), right(w*2/3, h/2),
            mid(w/2-offset_pos.x(), h/2-offset_pos.y());
 
+    if (click_ani_appearing || click_ani_disappearing)
+    {
+        double pro = click_ani_progress / 800.0;
+        left.setX(left.x()-left.x() * pro);
+        right.setX(right.x()+(w-right.x()) * pro);
+    }
+
     QPainter painter(this);
     QPainterPath path;
     path.moveTo(left);

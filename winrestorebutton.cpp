@@ -12,7 +12,21 @@ void WinRestoreButton::paintEvent(QPaintEvent* event)
 
     int w = geometry().width(), h = geometry().height();
     int dx = offset_pos.x(), dy = offset_pos.y();
-    QRect br(w/3+dx, h/3+dy, w/3, h/3);
+    QRect br;
+    if (click_ani_appearing || click_ani_disappearing)
+    {
+        double pro = click_ani_progress / 800.0;
+        br = QRect(
+                    (w/3+dx) - (w/3+dx)*pro,
+                    (h/3+dy) - (h/3+dy)*pro,
+                    w/3 + (w*2/3)*pro,
+                    h/3 + (h*2/3)*pro
+                    );
+    }
+    else
+    {
+        br = QRect(w/3+dx, h/3+dy, w/3, h/3);
+    }
 
     // 画原来的圆
     QPainter painter(this);
@@ -21,6 +35,14 @@ void WinRestoreButton::paintEvent(QPaintEvent* event)
 
     dx /= 2; dy /= 2;
     int l = w*4/9+dx, t = h*2/9+dy, r = w*7/9+dx, b = h*5/9+dy;
+    if (click_ani_appearing || click_ani_disappearing)
+    {
+        double pro = click_ani_progress / 800.0;
+        l -= l*pro;
+        t -= t*pro;
+        r += (w-r)*pro;
+        b += (h-b)*pro;
+    }
     QPoint topLeft(l, t), topRight(r, t), bottomLeft(l, b), bottomRight(r, b);
     QList<QPoint>points;
 
@@ -61,6 +83,9 @@ void WinRestoreButton::paintEvent(QPaintEvent* event)
         path.moveTo(points.at(0));
         for (int i = 1; i < points.size(); ++i)
             path.lineTo(points.at(i));
+        QColor color(icon_color);
+        color.setAlpha(color.alpha()*0.8);
+        painter.setPen(QPen(color));
         painter.drawPath(path);
     }
 }
