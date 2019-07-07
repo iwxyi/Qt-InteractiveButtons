@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include "interactivebuttonbase.h"
 #include "winminbutton.h"
+#include "winmaxbutton.h"
+#include "winrestorebutton.h"
 
 class MainWindow : public QMainWindow
 {

@@ -7,7 +7,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       water_ripple(false), water_finished(false),
       move_speed(5),
       icon_color(0, 0, 0),
-      normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 25), press_bg(255, 128, 128, 200),
+      normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64),
       hover_speed(10), press_start(40), press_speed(10),
       hover_progress(0), press_progress(0)
 {
@@ -25,10 +25,10 @@ void InteractiveButtonBase::setWaterRipple(bool enable)
     if (water_ripple == enable) return ;
 
     water_ripple = enable;
-    if (water_ripple)
+    /*if (water_ripple)
         press_speed >>= 1; // 水波纹模式需要减慢动画速度
     else
-        press_speed <<= 1; // 恢复到原来的速度
+        press_speed <<= 1; // 恢复到原来的速度 */
 }
 
 void InteractiveButtonBase::setIconColor(QColor color)
@@ -124,8 +124,8 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
 
     // 绘制鼠标位置
-    //painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10));
-    //painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4));
+//    painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10));
+//    painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4));
 
 //    return QPushButton::paintEvent(event); // 不绘制父类背景了
 }
@@ -215,7 +215,12 @@ void InteractiveButtonBase::anchorTimeOut()
     if (pressing) // 鼠标按下
     {
         if (press_progress < 100)
-            press_progress += press_speed;
+        {
+            if (water_ripple) // 按下时水波纹速度减半
+                press_progress += press_speed>>1;
+            else
+                press_progress += press_speed;
+        }
     }
     else // 鼠标悬浮
     {
