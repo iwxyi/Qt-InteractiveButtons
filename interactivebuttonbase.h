@@ -10,6 +10,8 @@
 #include <QDebug>
 #include <QDateTime>
 
+#define PI 3.1415926
+
 class InteractiveButtonBase : public QPushButton
 {
     Q_OBJECT
@@ -33,16 +35,16 @@ protected:
 
     void paintEvent(QPaintEvent*) override;
 
-private:
-    int max(int a, int b);
-    int min(int a, int b);
-    int quick_sqrt(long X);
-    int moveSuitable(int speed, int delta);
-    qint64 getTimestamp();
+protected:
+    int max(int a, int b) const;
+    int min(int a, int b) const;
+    int quick_sqrt(long X) const;
+    int moveSuitable(int speed, int delta) const;
+    qint64 getTimestamp() const;
 
 public slots:
     void anchorTimeOut();
-    void slotClicked();
+    virtual void slotClicked();
 
 protected:
     QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos;

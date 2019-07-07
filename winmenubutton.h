@@ -12,6 +12,7 @@ public:
 
 protected:
     void paintEvent(QPaintEvent*event);
+    void slotClicked();
 };
 
 #endif // WINMENUBUTTON_H

@@ -10,20 +10,25 @@ void WinCloseButton::paintEvent(QPaintEvent *event)
 {
     InteractiveButtonBase::paintEvent(event);
 
+    QPainter painter(this);
+
     int w = geometry().width(), h = geometry().height();
     int l = w/3, t = h/3, r = w*2/3, b = h*2/3;
     int mx = w/2+offset_pos.x(), my = h/2+offset_pos.y();
 
-    if (click_ani_appearing || click_ani_disappearing)
+    if (click_ani_appearing)
     {
         double pro = click_ani_progress / 100.0;
         l -= l * pro;
         t -= t * pro;
         r += (w-r) * pro;
         b += (h-b) * pro;
+
+        /*painter.translate(w/2,h/2);
+        painter.rotate(50*pro);
+        painter.translate(-w/2, -h/2);*/
     }
 
-    QPainter painter(this);
     painter.setPen(QPen(icon_color));
     painter.setRenderHint(QPainter::Antialiasing,true);
     if (offset_pos != QPoint(0,0))

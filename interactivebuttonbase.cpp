@@ -186,7 +186,7 @@ void InteractiveButtonBase::leaveEvent(QEvent *event)
     return QPushButton::leaveEvent(event);
 }
 
-int InteractiveButtonBase::quick_sqrt(long X)
+int InteractiveButtonBase::quick_sqrt(long X) const
 {
     bool fu = false;
     if (X < 0)
@@ -224,11 +224,11 @@ int InteractiveButtonBase::quick_sqrt(long X)
     return (fu ? -1 : 1) * static_cast<int>(N); // 不知道为什么计算出来的结果是反过来的
 }
 
-int InteractiveButtonBase::max(int a, int b) { return a > b ? a : b; }
+int InteractiveButtonBase::max(int a, int b) const { return a > b ? a : b; }
 
-int InteractiveButtonBase::min(int a, int b) { return a < b ? a : b; }
+int InteractiveButtonBase::min(int a, int b) const { return a < b ? a : b; }
 
-int InteractiveButtonBase::moveSuitable(int speed, int delta)
+int InteractiveButtonBase::moveSuitable(int speed, int delta) const
 {
     if (speed >= delta)
         return delta;
@@ -239,7 +239,7 @@ int InteractiveButtonBase::moveSuitable(int speed, int delta)
     return speed;
 }
 
-qint64 InteractiveButtonBase::getTimestamp()
+qint64 InteractiveButtonBase::getTimestamp() const
 {
     return QDateTime::currentDateTime().toMSecsSinceEpoch();
 }
