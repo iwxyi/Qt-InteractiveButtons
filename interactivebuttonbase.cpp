@@ -5,11 +5,15 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       enter_pos(-1, -1), press_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1), effect_pos(-1, -1),
       pressing(false), entering(false),
       water_ripple(false), water_finished(false),
+      hover_timestamp(0), press_timestamp(0), release_timestamp(0),
+      hover_bg_duration(100), press_bg_duration(100), click_ani_duration(300),
       move_speed(5),
       icon_color(0, 0, 0),
       normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64),
       hover_speed(10), press_start(40), press_speed(10),
-      hover_progress(0), press_progress(0)
+      hover_progress(0), press_progress(0),
+      click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
+      _state(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
 
@@ -17,7 +21,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     anchor_timer->setInterval(20);
     connect(anchor_timer, SIGNAL(timeout()), this, SLOT(anchorTimeOut()));
 
-//    setWaterRipple();
+    setWaterRipple();
 }
 
 void InteractiveButtonBase::setWaterRipple(bool enable)
@@ -45,14 +49,25 @@ void InteractiveButtonBase::setIconColor(QColor color)
     update();
 }
 
+void InteractiveButtonBase::setState(bool s)
+{
+    _state = s;
+}
+
+bool InteractiveButtonBase::getState()
+{
+    return _state;
+}
+
 void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
 {
     mouse_pos = mapFromGlobal(QCursor::pos());
 
     if (event->button() == Qt::LeftButton)
     {
-    	pressing = true;
+        pressing = true;
         press_pos = mouse_pos;
+        press_timestamp = getTimestamp();
         if (water_ripple)
             water_finished = false;
         else
@@ -66,9 +81,17 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
 void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
 {
     if (pressing && event->button() == Qt::LeftButton)
-	{
-		pressing = false;
-	}
+    {
+        pressing = false;
+
+        qDebug() << mapFromGlobal(QCursor::pos()) << press_pos;
+        if (mapFromGlobal(QCursor::pos()) == press_pos) // 单击
+        {
+            click_ani_appearing = true;
+            click_ani_disappearing = false;
+            click_ani_progress = 0;
+        }
+    }
 
     return QPushButton::mouseReleaseEvent(event);
 }
@@ -104,9 +127,9 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
     if (hover_progress)
     {
-    	QColor bg_color = hover_bg;
-    	bg_color.setAlpha(hover_bg.alpha() * hover_progress / 100);
-    	painter.fillPath(path_back, QBrush(bg_color));
+        QColor bg_color = hover_bg;
+        bg_color.setAlpha(hover_bg.alpha() * hover_progress / 100);
+        painter.fillPath(path_back, QBrush(bg_color));
     }
 
     if (press_progress)
@@ -142,7 +165,7 @@ void InteractiveButtonBase::enterEvent(QEvent *event)
 {
     if (!anchor_timer->isActive())
     {
-    	anchor_timer->start();
+        anchor_timer->start();
     }
     entering = true;
     if (mouse_pos == QPoint(-1,-1))
@@ -161,7 +184,7 @@ void InteractiveButtonBase::leaveEvent(QEvent *event)
     return QPushButton::leaveEvent(event);
 }
 
-int quick_sqrt(long X)
+int InteractiveButtonBase::quick_sqrt(long X)
 {
     bool fu = false;
     if (X < 0)
@@ -199,11 +222,11 @@ int quick_sqrt(long X)
     return (fu ? -1 : 1) * static_cast<int>(N); // 不知道为什么计算出来的结果是反过来的
 }
 
-int max(int a, int b) { return a > b ? a : b; }
+int InteractiveButtonBase::max(int a, int b) { return a > b ? a : b; }
 
-int min(int a, int b) { return a < b ? a : b; }
+int InteractiveButtonBase::min(int a, int b) { return a < b ? a : b; }
 
-int moveSuitable(int speed, int delta)
+int InteractiveButtonBase::moveSuitable(int speed, int delta)
 {
     if (speed >= delta)
         return delta;
@@ -212,6 +235,11 @@ int moveSuitable(int speed, int delta)
         return delta >> 3;
 
     return speed;
+}
+
+qint64 InteractiveButtonBase::getTimestamp()
+{
+    return QDateTime::currentDateTime().toMSecsSinceEpoch();
 }
 
 /**
@@ -265,6 +293,31 @@ void InteractiveButtonBase::anchorTimeOut()
         }
     }
 
+
+    if (click_ani_disappearing) // 按下动画效果消失
+    {
+        qint64 delta = getTimestamp()-press_timestamp-click_ani_duration;
+        if (delta <= 0) click_ani_progress = 100;
+        else click_ani_progress = 100 - (delta-click_ani_duration)*100 / click_ani_duration;
+        if (click_ani_progress < 0)
+        {
+            click_ani_progress = 0;
+            click_ani_disappearing = false;
+        }
+    }
+    if (click_ani_appearing) // 按下动画效果
+    {
+        qint64 delta = getTimestamp()-press_timestamp;
+        if (delta <= 0) click_ani_progress = 0;
+        else click_ani_progress = delta * 100 / click_ani_duration;
+        if (click_ani_progress > 100)
+        {
+            click_ani_progress = 100; // 保持100的状态，下次点击时回到0
+            click_ani_appearing = false;
+            click_ani_disappearing = true;
+        }
+    }
+
     if (hover_progress > 100) hover_progress = 100;
     if (hover_progress < 0) hover_progress = 0;
     if (press_progress > 100) press_progress = 100;
@@ -274,16 +327,16 @@ void InteractiveButtonBase::anchorTimeOut()
     if (anchor_pos != mouse_pos)
     {
         int delta_x = anchor_pos.x() - mouse_pos.x(),
-    		delta_y = anchor_pos.y() - mouse_pos.y();
-    	
-    	if (delta_x < 0) // 右移
+            delta_y = anchor_pos.y() - mouse_pos.y();
+
+        if (delta_x < 0) // 右移
             anchor_pos.setX( anchor_pos.x() + moveSuitable(move_speed, -delta_x) );
-    	else if (delta_x > 0) // 左移
+        else if (delta_x > 0) // 左移
             anchor_pos.setX( anchor_pos.x() - moveSuitable(move_speed, delta_x) );
 
-    	if (delta_y < 0) // 右移
+        if (delta_y < 0) // 右移
             anchor_pos.setY( anchor_pos.y() + moveSuitable(move_speed, -delta_y) );
-    	else if (delta_y > 0) // 左移
+        else if (delta_y > 0) // 左移
             anchor_pos.setY( anchor_pos.y() - moveSuitable(move_speed, delta_y) );
 
         offset_pos.setX(quick_sqrt(static_cast<long>(anchor_pos.x()-(geometry().width()>>1))));
@@ -291,7 +344,7 @@ void InteractiveButtonBase::anchorTimeOut()
         effect_pos.setX( (geometry().width() >>1) + offset_pos.x());
         effect_pos.setY( (geometry().height()>>1) + offset_pos.y());
     }
-    else if (!pressing && !entering && !hover_progress && !press_progress)
+    else if (!pressing && !entering && !hover_progress && !press_progress && !click_ani_appearing && !click_ani_disappearing)
     {
         anchor_timer->stop();
     }

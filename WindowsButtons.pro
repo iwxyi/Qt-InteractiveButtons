@@ -32,7 +32,8 @@ SOURCES += \
     generalbuttoninterface.cpp \
     winmaxbutton.cpp \
     winrestorebutton.cpp \
-    winclosebutton.cpp
+    winclosebutton.cpp \
+    winmenubutton.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -41,7 +42,8 @@ HEADERS += \
     generalbuttoninterface.h \
     winmaxbutton.h \
     winrestorebutton.h \
-    winclosebutton.h
+    winclosebutton.h \
+    winmenubutton.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
