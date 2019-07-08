@@ -26,11 +26,14 @@ public:
     };
 
     struct Water {
-        Water(QPoint p, qint64 t) : point(p), progress(0), press_timestamp(t), release_timestamp(0) {}
+        Water(QPoint p, qint64 t) : point(p), progress(0), press_timestamp(t),
+            release_timestamp(0), finish_timestamp(0), finished(false) {}
         QPoint point;
         int progress;
         qint64 press_timestamp;
         qint64 release_timestamp;
+        qint64 finish_timestamp;
+        bool finished;
     };
 
     void setWaterRipple(bool enable = true);
@@ -88,7 +91,7 @@ protected:
 
     bool water_animation; // 是否开启水波纹动画
     QList<Water>waters;
-    int water_press_duration, water_release_duration;
+    int water_press_duration, water_release_duration, water_finish_duration;
 
     bool _state; // 一个记录状态的变量，比如是否持续
 };

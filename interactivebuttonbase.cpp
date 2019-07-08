@@ -15,7 +15,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       hover_progress(0), press_progress(0),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
       jitter_animation(true), elastic_coefficient(1.5), jitter_duration(300),
-      water_animation(true), water_press_duration(600), water_release_duration(300),
+      water_animation(true), water_press_duration(600), water_release_duration(300), water_finish_duration(300),
       _state(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
@@ -157,7 +157,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     path_back.setFillRule(Qt::WindingFill);
     painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter.setRenderHint(QPainter::Antialiasing,true);
-    path_back.addRect(QRect(QPoint(0,0), geometry().size()));
+    path_back.addRect(QRect(QPoint(0,0), size()));
 
     if (hover_progress)
     {
@@ -175,16 +175,28 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     else if (water_animation && waters.size()) // 水波纹，且至少有一个水波纹
     {
         int radius = static_cast<int>((geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42);
+        QColor water_finished_color(press_bg);
         for (int i = 0; i < waters.size(); i++)
         {
             Water water = waters.at(i);
-            QRect circle(water.point.x() - radius*water.progress/100,
-                        water.point.y() - radius*water.progress/100,
-                        radius*water.progress/50,
-                        radius*water.progress/50);
-            QPainterPath path;
-            path.addEllipse(circle);
-            painter.fillPath(path, QBrush(press_bg));
+            if (water.finished) // 渐变消失
+            {
+                water_finished_color.setAlpha(press_bg.alpha() * water.progress / 100);
+                QPainterPath path_back;
+                path_back.addRect(QRect(QPoint(0,0), size()));
+//                painter.setPen(water_finished_color);
+                painter.fillPath(path_back, QBrush(water_finished_color));
+            }
+            else // 圆形出现
+            {
+                QRect circle(water.point.x() - radius*water.progress/100,
+                            water.point.y() - radius*water.progress/100,
+                            radius*water.progress/50,
+                            radius*water.progress/50);
+                QPainterPath path;
+                path.addEllipse(circle);
+                painter.fillPath(path, QBrush(press_bg));
+            }
         }
     }
 
@@ -328,24 +340,37 @@ void InteractiveButtonBase::anchorTimeOut()
         for (int i = 0; i < waters.size(); i++)
         {
             Water& water = waters[i];
-            if (water.progress >= 100)
+            if (water.finished)
             {
-                if (water.release_timestamp)
+                water.progress = 100 - 100 * (timestamp-water.finish_timestamp) / water_finish_duration;
+                if (water.progress <= 0)
                     waters.removeAt(i--);
             }
-            else // 动画中的
+            else // 正在出现状态
             {
-                if (water.release_timestamp) // 鼠标已经松开了
+                if (water.progress >= 100)
                 {
-                    water.progress = 100 * (water.release_timestamp - water.press_timestamp) / water_press_duration
-                            + 100 * (timestamp - water.release_timestamp) / water_release_duration;
-                }
-                else // 鼠标一直按下
-                {
-                    water.progress = 100 * (timestamp - water.press_timestamp) / water_press_duration;
-                }
-                if (water.progress > 100)
                     water.progress = 100;
+                    if (water.release_timestamp) // 鼠标已经松开了
+                    {
+                        water.finished = true; // 准备结束
+                        water.finish_timestamp = timestamp;
+                    }
+                }
+                else // 动画中的
+                {
+                    if (water.release_timestamp) // 鼠标已经松开了
+                    {
+                        water.progress = 100 * (water.release_timestamp - water.press_timestamp) / water_press_duration
+                                + 100 * (timestamp - water.release_timestamp) / water_release_duration;
+                    }
+                    else // 鼠标一直按下
+                    {
+                        water.progress = 100 * (timestamp - water.press_timestamp) / water_press_duration;
+                    }
+                    if (water.progress > 100)
+                        water.progress = 100;
+                }
             }
         }
     }
