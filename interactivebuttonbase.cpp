@@ -10,7 +10,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       move_speed(5),
       icon_color(0, 0, 0),
       normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64),
-      hover_speed(10), press_start(40), press_speed(10),
+      hover_speed(5), press_start(40), press_speed(5),
       hover_progress(0), press_progress(0),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
@@ -20,7 +20,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
 
     anchor_timer = new QTimer(this);
-    anchor_timer->setInterval(20);
+    anchor_timer->setInterval(10);
     connect(anchor_timer, SIGNAL(timeout()), this, SLOT(anchorTimeOut()));
 
     setWaterRipple();
