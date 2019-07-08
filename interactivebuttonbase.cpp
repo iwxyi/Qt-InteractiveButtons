@@ -14,8 +14,8 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       hover_speed(10), press_start(40), press_speed(10),
       hover_progress(0), press_progress(0),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
-      jitter_animation(true), elastic_coefficient(1.5), jitter_duration(300),
-      water_animation(true), water_press_duration(600), water_release_duration(300), water_finish_duration(300),
+      jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
+      water_animation(true), water_press_duration(800), water_release_duration(400), water_finish_duration(300),
       _state(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
