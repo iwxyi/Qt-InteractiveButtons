@@ -95,11 +95,6 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
         release_pos = mapFromGlobal(QCursor::pos());
         release_timestamp = getTimestamp();
 
-        //if ((release_pos - press_pos).manhattanLength() < 2) // 单击
-        {
-            // slotClicked()
-        }
-
         // 添加抖动效果
         if (jitter_animation)
         {
@@ -340,7 +335,17 @@ void InteractiveButtonBase::anchorTimeOut()
             }
             else // 动画中的
             {
-                water.updateProgress(timestamp);
+                if (water.release_timestamp) // 鼠标已经松开了
+                {
+                    water.progress = 100 * (water.release_timestamp - water.press_timestamp) / water_press_duration
+                            + 100 * (timestamp - water.release_timestamp) / water_release_duration;
+                }
+                else // 鼠标一直按下
+                {
+                    water.progress = 100 * (timestamp - water.press_timestamp) / water_press_duration;
+                }
+                if (water.progress > 100)
+                    water.progress = 100;
             }
         }
     }
@@ -395,15 +400,6 @@ void InteractiveButtonBase::anchorTimeOut()
 
         anchor_pos.setX( anchor_pos.x() - quick_sqrt(delta_x) );
         anchor_pos.setY( anchor_pos.y() - quick_sqrt(delta_y) );
-        /*if (delta_x < 0) // 右移
-            anchor_pos.setX( anchor_pos.x() + moveSuitable(move_speed, -delta_x) );
-        else if (delta_x > 0) // 左移
-            anchor_pos.setX( anchor_pos.x() - moveSuitable(move_speed, delta_x) );
-
-        if (delta_y < 0) // 右移
-            anchor_pos.setY( anchor_pos.y() + moveSuitable(move_speed, -delta_y) );
-        else if (delta_y > 0) // 左移
-            anchor_pos.setY( anchor_pos.y() - moveSuitable(move_speed, delta_y) );*/
 
         offset_pos.setX(quick_sqrt(static_cast<long>(anchor_pos.x()-(geometry().width()>>1))));
         offset_pos.setY(quick_sqrt(static_cast<long>(anchor_pos.y()-(geometry().height()>>1))));
@@ -416,10 +412,6 @@ void InteractiveButtonBase::anchorTimeOut()
     }
 
     update();
-}
-
-void InteractiveButtonBase::Water::updateProgress(qint64 &timestamp) {
-
 }
 
 void InteractiveButtonBase::slotClicked()

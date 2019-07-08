@@ -27,7 +27,6 @@ public:
 
     struct Water {
         Water(QPoint p, qint64 t) : point(p), progress(0), press_timestamp(t), release_timestamp(0) {}
-        void updateProgress(qint64& timestamp);
         QPoint point;
         int progress;
         qint64 press_timestamp;
@@ -94,6 +93,5 @@ protected:
     bool _state; // 一个记录状态的变量，比如是否持续
 };
 
-void InteractiveButtonBase::Water::updateProgress(qint64 &timestamp);
 
 #endif // INTERACTIVEBUTTONBASE_H
