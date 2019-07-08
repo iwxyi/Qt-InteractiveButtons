@@ -366,7 +366,7 @@ void InteractiveButtonBase::anchorTimeOut()
         int del = getTimestamp()-cur.timestamp;
         int dur = aim.timestamp - cur.timestamp;
         effect_pos = cur.point + (aim.point-cur.point)*del/dur;
-        offset_pos = effect_pos-geometry().topLeft();
+        offset_pos = effect_pos- (geometry().center() - geometry().topLeft());
 
         if (del >= dur)
             jitters.removeFirst();

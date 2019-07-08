@@ -12,7 +12,7 @@ void WinMinButton::paintEvent(QPaintEvent* event)
 
     int w = geometry().width(), h = geometry().height();
     QPoint left(w/3, h/2), right(w*2/3, h/2),
-           mid(w/2-offset_pos.x(), h/2-offset_pos.y());
+           mid(w/2+offset_pos.x(), h/2+offset_pos.y());
 
     if (click_ani_appearing || click_ani_disappearing)
     {
