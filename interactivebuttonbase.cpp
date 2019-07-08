@@ -5,7 +5,6 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       offset_pos(0, 0), effect_pos(-1, -1), release_offset(0, 0),
       pressing(false), entering(false),
-      water_ripple(false), water_finished(false),
       hover_timestamp(0), press_timestamp(0), release_timestamp(0),
       hover_bg_duration(100), press_bg_duration(100), click_ani_duration(300),
       move_speed(5),

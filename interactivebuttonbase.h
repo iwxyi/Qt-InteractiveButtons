@@ -69,7 +69,6 @@ protected:
     QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos/*渐渐靠近鼠标*/;
     QPoint offset_pos, effect_pos, release_offset; // 相对中心、相对左上角、弹起时的平方根偏移
     bool pressing, entering; // 状态机
-    bool water_ripple, water_finished;
     qint64 hover_timestamp, press_timestamp, release_timestamp; // 各种事件的时间戳
     int hover_bg_duration, press_bg_duration, click_ani_duration; // 各种动画时长
 
