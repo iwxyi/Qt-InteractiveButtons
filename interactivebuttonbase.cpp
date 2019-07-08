@@ -14,6 +14,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       hover_speed(10), press_start(40), press_speed(10),
       hover_progress(0), press_progress(0),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
+      jitter_animation(true), elastic_coefficient(1.5), jitter_duration(300),
       _state(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
@@ -36,6 +37,11 @@ void InteractiveButtonBase::setWaterRipple(bool enable)
         press_speed >>= 1; // 水波纹模式需要减慢动画速度
     else
         press_speed <<= 1; // 恢复到原来的速度 */
+}
+
+void InteractiveButtonBase::setJitterAni(bool enable)
+{
+    jitter_animation = enable;
 }
 
 void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
@@ -89,9 +95,35 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
         release_pos = mapFromGlobal(QCursor::pos());
         release_timestamp = getTimestamp();
 
-        if ((release_pos - press_pos).manhattanLength() < 2) // 单击
+        //if ((release_pos - press_pos).manhattanLength() < 2) // 单击
         {
             // slotClicked()
+        }
+
+        // 添加抖动效果
+        if (jitter_animation)
+        {
+            jitters.clear();
+            QPoint center_pos = geometry().center()-geometry().topLeft();
+            int full_manh = (anchor_pos-center_pos).manhattanLength(); // 距离
+            if (full_manh > (geometry().topLeft() - geometry().bottomRight()).manhattanLength()) // 距离超过外接圆半径，开启抖动
+            {
+                QPoint jitter_pos(effect_pos);
+                full_manh = (jitter_pos-center_pos).manhattanLength();
+                int manh = full_manh;
+                int duration = jitter_duration;
+                qint64 timestamp = release_timestamp;
+                while (manh > elastic_coefficient)
+                {
+                    jitters << Jitter(jitter_pos, timestamp);
+                    jitter_pos = center_pos - (jitter_pos - center_pos) / elastic_coefficient;
+                    duration = jitter_duration * manh / full_manh;
+                    timestamp += duration;
+                    manh /= elastic_coefficient;
+                }
+                jitters << Jitter(center_pos, timestamp);
+                anchor_pos = mouse_pos = center_pos;
+            }
         }
     }
 
@@ -157,8 +189,8 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
 
     // 绘制鼠标位置
-//    painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10));
-//    painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4));
+//    painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10)); // 移动锚点
+//    painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4)); // 影响位置锚点
 
 //    return QPushButton::paintEvent(event); // 不绘制父类背景了
 }
@@ -325,13 +357,32 @@ void InteractiveButtonBase::anchorTimeOut()
     if (press_progress > 100) press_progress = 100;
     if (press_progress < 0) press_progress = 0;
 
-    // 锚点
-    if (anchor_pos != mouse_pos)
+    // 锚点移动
+    if (jitters.size() > 0) // 松开时的抖动效果
+    {
+        // 当前应该是处在最后一个点
+        Jitter cur = jitters.first();
+        Jitter aim = jitters.at(1);
+        int del = getTimestamp()-cur.timestamp;
+        int dur = aim.timestamp - cur.timestamp;
+        effect_pos = cur.point + (aim.point-cur.point)*del/dur;
+        offset_pos = effect_pos-geometry().topLeft();
+
+        if (del >= dur)
+            jitters.removeFirst();
+
+        // 抖动结束
+        if (jitters.size() == 1)
+            jitters.clear();
+    }
+    else if (anchor_pos != mouse_pos)
     {
         int delta_x = anchor_pos.x() - mouse_pos.x(),
             delta_y = anchor_pos.y() - mouse_pos.y();
 
-        if (delta_x < 0) // 右移
+        anchor_pos.setX( anchor_pos.x() - quick_sqrt(delta_x) );
+        anchor_pos.setY( anchor_pos.y() - quick_sqrt(delta_y) );
+        /*if (delta_x < 0) // 右移
             anchor_pos.setX( anchor_pos.x() + moveSuitable(move_speed, -delta_x) );
         else if (delta_x > 0) // 左移
             anchor_pos.setX( anchor_pos.x() - moveSuitable(move_speed, delta_x) );
@@ -339,7 +390,7 @@ void InteractiveButtonBase::anchorTimeOut()
         if (delta_y < 0) // 右移
             anchor_pos.setY( anchor_pos.y() + moveSuitable(move_speed, -delta_y) );
         else if (delta_y > 0) // 左移
-            anchor_pos.setY( anchor_pos.y() - moveSuitable(move_speed, delta_y) );
+            anchor_pos.setY( anchor_pos.y() - moveSuitable(move_speed, delta_y) );*/
 
         offset_pos.setX(quick_sqrt(static_cast<long>(anchor_pos.x()-(geometry().width()>>1))));
         offset_pos.setY(quick_sqrt(static_cast<long>(anchor_pos.y()-(geometry().height()>>1))));
@@ -360,4 +411,6 @@ void InteractiveButtonBase::slotClicked()
     click_ani_disappearing = false;
     click_ani_progress = 0;
     release_offset = offset_pos;
+
+    jitters.clear(); // 清除抖动
 }

@@ -16,7 +16,7 @@ void WinCloseButton::paintEvent(QPaintEvent *event)
     int l = w/3, t = h/3, r = w*2/3, b = h*2/3;
     int mx = w/2+offset_pos.x(), my = h/2+offset_pos.y();
 
-    if (click_ani_appearing)
+    if (click_ani_appearing || click_ani_disappearing)
     {
         double pro = click_ani_progress / 100.0;
         l -= l * pro;
