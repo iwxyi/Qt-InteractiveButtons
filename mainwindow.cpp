@@ -24,4 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
     close_btn->setGeometry(496, 10, 32, 32);
     close_btn->setBgColor(Qt::black, Qt::red);
 
+    WaterCircleButton* cir_btn = new WaterCircleButton(this);
+    cir_btn->setGeometry(528, 10, 32, 32);
+
 }

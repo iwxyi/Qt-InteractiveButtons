@@ -8,6 +8,7 @@
 #include "winrestorebutton.h"
 #include "winclosebutton.h"
 #include "winmenubutton.h"
+#include "watercirclebutton.h"
 
 class MainWindow : public QMainWindow
 {
