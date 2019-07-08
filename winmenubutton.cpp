@@ -21,7 +21,17 @@ void WinMenuButton::paintEvent(QPaintEvent *event)
         if (!getState())
             pro = 1 - pro;
 
-        int half_len = w/6;//quick_sqrt(w/3*w/3 + h/3*h/3) / 2; // 长度
+        int len = w/3;
+        int l = w/3, r = w*2/3, t = h/3 + pro*h/3;
+        painter.drawLine(QPoint(l,t), QPoint(r,t));
+
+        l = w/3+pro*w/24, r = w*2/3-pro*w/24, t = w/2+pro*h*5/18;
+        painter.drawLine(QPoint(l,t), QPoint(r,t));
+
+        l = w/3+pro*w/12, r = w*2/3-pro*w/12, t=w*2/3+pro*h*2/9;
+        painter.drawLine(QPoint(l,t), QPoint(r,t));
+
+        /*int half_len = w/6;//quick_sqrt(w/3*w/3 + h/3*h/3) / 2; // 长度
         painter.setRenderHint(QPainter::Antialiasing,true);
 
         // 第一个点
@@ -61,13 +71,16 @@ void WinMenuButton::paintEvent(QPaintEvent *event)
             color.setAlpha(color.alpha() * (1-pro));
             painter.setPen(QPen(color));
             painter.drawLine(QPoint(sx,sy), QPoint(ex,ey));
-        }
-
+        }*/
     }
     else if (getState())
     {
-        painter.drawLine(QPoint(0.39*w, 0.39*h), QPoint(0.61*w, 0.61*h));
-        painter.drawLine(QPoint(0.39*w, 0.61*h), QPoint(0.61*w, 0.39*h));
+        painter.drawLine(w/3,h*2/3, w*2/3,h*2/3);
+        painter.drawLine(w/3+w/24, h*7/9, w*2/3-w/24, h*7/9);
+        painter.drawLine(w/3+w/12, h*8/9, w*2/3-w/12, h*8/9);
+
+        /*painter.drawLine(QPoint(0.39*w, 0.39*h), QPoint(0.61*w, 0.61*h));
+        painter.drawLine(QPoint(0.39*w, 0.61*h), QPoint(0.61*w, 0.39*h));*/
     }
     else
     {
