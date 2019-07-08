@@ -25,6 +25,15 @@ public:
         qint64 timestamp;
     };
 
+    struct Water {
+        Water(QPoint p, qint64 t) : point(p), progress(0), press_timestamp(t), release_timestamp(0) {}
+        void updateProgress(qint64& timestamp);
+        QPoint point;
+        int progress;
+        qint64 press_timestamp;
+        qint64 release_timestamp;
+    };
+
     void setWaterRipple(bool enable = true);
     void setJitterAni(bool enable = true);
     void setBgColor(QColor hover, QColor press);
@@ -78,7 +87,13 @@ protected:
     QList<Jitter>jitters;
     int jitter_duration; // 抖动一次，多次效果叠加
 
+    bool water_animation; // 是否开启水波纹动画
+    QList<Water>waters;
+    int water_press_duration, water_release_duration;
+
     bool _state; // 一个记录状态的变量，比如是否持续
 };
+
+void InteractiveButtonBase::Water::updateProgress(qint64 &timestamp);
 
 #endif // INTERACTIVEBUTTONBASE_H

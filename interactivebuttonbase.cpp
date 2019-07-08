@@ -15,6 +15,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       hover_progress(0), press_progress(0),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
       jitter_animation(true), elastic_coefficient(1.5), jitter_duration(300),
+      water_animation(true), water_press_duration(600), water_release_duration(300),
       _state(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
@@ -30,13 +31,8 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
 
 void InteractiveButtonBase::setWaterRipple(bool enable)
 {
-    if (water_ripple == enable) return ;
-
-    water_ripple = enable;
-    /*if (water_ripple)
-        press_speed >>= 1; // 水波纹模式需要减慢动画速度
-    else
-        press_speed <<= 1; // 恢复到原来的速度 */
+    if (water_animation == enable) return ;
+    water_animation = enable;
 }
 
 void InteractiveButtonBase::setJitterAni(bool enable)
@@ -77,11 +73,15 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
         pressing = true;
         press_pos = mouse_pos;
         press_timestamp = getTimestamp();
-        if (water_ripple)
-            water_finished = false;
-        else
+        if (water_animation)
+        {
+            waters << Water(press_pos, press_timestamp);
+        }
+        else // 透明渐变
+        {
             if (press_progress < press_start)
-                press_progress = press_start;
+                press_progress = press_start; // 直接设置为按下效果初始值（避免按下反应慢）
+        }
     }
 
     return QPushButton::mousePressEvent(event);
@@ -125,6 +125,11 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
                 anchor_pos = mouse_pos = center_pos;
             }
         }
+
+        if (water_animation && waters.size())
+        {
+            waters.last().release_timestamp = release_timestamp;
+        }
     }
 
     return QPushButton::mouseReleaseEvent(event);
@@ -166,21 +171,22 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
         painter.fillPath(path_back, QBrush(bg_color));
     }
 
-    if (press_progress)
+    if (press_progress && !water_animation) // 淡化消失
     {
-        if (!water_ripple || water_finished) // 淡化消失：无水波纹，或者水波纹出现结束了
+        QColor bg_color = press_bg;
+        bg_color.setAlpha(press_bg.alpha() * press_progress / 100);
+        painter.fillPath(path_back, QBrush(bg_color));
+    }
+    else if (water_animation && waters.size()) // 水波纹，且至少有一个水波纹
+    {
+        int radius = static_cast<int>((geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42);
+        for (int i = 0; i < waters.size(); i++)
         {
-            QColor bg_color = press_bg;
-            bg_color.setAlpha(press_bg.alpha() * press_progress / 100);
-            painter.fillPath(path_back, QBrush(bg_color));
-        }
-        else // 水波纹出现
-        {
-            int radius = static_cast<int>((geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42);
-            QRect circle(press_pos.x() - radius*press_progress/100,
-                        press_pos.y() - radius*press_progress/100,
-                        radius*press_progress/50,
-                        radius*press_progress/50);
+            Water water = waters.at(i);
+            QRect circle(water.point.x() - radius*water.progress/100,
+                        water.point.y() - radius*water.progress/100,
+                        radius*water.progress/50,
+                        radius*water.progress/50);
             QPainterPath path;
             path.addEllipse(circle);
             painter.fillPath(path, QBrush(press_bg));
@@ -284,46 +290,58 @@ void InteractiveButtonBase::anchorTimeOut()
     // 背景色
     if (pressing) // 鼠标按下
     {
-        if (press_progress < 100)
+        if (press_progress < 100) // 透明渐变，且没有完成
         {
-            if (water_ripple) // 按下时水波纹速度减半
-                press_progress += press_speed>>1;
-            else
-                press_progress += press_speed;
+            press_progress += press_speed;
+            if (press_progress > 100)
+                press_progress = 100;
         }
     }
     else // 鼠标悬浮
     {
-        if (press_progress>0) // 如果按下的效果还在
+        if (press_progress>0 && !water_animation) // 如果按下的效果还在，变浅
         {
-            if (water_ripple) // 水波纹
-            {
-                if (!water_finished) // 按下的水波纹动画还没有结束
-                {
-                    press_progress += press_speed;
-                    if (press_progress >= 100)
-                        water_finished = true;
-                }
-                else
-                {
-                    press_progress -= press_speed;
-                }
-            }
-            else
-            {
-                press_progress -= press_speed;
-            }
+            press_progress -= press_speed;
+            if (press_progress < 0)
+                press_progress = 0;
         }
 
         if (entering) // 在框内：加深
         {
             if (hover_progress < 100)
+            {
                 hover_progress += hover_speed;
+                if (hover_progress > 100)
+                    hover_progress = 100;
+            }
         }
         else // 在框外：变浅
         {
             if (hover_progress > 0)
+            {
                 hover_progress -= hover_speed;
+                if (hover_progress < 0)
+                    hover_progress = 0;
+            }
+        }
+    }
+
+    // 按下背景水波纹动画
+    if (water_animation)
+    {
+        qint64 timestamp = getTimestamp();
+        for (int i = 0; i < waters.size(); i++)
+        {
+            Water& water = waters[i];
+            if (water.progress >= 100)
+            {
+                if (water.release_timestamp)
+                    waters.removeAt(i--);
+            }
+            else // 动画中的
+            {
+                water.updateProgress(timestamp);
+            }
         }
     }
 
@@ -351,11 +369,6 @@ void InteractiveButtonBase::anchorTimeOut()
             click_ani_disappearing = true;
         }
     }
-
-    if (hover_progress > 100) hover_progress = 100;
-    if (hover_progress < 0) hover_progress = 0;
-    if (press_progress > 100) press_progress = 100;
-    if (press_progress < 0) press_progress = 0;
 
     // 锚点移动
     if (jitters.size() > 0) // 松开时的抖动效果
@@ -397,12 +410,16 @@ void InteractiveButtonBase::anchorTimeOut()
         effect_pos.setX( (geometry().width() >>1) + offset_pos.x());
         effect_pos.setY( (geometry().height()>>1) + offset_pos.y());
     }
-    else if (!pressing && !entering && !hover_progress && !press_progress && !click_ani_appearing && !click_ani_disappearing)
+    else if (!pressing && !entering && !hover_progress && !press_progress && !click_ani_appearing && !click_ani_disappearing && !jitters.size() && !waters.size())
     {
         anchor_timer->stop();
     }
 
     update();
+}
+
+void InteractiveButtonBase::Water::updateProgress(qint64 &timestamp) {
+
 }
 
 void InteractiveButtonBase::slotClicked()
