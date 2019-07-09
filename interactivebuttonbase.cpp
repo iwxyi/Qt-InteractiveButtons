@@ -4,7 +4,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent),
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       offset_pos(0, 0), effect_pos(-1, -1), release_offset(0, 0),
-      pressing(false), entering(false),
+      pressing(false), hovering(false),
       hover_timestamp(0), press_timestamp(0), release_timestamp(0),
       hover_bg_duration(100), press_bg_duration(100), click_ani_duration(300),
       move_speed(5),
@@ -63,6 +63,28 @@ bool InteractiveButtonBase::getState()
     return _state;
 }
 
+void InteractiveButtonBase::enterEvent(QEvent *event)
+{
+    if (!anchor_timer->isActive())
+    {
+        anchor_timer->start();
+    }
+    hovering = true;
+    if (mouse_pos == QPoint(-1,-1))
+        mouse_pos = mapFromGlobal(QCursor::pos());
+
+    return QPushButton::enterEvent(event);
+}
+
+void InteractiveButtonBase::leaveEvent(QEvent *event)
+{
+    hovering = false;
+    if (!pressing)
+        mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
+
+    return QPushButton::leaveEvent(event);
+}
+
 void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
 {
     mouse_pos = mapFromGlobal(QCursor::pos());
@@ -97,27 +119,7 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
         // 添加抖动效果
         if (jitter_animation)
         {
-            jitters.clear();
-            QPoint center_pos = geometry().center()-geometry().topLeft();
-            int full_manh = (anchor_pos-center_pos).manhattanLength(); // 距离
-            if (full_manh > (geometry().topLeft() - geometry().bottomRight()).manhattanLength()) // 距离超过外接圆半径，开启抖动
-            {
-                QPoint jitter_pos(effect_pos);
-                full_manh = (jitter_pos-center_pos).manhattanLength();
-                int manh = full_manh;
-                int duration = jitter_duration;
-                qint64 timestamp = release_timestamp;
-                while (manh > elastic_coefficient)
-                {
-                    jitters << Jitter(jitter_pos, timestamp);
-                    jitter_pos = center_pos - (jitter_pos - center_pos) / elastic_coefficient;
-                    duration = jitter_duration * manh / full_manh;
-                    timestamp += duration;
-                    manh /= elastic_coefficient;
-                }
-                jitters << Jitter(center_pos, timestamp);
-                anchor_pos = mouse_pos = center_pos;
-            }
+            setJitter();
         }
 
         if (water_animation && waters.size())
@@ -138,7 +140,7 @@ void InteractiveButtonBase::mouseMoveEvent(QMouseEvent *event)
 
 void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
 {
-    if (!pressing && !entering)
+    if (!pressing && !hovering)
     {
         mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
         anchor_pos = mouse_pos;
@@ -156,7 +158,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     path_back.setFillRule(Qt::WindingFill);
     painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter.setRenderHint(QPainter::Antialiasing,true);
-    path_back.addRect(QRect(QPoint(0,0), size()));
+    setPainterPathGeometry(path_back);
 
     if (hover_progress)
     {
@@ -173,30 +175,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     }
     else if (water_animation && waters.size()) // 水波纹，且至少有一个水波纹
     {
-        int radius = static_cast<int>((geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42);
-        QColor water_finished_color(press_bg);
-        for (int i = 0; i < waters.size(); i++)
-        {
-            Water water = waters.at(i);
-            if (water.finished) // 渐变消失
-            {
-                water_finished_color.setAlpha(press_bg.alpha() * water.progress / 100);
-                QPainterPath path_back;
-                path_back.addRect(QRect(QPoint(0,0), size()));
-//                painter.setPen(water_finished_color);
-                painter.fillPath(path_back, QBrush(water_finished_color));
-            }
-            else // 圆形出现
-            {
-                QRect circle(water.point.x() - radius*water.progress/100,
-                            water.point.y() - radius*water.progress/100,
-                            radius*water.progress/50,
-                            radius*water.progress/50);
-                QPainterPath path;
-                path.addEllipse(circle);
-                painter.fillPath(path, QBrush(press_bg));
-            }
-        }
+        paintWaterRipple(painter);
     }
 
 
@@ -204,30 +183,65 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 //    painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10)); // 移动锚点
 //    painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4)); // 影响位置锚点
 
-//    return QPushButton::paintEvent(event); // 不绘制父类背景了
+    //    return QPushButton::paintEvent(event); // 不绘制父类背景了
 }
 
-void InteractiveButtonBase::enterEvent(QEvent *event)
+void InteractiveButtonBase::setPainterPathGeometry(QPainterPath &path)
 {
-    if (!anchor_timer->isActive())
+    path.addRect(QRect(0,0,size().width(),size().height()));
+}
+
+void InteractiveButtonBase::paintWaterRipple(QPainter& painter)
+{
+    int radius = static_cast<int>((geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42);
+    QColor water_finished_color(press_bg);
+    for (int i = 0; i < waters.size(); i++)
     {
-        anchor_timer->start();
+        Water water = waters.at(i);
+        if (water.finished) // 渐变消失
+        {
+            water_finished_color.setAlpha(press_bg.alpha() * water.progress / 100);
+            QPainterPath path_back;
+            path_back.addRect(QRect(QPoint(0,0), size()));
+//                painter.setPen(water_finished_color);
+            painter.fillPath(path_back, QBrush(water_finished_color));
+        }
+        else // 圆形出现
+        {
+            QRect circle(water.point.x() - radius*water.progress/100,
+                        water.point.y() - radius*water.progress/100,
+                        radius*water.progress/50,
+                        radius*water.progress/50);
+            QPainterPath path;
+            path.addEllipse(circle);
+            painter.fillPath(path, QBrush(press_bg));
+        }
     }
-    entering = true;
-    if (mouse_pos == QPoint(-1,-1))
-        mouse_pos = mapFromGlobal(QCursor::pos());
-
-    return QPushButton::enterEvent(event);
 }
 
-
-void InteractiveButtonBase::leaveEvent(QEvent *event)
+void InteractiveButtonBase::setJitter()
 {
-    entering = false;
-    if (!pressing)
-        mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
-
-    return QPushButton::leaveEvent(event);
+    jitters.clear();
+    QPoint center_pos = geometry().center()-geometry().topLeft();
+    int full_manh = (anchor_pos-center_pos).manhattanLength(); // 距离
+    if (full_manh > (geometry().topLeft() - geometry().bottomRight()).manhattanLength()) // 距离超过外接圆半径，开启抖动
+    {
+        QPoint jitter_pos(effect_pos);
+        full_manh = (jitter_pos-center_pos).manhattanLength();
+        int manh = full_manh;
+        int duration = jitter_duration;
+        qint64 timestamp = release_timestamp;
+        while (manh > elastic_coefficient)
+        {
+            jitters << Jitter(jitter_pos, timestamp);
+            jitter_pos = center_pos - (jitter_pos - center_pos) / elastic_coefficient;
+            duration = jitter_duration * manh / full_manh;
+            timestamp += duration;
+            manh /= elastic_coefficient;
+        }
+        jitters << Jitter(center_pos, timestamp);
+        anchor_pos = mouse_pos = center_pos;
+    }
 }
 
 int InteractiveButtonBase::quick_sqrt(long X) const
@@ -293,7 +307,7 @@ qint64 InteractiveButtonBase::getTimestamp() const
  */
 void InteractiveButtonBase::anchorTimeOut()
 {
-    // 背景色
+    // ==== 背景色 ====
     if (pressing) // 鼠标按下
     {
         if (press_progress < 100) // 透明渐变，且没有完成
@@ -312,7 +326,7 @@ void InteractiveButtonBase::anchorTimeOut()
                 press_progress = 0;
         }
 
-        if (entering) // 在框内：加深
+        if (hovering) // 在框内：加深
         {
             if (hover_progress < 100)
             {
@@ -332,7 +346,7 @@ void InteractiveButtonBase::anchorTimeOut()
         }
     }
 
-    // 按下背景水波纹动画
+    // ==== 按下背景水波纹动画 ====
     if (water_animation)
     {
         qint64 timestamp = getTimestamp();
@@ -374,7 +388,7 @@ void InteractiveButtonBase::anchorTimeOut()
         }
     }
 
-    // 按下动画
+    // ==== 按下动画 ====
     if (click_ani_disappearing) // 按下动画效果消失
     {
         qint64 delta = getTimestamp()-release_timestamp-click_ani_duration;
@@ -399,7 +413,7 @@ void InteractiveButtonBase::anchorTimeOut()
         }
     }
 
-    // 锚点移动
+    // ==== 锚点移动 ====
     if (jitters.size() > 0) // 松开时的抖动效果
     {
         // 当前应该是处在最后一个点
@@ -430,7 +444,7 @@ void InteractiveButtonBase::anchorTimeOut()
         effect_pos.setX( (geometry().width() >>1) + offset_pos.x());
         effect_pos.setY( (geometry().height()>>1) + offset_pos.y());
     }
-    else if (!pressing && !entering && !hover_progress && !press_progress && !click_ani_appearing && !click_ani_disappearing && !jitters.size() && !waters.size())
+    else if (!pressing && !hovering && !hover_progress && !press_progress && !click_ani_appearing && !click_ani_disappearing && !jitters.size() && !waters.size())
     {
         anchor_timer->stop();
     }

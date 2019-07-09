@@ -51,10 +51,14 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
-
     void paintEvent(QPaintEvent*) override;
 
 protected:
+    virtual void setPainterPathGeometry(QPainterPath& path);
+    virtual void paintWaterRipple(QPainter &painter);
+
+    void setJitter();
+
     int max(int a, int b) const;
     int min(int a, int b) const;
     int quick_sqrt(long X) const;
@@ -68,7 +72,7 @@ public slots:
 protected:
     QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos/*渐渐靠近鼠标*/;
     QPoint offset_pos, effect_pos, release_offset; // 相对中心、相对左上角、弹起时的平方根偏移
-    bool pressing, entering; // 状态机
+    bool pressing, hovering; // 状态机
     qint64 hover_timestamp, press_timestamp, release_timestamp; // 各种事件的时间戳
     int hover_bg_duration, press_bg_duration, click_ani_duration; // 各种动画时长
 
