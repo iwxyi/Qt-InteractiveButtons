@@ -19,8 +19,8 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
     void paintEvent(QPaintEvent*) override;
 
-    void setPainterPathGeometry(QPainterPath& path) override;
-    void paintWaterRipple(QPainter& painter) override;
+    QPainterPath getBgPainterPath() override;
+
 
 protected:
     QPoint center_pos;

@@ -54,9 +54,10 @@ protected:
     void paintEvent(QPaintEvent*) override;
 
 protected:
-    virtual void setPainterPathGeometry(QPainterPath& path);
-    virtual void paintWaterRipple(QPainter &painter);
+    virtual QPainterPath getBgPainterPath();
+    virtual QPainterPath getWaterPainterPath(Water water);
 
+    void paintWaterRipple(QPainter &painter);
     void setJitter();
 
     int max(int a, int b) const;
@@ -95,6 +96,7 @@ protected:
     bool water_animation; // 是否开启水波纹动画
     QList<Water>waters;
     int water_press_duration, water_release_duration, water_finish_duration;
+    int water_radius;
 
     bool _state; // 一个记录状态的变量，比如是否持续
 };

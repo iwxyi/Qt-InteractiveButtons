@@ -145,6 +145,7 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
         mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
         anchor_pos = mouse_pos;
     }
+    water_radius = static_cast<int>((geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42);
 
     return QPushButton::resizeEvent(event);
 }
@@ -154,11 +155,9 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     QPainter painter(this);
 
     // 绘制背景
-    QPainterPath path_back;
-    path_back.setFillRule(Qt::WindingFill);
+    QPainterPath path_back = getBgPainterPath();
     painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter.setRenderHint(QPainter::Antialiasing,true);
-    setPainterPathGeometry(path_back);
 
     if (hover_progress)
     {
@@ -186,14 +185,20 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     //    return QPushButton::paintEvent(event); // 不绘制父类背景了
 }
 
-void InteractiveButtonBase::setPainterPathGeometry(QPainterPath &path)
+QPainterPath InteractiveButtonBase::getBgPainterPath()
 {
+    QPainterPath path;
     path.addRect(QRect(0,0,size().width(),size().height()));
+    return path;
+}
+
+QPainterPath InteractiveButtonBase::getWaterPainterPath(InteractiveButtonBase::Water water)
+{
+
 }
 
 void InteractiveButtonBase::paintWaterRipple(QPainter& painter)
 {
-    int radius = static_cast<int>((geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42);
     QColor water_finished_color(press_bg);
     for (int i = 0; i < waters.size(); i++)
     {
@@ -201,17 +206,16 @@ void InteractiveButtonBase::paintWaterRipple(QPainter& painter)
         if (water.finished) // 渐变消失
         {
             water_finished_color.setAlpha(press_bg.alpha() * water.progress / 100);
-            QPainterPath path_back;
-            path_back.addRect(QRect(QPoint(0,0), size()));
+            QPainterPath path_back = getBgPainterPath();
 //                painter.setPen(water_finished_color);
             painter.fillPath(path_back, QBrush(water_finished_color));
         }
         else // 圆形出现
         {
-            QRect circle(water.point.x() - radius*water.progress/100,
-                        water.point.y() - radius*water.progress/100,
-                        radius*water.progress/50,
-                        radius*water.progress/50);
+            QRect circle(water.point.x() - water_radius*water.progress/100,
+                        water.point.y() - water_radius*water.progress/100,
+                        water_radius*water.progress/50,
+                        water_radius*water.progress/50);
             QPainterPath path;
             path.addEllipse(circle);
             painter.fillPath(path, QBrush(press_bg));
