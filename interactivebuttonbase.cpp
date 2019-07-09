@@ -194,7 +194,13 @@ QPainterPath InteractiveButtonBase::getBgPainterPath()
 
 QPainterPath InteractiveButtonBase::getWaterPainterPath(InteractiveButtonBase::Water water)
 {
-
+    QRect circle(water.point.x() - water_radius*water.progress/100,
+                water.point.y() - water_radius*water.progress/100,
+                water_radius*water.progress/50,
+                water_radius*water.progress/50);
+    QPainterPath path;
+    path.addEllipse(circle);
+    return path;
 }
 
 void InteractiveButtonBase::paintWaterRipple(QPainter& painter)
@@ -212,12 +218,7 @@ void InteractiveButtonBase::paintWaterRipple(QPainter& painter)
         }
         else // 圆形出现
         {
-            QRect circle(water.point.x() - water_radius*water.progress/100,
-                        water.point.y() - water_radius*water.progress/100,
-                        water_radius*water.progress/50,
-                        water_radius*water.progress/50);
-            QPainterPath path;
-            path.addEllipse(circle);
+            QPainterPath path = getWaterPainterPath(water);
             painter.fillPath(path, QBrush(press_bg));
         }
     }

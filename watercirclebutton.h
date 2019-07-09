@@ -20,6 +20,7 @@ protected:
     void paintEvent(QPaintEvent*) override;
 
     QPainterPath getBgPainterPath() override;
+    QPainterPath getWaterPainterPath(Water water) override;
 
 
 protected:

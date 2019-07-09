@@ -74,3 +74,10 @@ QPainterPath WaterCircleButton::getBgPainterPath()
     path.addEllipse(QRect(0,0,size().width(),size().height()));
     return path;
 }
+
+QPainterPath WaterCircleButton::getWaterPainterPath(InteractiveButtonBase::Water water)
+{
+    QPainterPath path;
+
+    return path;
+}
