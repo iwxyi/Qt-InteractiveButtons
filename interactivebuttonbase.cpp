@@ -1,7 +1,7 @@
 #include "interactivebuttonbase.h"
 
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
-    : QPushButton(parent),
+    : QPushButton(parent), icon(nullptr), text(""),
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       offset_pos(0, 0), effect_pos(-1, -1), release_offset(0, 0),
       pressing(false), hovering(false),
@@ -19,6 +19,8 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
 
+    model = PaintModel::None;
+
     anchor_timer = new QTimer(this);
     anchor_timer->setInterval(10);
     connect(anchor_timer, SIGNAL(timeout()), this, SLOT(anchorTimeOut()));
@@ -26,6 +28,29 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     setWaterRipple();
 
     connect(this, SIGNAL(clicked()), this, SLOT(slotClicked()));
+}
+
+InteractiveButtonBase::InteractiveButtonBase(QString text, QWidget *parent)
+    : InteractiveButtonBase(parent)
+{
+    this->text = text;
+    model = PaintModel::Text;
+}
+
+InteractiveButtonBase::InteractiveButtonBase(QIcon icon, QWidget *parent)
+    : InteractiveButtonBase(parent)
+{
+    this->icon = icon;
+    model = PaintModel::Icon;
+}
+
+InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
+    : InteractiveButtonBase(parent)
+{
+    QBitmap mask = pixmap.mask();
+    pixmap.fill(icon_color);
+    pixmap.setMask(mask);
+    model = PaintModel::Pixmap;
 }
 
 void InteractiveButtonBase::setWaterRipple(bool enable)
@@ -50,6 +75,14 @@ void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
 void InteractiveButtonBase::setIconColor(QColor color)
 {
     icon_color = color;
+
+    if (model == PaintModel::Pixmap)
+    {
+        QBitmap mask = pixmap.mask();
+        pixmap.fill(icon_color);
+        pixmap.setMask(mask);
+    }
+
     update();
 }
 

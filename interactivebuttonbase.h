@@ -10,6 +10,7 @@
 #include <QDebug>
 #include <QDateTime>
 #include <QList>
+#include <QBitmap>
 
 #define PI 3.1415926
 
@@ -18,6 +19,16 @@ class InteractiveButtonBase : public QPushButton
     Q_OBJECT
 public:
     InteractiveButtonBase(QWidget* parent = nullptr);
+    InteractiveButtonBase(QString text, QWidget* parent = nullptr);
+    InteractiveButtonBase(QIcon icon, QWidget* parent = nullptr);
+    InteractiveButtonBase(QPixmap pixmap, QWidget* parent = nullptr);
+
+    enum PaintModel {
+        None,
+        Text,
+        Icon,
+        Pixmap
+    };
 
     struct Jitter {
         Jitter(QPoint p, qint64 t) : point(p), timestamp(t) {}
@@ -71,6 +82,11 @@ public slots:
     virtual void slotClicked();
 
 protected:
+    PaintModel model;
+    QIcon icon;
+    QString text;
+    QPixmap pixmap;
+
     QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos/*渐渐靠近鼠标*/;
     QPoint offset_pos, effect_pos, release_offset; // 相对中心、相对左上角、弹起时的平方根偏移
     bool pressing, hovering; // 状态机

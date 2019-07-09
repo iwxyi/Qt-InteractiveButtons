@@ -27,4 +27,6 @@ MainWindow::MainWindow(QWidget *parent) :
     WaterCircleButton* cir_btn = new WaterCircleButton(this);
     cir_btn->setGeometry(528, 10, 32, 32);
 
+    InteractiveButtonBase* text_btn = new InteractiveButtonBase("text", this);
+    text_btn->setGeometry(100, 50, 32, 32);
 }
