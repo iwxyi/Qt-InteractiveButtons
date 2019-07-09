@@ -77,7 +77,6 @@ QPainterPath WaterCircleButton::getBgPainterPath()
 
 QPainterPath WaterCircleButton::getWaterPainterPath(InteractiveButtonBase::Water water)
 {
-    QPainterPath path;
-
+    QPainterPath path = InteractiveButtonBase::getWaterPainterPath(water) & getBgPainterPath();
     return path;
 }
