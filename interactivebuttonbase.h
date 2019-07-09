@@ -27,7 +27,9 @@ public:
         None,
         Text,
         Icon,
-        Pixmap
+        Pixmap,
+        IconText,
+        PixmapText
     };
 
     struct Jitter {

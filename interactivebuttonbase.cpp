@@ -192,14 +192,14 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter.setRenderHint(QPainter::Antialiasing,true);
 
-    if (hover_progress)
+    if (hover_progress) // 悬浮背景
     {
         QColor bg_color = hover_bg;
         bg_color.setAlpha(hover_bg.alpha() * hover_progress / 100);
         painter.fillPath(path_back, QBrush(bg_color));
     }
 
-    if (press_progress && !water_animation) // 淡化消失
+    if (press_progress && !water_animation) // 按下渐变淡化消失
     {
         QColor bg_color = press_bg;
         bg_color.setAlpha(press_bg.alpha() * press_progress / 100);
@@ -208,6 +208,22 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     else if (water_animation && waters.size()) // 水波纹，且至少有一个水波纹
     {
         paintWaterRipple(painter);
+    }
+
+    // 绘制显示元素
+    if (model == None)
+    {}
+    else if (model == Text)
+    {
+
+    }
+    else if (model == Icon)
+    {
+
+    }
+    else if (model == Pixmap)
+    {
+
     }
 
 
