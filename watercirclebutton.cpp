@@ -38,7 +38,16 @@ void WaterCircleButton::mousePressEvent(QMouseEvent *event)
 void WaterCircleButton::mouseReleaseEvent(QMouseEvent *event)
 {
     if (pressing)
-        return InteractiveButtonBase::mouseReleaseEvent(event);
+    {
+        InteractiveButtonBase::mouseReleaseEvent(event);
+
+        int manh = (event->pos() - center_pos).manhattanLength();
+        if (manh > radius && !pressing) // 鼠标移出
+        {
+            in_circle = false;
+            InteractiveButtonBase::leaveEvent(nullptr);
+        }
+    }
 }
 
 void WaterCircleButton::mouseMoveEvent(QMouseEvent *event)
@@ -55,7 +64,7 @@ void WaterCircleButton::mouseMoveEvent(QMouseEvent *event)
     }
     else if (in_circle)
     {
-        if (manh > radius) // 鼠标移出
+        if (manh > radius && !pressing) // 鼠标移出
         {
             in_circle = false;
             InteractiveButtonBase::leaveEvent(nullptr);
