@@ -217,26 +217,36 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
     painter.setPen(icon_color);
     if (model == None)
-    {}
+    {
+        // 子类自己的绘制内容
+    }
     else if (model == Text)
     {
-        // 绘制文字： https://blog.csdn.net/temetnosce/article/details/78068464
+        // 绘制文字教程： https://blog.csdn.net/temetnosce/article/details/78068464
         painter.drawText(QRect(QPoint(0,0), size()), Qt::AlignCenter, text);
     }
-    else if (model == Icon)
+    else // 绘制图标
     {
-        QRect rect(icon_paddings.left, icon_paddings.top,
-                   size().width()-icon_paddings.left-icon_paddings.right,
+
+        QRect rect(icon_paddings.left+offset_pos.x(), icon_paddings.top+offset_pos.y(),
+                   (size().width()-icon_paddings.left-icon_paddings.right),
                    size().height()-icon_paddings.top-icon_paddings.bottom);
-        icon.paint(&painter, rect, Qt::AlignCenter);
-    }
-    else if (model == PixmapMask)
-    {
-        painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
-        QRect rect(icon_paddings.left, icon_paddings.top,
-                   size().width()-icon_paddings.left-icon_paddings.right,
-                   size().height()-icon_paddings.top-icon_paddings.bottom);
-        painter.drawPixmap(rect, pixmap);
+        if (click_ani_progress != 0)
+        {
+            int delta_x = rect.width() * click_ani_progress / 400;
+            int delta_y = rect.height() * click_ani_progress / 400;
+            rect = QRect(rect.left()+delta_x, rect.top()+delta_y,
+                        rect.width()-delta_x*2, rect.height()-delta_y*2);
+        }
+        if (model == Icon)
+        {
+            icon.paint(&painter, rect, Qt::AlignCenter);
+        }
+        else if (model == PixmapMask)
+        {
+            painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
+            painter.drawPixmap(rect, pixmap);
+        }
     }
 
 
