@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file alias="point_menu">resources/icons/point_menu.png</file>
+    </qresource>
+</RCC>
