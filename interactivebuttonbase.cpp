@@ -48,9 +48,11 @@ InteractiveButtonBase::InteractiveButtonBase(QIcon icon, QWidget *parent)
 InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
+//    pixmap.save("pixmap.png");
     QBitmap mask = pixmap.mask();
     pixmap.fill(icon_color);
     pixmap.setMask(mask);
+    this->pixmap = pixmap;
     model = PaintModel::PixmapMask;
 }
 
@@ -181,7 +183,7 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
     }
     water_radius = static_cast<int>(max(geometry().width(), geometry().height()) * 1.42); // 长边
     int short_side = min(geometry().width(), geometry().height()); // 短边
-    int padding = static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
+    int padding = short_side/4;//static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
     icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
 
     return QPushButton::resizeEvent(event);
@@ -193,7 +195,6 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
     // 绘制背景
     QPainterPath path_back = getBgPainterPath();
-    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter.setRenderHint(QPainter::Antialiasing,true);
 
     if (hover_progress) // 悬浮背景
@@ -219,6 +220,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     {}
     else if (model == Text)
     {
+        // 绘制文字： https://blog.csdn.net/temetnosce/article/details/78068464
         painter.drawText(QRect(QPoint(0,0), size()), Qt::AlignCenter, text);
     }
     else if (model == Icon)
@@ -230,6 +232,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     }
     else if (model == PixmapMask)
     {
+        painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
         QRect rect(icon_paddings.left, icon_paddings.top,
                    size().width()-icon_paddings.left-icon_paddings.right,
                    size().height()-icon_paddings.top-icon_paddings.bottom);

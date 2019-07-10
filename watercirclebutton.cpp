@@ -7,6 +7,18 @@ WaterCircleButton::WaterCircleButton(QWidget* parent)
     setStyleSheet(style);
 }
 
+WaterCircleButton::WaterCircleButton(QIcon icon, QWidget *parent)
+    : InteractiveButtonBase (icon, parent)
+{
+
+}
+
+WaterCircleButton::WaterCircleButton(QPixmap pixmap, QWidget *parent)
+    : InteractiveButtonBase (pixmap, parent)
+{
+
+}
+
 void WaterCircleButton::enterEvent(QEvent *event)
 {
 

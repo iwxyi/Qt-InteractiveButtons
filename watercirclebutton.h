@@ -9,6 +9,8 @@ class WaterCircleButton : public InteractiveButtonBase
 {
 public:
     WaterCircleButton(QWidget* parent = nullptr);
+    WaterCircleButton(QIcon icon, QWidget* parent = nullptr);
+    WaterCircleButton(QPixmap pixmap, QWidget* parent = nullptr);
 
 protected:
     void enterEvent(QEvent* event) override;

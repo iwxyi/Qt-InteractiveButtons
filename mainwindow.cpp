@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     InteractiveButtonBase* text_btn = new InteractiveButtonBase("text", this);
     text_btn->setGeometry(100, 50, 100, 32);
 
-    InteractiveButtonBase* icon_btn = new InteractiveButtonBase(QIcon(":/icons/point_menu"), this);
+    InteractiveButtonBase* icon_btn = new WaterCircleButton(QIcon(":/icons/point_menu"), this);
     icon_btn->setGeometry(200, 50, 32, 32);
 
     InteractiveButtonBase* pixmap_btn = new InteractiveButtonBase(QPixmap(":/icons/point_menu"), this);
