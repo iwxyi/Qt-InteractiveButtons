@@ -210,12 +210,12 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
         paintWaterRipple(painter);
     }
 
-    // 绘制显示元素
+    painter.setPen(icon_color);
     if (model == None)
     {}
     else if (model == Text)
     {
-
+        painter.drawText(QRect(QPoint(0,0), size()), Qt::AlignCenter, text);
     }
     else if (model == Icon)
     {

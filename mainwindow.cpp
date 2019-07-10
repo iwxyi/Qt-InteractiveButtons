@@ -28,5 +28,5 @@ MainWindow::MainWindow(QWidget *parent) :
     cir_btn->setGeometry(528, 10, 32, 32);
 
     InteractiveButtonBase* text_btn = new InteractiveButtonBase("text", this);
-    text_btn->setGeometry(100, 50, 32, 32);
+    text_btn->setGeometry(0, 50, 100, 32);
 }
