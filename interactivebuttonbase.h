@@ -13,6 +13,7 @@
 #include <QBitmap>
 
 #define PI 3.1415926
+#define GOLDEN_RATIO 0.618
 
 class InteractiveButtonBase : public QPushButton
 {
@@ -27,7 +28,7 @@ public:
         None,
         Text,
         Icon,
-        Pixmap,
+        PixmapMask,
         IconText,
         PixmapText
     };
@@ -47,6 +48,11 @@ public:
         qint64 release_timestamp;
         qint64 finish_timestamp;
         bool finished;
+    };
+
+    struct EdgeVal {
+        EdgeVal(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
+        int left, top, right, bottom;
     };
 
     void setWaterRipple(bool enable = true);
@@ -88,6 +94,7 @@ protected:
     QIcon icon;
     QString text;
     QPixmap pixmap;
+    EdgeVal icon_paddings;
 
     QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos/*渐渐靠近鼠标*/;
     QPoint offset_pos, effect_pos, release_offset; // 相对中心、相对左上角、弹起时的平方根偏移

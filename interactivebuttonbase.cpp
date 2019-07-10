@@ -2,6 +2,7 @@
 
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent), icon(nullptr), text(""),
+      icon_paddings(4,4,4,4),
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       offset_pos(0, 0), effect_pos(-1, -1), release_offset(0, 0),
       pressing(false), hovering(false),
@@ -50,7 +51,7 @@ InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
     QBitmap mask = pixmap.mask();
     pixmap.fill(icon_color);
     pixmap.setMask(mask);
-    model = PaintModel::Pixmap;
+    model = PaintModel::PixmapMask;
 }
 
 void InteractiveButtonBase::setWaterRipple(bool enable)
@@ -76,7 +77,7 @@ void InteractiveButtonBase::setIconColor(QColor color)
 {
     icon_color = color;
 
-    if (model == PaintModel::Pixmap)
+    if (model == PaintModel::PixmapMask)
     {
         QBitmap mask = pixmap.mask();
         pixmap.fill(icon_color);
@@ -178,7 +179,10 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
         mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
         anchor_pos = mouse_pos;
     }
-    water_radius = static_cast<int>((geometry().width() > geometry().height() ? geometry().width() : geometry().height()) * 1.42);
+    water_radius = static_cast<int>(max(geometry().width(), geometry().height()) * 1.42); // 长边
+    int short_side = min(geometry().width(), geometry().height()); // 短边
+    int padding = static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
+    icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
 
     return QPushButton::resizeEvent(event);
 }
@@ -219,11 +223,17 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     }
     else if (model == Icon)
     {
-
+        QRect rect(icon_paddings.left, icon_paddings.top,
+                   size().width()-icon_paddings.left-icon_paddings.right,
+                   size().height()-icon_paddings.top-icon_paddings.bottom);
+        icon.paint(&painter, rect, Qt::AlignCenter);
     }
-    else if (model == Pixmap)
+    else if (model == PixmapMask)
     {
-
+        QRect rect(icon_paddings.left, icon_paddings.top,
+                   size().width()-icon_paddings.left-icon_paddings.right,
+                   size().height()-icon_paddings.top-icon_paddings.bottom);
+        painter.drawPixmap(rect, pixmap);
     }
 
 
