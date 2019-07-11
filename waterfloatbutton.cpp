@@ -82,25 +82,53 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
     QPainter painter(this);
 //    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter.setRenderHint(QPainter::Antialiasing,true);
+
     QPainterPath path = getBgPainterPath();
+    QColor edge_color = hover_bg;
+    int pro = 0;
+    if (hover_progress > 0 || press_progress || waters.size())
+    {
+        if (water_animation)
+        {
+            /** 不用判断 water 是出现还是消失状态
+              * 如果一直悬浮的话，颜色不会变
+              * 而如果是点一下立马移开，文字会出现一种“渐隐渐现”的效果
+              */
+            if (waters.size())
+                pro = max(hover_progress, waters.last().progress);
+            else
+                pro = hover_progress;
+        }
+        else
+        {
+            max(hover_progress, press_progress);
+        }
+        edge_color.setAlpha(255 * (100 - pro) / 100);
+    }
     painter.setPen(hover_bg);
     painter.drawPath(path);
 
     if (!string.isEmpty())
     {
         QRect rect = QRect(QPoint(0,0), size());
-        if (hover_progress > 0)
+        QColor color;
+        if (pro)
         {
             QColor aim_color = isLightColor(hover_bg) ? QColor(0,0,0) : QColor(255,255,255);
-            QColor color(
-                        hover_bg.red() + (aim_color.red()-hover_bg.red()) * hover_progress / 100,
-                        hover_bg.green() + (aim_color.green()-hover_bg.green()) * hover_progress / 100,
-                        hover_bg.blue() + (aim_color.blue()-hover_bg.blue()) * hover_progress / 100
+            color = QColor(
+                        hover_bg.red() + (aim_color.red()-hover_bg.red()) * pro / 100,
+                        hover_bg.green() + (aim_color.green()-hover_bg.green()) * pro / 100,
+                        hover_bg.blue() + (aim_color.blue()-hover_bg.blue()) * pro / 100,
+                        255
                         );
             painter.setPen(color);
         }
         else
-            painter.setPen(hover_bg);
+        {
+            color = hover_bg;
+            color.setAlpha(255);
+        }
+        painter.setPen(color);
         painter.drawText(rect, Qt::AlignCenter, string);
     }
 }
