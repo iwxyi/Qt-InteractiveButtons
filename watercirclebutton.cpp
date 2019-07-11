@@ -1,20 +1,16 @@
 #include "watercirclebutton.h"
 
-WaterCircleButton::WaterCircleButton(QWidget* parent)
-    : InteractiveButtonBase (parent), in_circle(false), radius(16)
-{
-    QString style = "border: 1px #888888; border-radius:3px";
-    setStyleSheet(style);
-}
-
-WaterCircleButton::WaterCircleButton(QIcon icon, QWidget *parent)
-    : InteractiveButtonBase (icon, parent)
+WaterCircleButton::WaterCircleButton(QWidget* parent) : InteractiveButtonBase (parent), in_circle(false), radius(16)
 {
 
 }
 
-WaterCircleButton::WaterCircleButton(QPixmap pixmap, QWidget *parent)
-    : InteractiveButtonBase (pixmap, parent)
+WaterCircleButton::WaterCircleButton(QIcon icon, QWidget *parent) : InteractiveButtonBase (icon, parent), in_circle(false), radius(16)
+{
+
+}
+
+WaterCircleButton::WaterCircleButton(QPixmap pixmap, QWidget *parent) : InteractiveButtonBase (pixmap, parent), in_circle(false), radius(16)
 {
 
 }
@@ -41,8 +37,7 @@ void WaterCircleButton::mouseReleaseEvent(QMouseEvent *event)
     {
         InteractiveButtonBase::mouseReleaseEvent(event);
 
-        int manh = (event->pos() - center_pos).manhattanLength();
-        if (manh > radius && !pressing) // 鼠标移出
+        if (!inArea(event->pos()) && !pressing) // 鼠标移出
         {
             in_circle = false;
             InteractiveButtonBase::leaveEvent(nullptr);
@@ -52,23 +47,17 @@ void WaterCircleButton::mouseReleaseEvent(QMouseEvent *event)
 
 void WaterCircleButton::mouseMoveEvent(QMouseEvent *event)
 {
-    int manh = (event->pos() - center_pos).manhattanLength();
+    bool is_in = inArea(event->pos());
 
-    if (!in_circle)
+    if (is_in && !in_circle)// 鼠标移入
     {
-        if (manh <= radius) // 鼠标移入
-        {
-            in_circle = true;
-            InteractiveButtonBase::enterEvent(nullptr);
-        }
+        in_circle = true;
+        InteractiveButtonBase::enterEvent(nullptr);
     }
-    else if (in_circle)
+    else if (!is_in && in_circle && !pressing) // 鼠标移出
     {
-        if (manh > radius && !pressing) // 鼠标移出
-        {
-            in_circle = false;
-            InteractiveButtonBase::leaveEvent(nullptr);
-        }
+        in_circle = false;
+        InteractiveButtonBase::leaveEvent(nullptr);
     }
 
     if (in_circle)
@@ -99,4 +88,10 @@ QPainterPath WaterCircleButton::getWaterPainterPath(InteractiveButtonBase::Water
 {
     QPainterPath path = InteractiveButtonBase::getWaterPainterPath(water) & getBgPainterPath();
     return path;
+}
+
+bool WaterCircleButton::inArea(QPoint point)
+{
+    int manh = (point - center_pos).manhattanLength();
+    return manh <= radius;
 }

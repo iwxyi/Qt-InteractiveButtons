@@ -125,13 +125,13 @@ void InteractiveButtonBase::showForeground()
     show_ani_appearing = true;
     show_timestamp = getTimestamp();
     show_foreground = true;
-
     show_ani_point = QPoint(0,0);
 }
 
 void InteractiveButtonBase::showForeground2()
 {
-    showForeground(mapFromGlobal(QCursor::pos()));
+    showForeground();
+    show_ani_point = mapFromGlobal(QCursor::pos());
 }
 
 void InteractiveButtonBase::hideForeground()
@@ -280,6 +280,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
                    (size().width()-icon_paddings.left-icon_paddings.right),
                    size().height()-icon_paddings.top-icon_paddings.bottom);
 
+        // 另一种出现动画
         if ((show_ani_appearing || show_ani_disappearing) && show_ani_point != QPoint( 0, 0 ))
         {
             int w = size().width(), h = size().height();
@@ -317,6 +318,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
                 );
 
         }
+        // 默认的缩放动画
         else
         {
             int delta_x = 0, delta_y = 0;
@@ -590,10 +592,10 @@ void InteractiveButtonBase::anchorTimeOut()
     // ==== 出现动画 ====
     if (show_animation)
     {
-        if (show_ani_appearing)
+        if (show_ani_appearing) // 出现
         {
             qint64 delta = getTimestamp() - show_timestamp;
-            if (show_ani_progress >= 100)
+            if (show_ani_progress >= 100) // 出现结束
             {
                 show_ani_appearing = false;
             }
@@ -604,13 +606,14 @@ void InteractiveButtonBase::anchorTimeOut()
                     show_ani_progress = 100;
             }
         }
-        if (show_ani_disappearing)
+        if (show_ani_disappearing) // 消失
         {
             qint64 delta = getTimestamp() - hide_timestamp;
-            if (show_ani_progress <= 0)
+            if (show_ani_progress <= 0) // 消失结束
             {
                 show_ani_disappearing = false;
                 show_foreground = false;
+                show_ani_point = QPoint(0,0);
             }
             else
             {

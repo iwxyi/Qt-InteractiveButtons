@@ -1,16 +1,13 @@
-#ifndef WATERCIRCLEBUTTON_H
-#define WATERCIRCLEBUTTON_H
+#ifndef WATERFLOATBUTTON_H
+#define WATERFLOATBUTTON_H
 
-#include <QObject>
-#include <QWidget>
 #include "interactivebuttonbase.h"
 
-class WaterCircleButton : public InteractiveButtonBase
+class WaterFloatButton : public InteractiveButtonBase
 {
 public:
-    WaterCircleButton(QWidget* parent = nullptr);
-    WaterCircleButton(QIcon icon, QWidget* parent = nullptr);
-    WaterCircleButton(QPixmap pixmap, QWidget* parent = nullptr);
+    WaterFloatButton(QWidget* parent = nullptr);
+    WaterFloatButton(QString text, QWidget* parent = nullptr);
 
 protected:
     void enterEvent(QEvent* event) override;
@@ -19,7 +16,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
-    void paintEvent(QPaintEvent*) override;
+    void paintEvent(QPaintEvent *event) override;
 
     QPainterPath getBgPainterPath() override;
     QPainterPath getWaterPainterPath(Water water) override;
@@ -28,8 +25,9 @@ protected:
 
 protected:
     QPoint center_pos;
-    bool in_circle;
+    bool in_area;
+    int mwidth;
     int radius;
 };
 
-#endif // WATERCIRCLEBUTTON_H
+#endif // WATERFLOATBUTTON_H
