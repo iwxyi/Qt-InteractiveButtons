@@ -253,6 +253,7 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
 
 void InteractiveButtonBase::focusOutEvent(QFocusEvent *event)
 {
+    hovering = true;
     if (pressing)
     {
         pressing = false;
@@ -263,9 +264,6 @@ void InteractiveButtonBase::focusOutEvent(QFocusEvent *event)
         {
             waters.last().release_timestamp = release_timestamp;
         }
-
-        anchorTimeOut();
-        update();
     }
 }
 

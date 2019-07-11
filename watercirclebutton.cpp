@@ -84,7 +84,9 @@ void WaterCircleButton::paintEvent(QPaintEvent *event)
 QPainterPath WaterCircleButton::getBgPainterPath()
 {
     QPainterPath path;
-    path.addEllipse(QRect(0,0,size().width(),size().height()));
+    int w = size().width(), h = size().height();
+    QRect rect(w/2-radius, h/2-radius, radius*2, radius*2);
+    path.addEllipse(rect);
     return path;
 }
 
