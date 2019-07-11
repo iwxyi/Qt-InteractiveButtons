@@ -22,7 +22,11 @@ void WaterCircleButton::enterEvent(QEvent *event)
 
 void WaterCircleButton::leaveEvent(QEvent *event)
 {
-
+    if (in_circle && !pressing && !inArea(mapFromGlobal(QCursor::pos())))
+    {
+        in_circle = false;
+        InteractiveButtonBase::leaveEvent(event);
+    }
 }
 
 void WaterCircleButton::mousePressEvent(QMouseEvent *event)

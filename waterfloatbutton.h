@@ -28,6 +28,8 @@ protected:
     bool in_area;
     int mwidth;
     int radius;
+
+    QString string;
 };
 
 #endif // WATERFLOATBUTTON_H

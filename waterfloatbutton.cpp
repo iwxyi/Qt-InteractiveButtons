@@ -5,7 +5,7 @@ WaterFloatButton::WaterFloatButton(QWidget *parent) : InteractiveButtonBase(pare
 
 }
 
-WaterFloatButton::WaterFloatButton(QString text, QWidget *parent) : InteractiveButtonBase(text, parent), in_area(false), mwidth(16), radius(8)
+WaterFloatButton::WaterFloatButton(QString text, QWidget *parent) : InteractiveButtonBase(text, parent), in_area(false), mwidth(16), radius(8), string(text)
 {
 
 }
@@ -17,7 +17,11 @@ void WaterFloatButton::enterEvent(QEvent *event)
 
 void WaterFloatButton::leaveEvent(QEvent *event)
 {
-
+    if (in_area && !pressing && !inArea(mapFromGlobal(QCursor::pos())))
+    {
+        in_area = false;
+        InteractiveButtonBase::leaveEvent(event);
+    }
 }
 
 void WaterFloatButton::mousePressEvent(QMouseEvent *event)
@@ -43,6 +47,7 @@ void WaterFloatButton::mouseReleaseEvent(QMouseEvent *event)
 void WaterFloatButton::mouseMoveEvent(QMouseEvent *event)
 {
     bool is_in = inArea(event->pos());
+
     if (!in_area && is_in) // 鼠标移入
     {
         in_area = true;
@@ -72,6 +77,8 @@ void WaterFloatButton::resizeEvent(QResizeEvent *event)
 
 void WaterFloatButton::paintEvent(QPaintEvent *event)
 {
+
+
     return InteractiveButtonBase::paintEvent(event);
 }
 
