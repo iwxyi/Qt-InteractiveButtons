@@ -125,12 +125,13 @@ void InteractiveButtonBase::showForeground()
     show_ani_appearing = true;
     show_timestamp = getTimestamp();
     show_foreground = true;
+
+    show_ani_point = QPoint(0,0);
 }
 
-void InteractiveButtonBase::showForeground(QPoint point)
+void InteractiveButtonBase::showForeground2()
 {
-    showForeground();
-
+    showForeground(mapFromGlobal(QCursor::pos()));
 }
 
 void InteractiveButtonBase::hideForeground()
@@ -279,33 +280,73 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
                    (size().width()-icon_paddings.left-icon_paddings.right),
                    size().height()-icon_paddings.top-icon_paddings.bottom);
 
-        int delta_x = 0, delta_y = 0;
-        if (click_ani_progress != 0) // 图标缩放
+        if ((show_ani_appearing || show_ani_disappearing) && show_ani_point != QPoint( 0, 0 ))
         {
-            delta_x = rect.width() * click_ani_progress / 400;
-            delta_y = rect.height() * click_ani_progress / 400;
-        }
-        else if (show_ani_appearing)
-        {
+            int w = size().width(), h = size().height();
             int pro; // 将动画进度转换为回弹动画进度
-            if (show_ani_progress <= 50)
-                pro = show_ani_progress * 2;
-            else if (show_ani_progress <= 75)
-                pro = (show_ani_progress-50)/2 + 100;
+            if (show_ani_appearing)
+            {
+                if (show_ani_progress <= 50)
+                    pro = show_ani_progress * 2;
+                else if (show_ani_progress <= 75)
+                    pro = (show_ani_progress-50)/2 + 100;
+                else
+                    pro = 100 + (100-show_ani_progress)/2;
+            }
             else
-                pro = 100 + (100-show_ani_progress)/2;
+            {
+                pro = show_ani_progress;
+            }
 
-            delta_x = rect.width() * (100-pro) / 100;
-            delta_y = rect.height() * (100-pro) / 100;
+            // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
+            int x = show_ani_point.x(), y = show_ani_point.y();
+
+//            double sita = (x == 0? PI/2 : atan(y/x)) + PI; // 翻转180°
+//            x = cos(sita) * water_radius / 2 ;
+//            y = sin(sita) * water_radius / 2;
+
+            int gen = quick_sqrt(x*x + y*y);
+            x = water_radius * x / gen;
+            y = water_radius * y / gen;
+
+            rect = QRect(
+                rect.left() - x * (100-pro) / 100 + rect.width() * (100-pro) / 100,
+                rect.top() - y * (100-pro) / 100 + rect.height() * (100-pro) / 100,
+                rect.width() * pro / 100,
+                rect.height() * pro / 100
+                );
+
         }
-        else if (show_ani_disappearing)
+        else
         {
-            delta_x = rect.width() * (100-show_ani_progress) / 100;
-            delta_y = rect.height() * (100-show_ani_progress) / 100;
+            int delta_x = 0, delta_y = 0;
+            if (click_ani_progress != 0) // 图标缩放
+            {
+                delta_x = rect.width() * click_ani_progress / 400;
+                delta_y = rect.height() * click_ani_progress / 400;
+            }
+            else if (show_ani_appearing)
+            {
+                int pro; // 将动画进度转换为回弹动画进度
+                if (show_ani_progress <= 50)
+                    pro = show_ani_progress * 2;
+                else if (show_ani_progress <= 75)
+                    pro = (show_ani_progress-50)/2 + 100;
+                else
+                    pro = 100 + (100-show_ani_progress)/2;
+
+                delta_x = rect.width() * (100-pro) / 100;
+                delta_y = rect.height() * (100-pro) / 100;
+            }
+            else if (show_ani_disappearing)
+            {
+                delta_x = rect.width() * (100-show_ani_progress) / 100;
+                delta_y = rect.height() * (100-show_ani_progress) / 100;
+            }
+            if (delta_x || delta_y)
+                rect = QRect(rect.left()+delta_x, rect.top()+delta_y,
+                            rect.width()-delta_x*2, rect.height()-delta_y*2);
         }
-        if (delta_x || delta_y)
-            rect = QRect(rect.left()+delta_x, rect.top()+delta_y,
-                        rect.width()-delta_x*2, rect.height()-delta_y*2);
 
         if (model == None)
         {

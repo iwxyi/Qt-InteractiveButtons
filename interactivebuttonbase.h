@@ -62,7 +62,7 @@ public:
 
     void setShowAni(bool enable = true);
     void showForeground();
-    void showForeground(QPoint point);
+    void showForeground2();
     void hideForeground();
 
     void setState(bool s = true);

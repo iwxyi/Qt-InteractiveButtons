@@ -41,7 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
 void MainWindow::enterEvent(QEvent *event)
 {
-    icon_btn->showForeground();
+    icon_btn->showForeground2();
 
     return QMainWindow::enterEvent(event);
 }
