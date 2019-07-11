@@ -89,6 +89,7 @@ protected:
     int quick_sqrt(long X) const;
     int moveSuitable(int speed, int delta) const;
     qint64 getTimestamp() const;
+    bool isLightColor(QColor color);
 
 public slots:
     void anchorTimeOut();

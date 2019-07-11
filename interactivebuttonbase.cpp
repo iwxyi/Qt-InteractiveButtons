@@ -503,6 +503,11 @@ qint64 InteractiveButtonBase::getTimestamp() const
     return QDateTime::currentDateTime().toMSecsSinceEpoch();
 }
 
+bool InteractiveButtonBase::isLightColor(QColor color)
+{
+    return color.red()*0.299 + color.green()*0.578 + color.blue()*0.114 >= 192;
+}
+
 /**
  * 锚点变成到鼠标位置的定时时钟
  */
@@ -520,7 +525,7 @@ void InteractiveButtonBase::anchorTimeOut()
     }
     else // 鼠标悬浮
     {
-        if (press_progress>0 && !water_animation) // 如果按下的效果还在，变浅
+        if (press_progress>0) // 如果按下的效果还在，变浅
         {
             press_progress -= press_speed;
             if (press_progress < 0)

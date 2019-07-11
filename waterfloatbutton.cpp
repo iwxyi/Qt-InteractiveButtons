@@ -5,7 +5,7 @@ WaterFloatButton::WaterFloatButton(QWidget *parent) : InteractiveButtonBase(pare
 
 }
 
-WaterFloatButton::WaterFloatButton(QString text, QWidget *parent) : InteractiveButtonBase(text, parent), in_area(false), mwidth(16), radius(8), string(text)
+WaterFloatButton::WaterFloatButton(QString text, QWidget *parent) : InteractiveButtonBase(parent), in_area(false), mwidth(16), radius(8), string(text)
 {
 
 }
@@ -77,9 +77,32 @@ void WaterFloatButton::resizeEvent(QResizeEvent *event)
 
 void WaterFloatButton::paintEvent(QPaintEvent *event)
 {
+    InteractiveButtonBase::paintEvent(event);
 
+    QPainter painter(this);
+//    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
+    painter.setRenderHint(QPainter::Antialiasing,true);
+    QPainterPath path = getBgPainterPath();
+    painter.setPen(hover_bg);
+    painter.drawPath(path);
 
-    return InteractiveButtonBase::paintEvent(event);
+    if (!string.isEmpty())
+    {
+        QRect rect = QRect(QPoint(0,0), size());
+        if (hover_progress > 0)
+        {
+            QColor aim_color = isLightColor(hover_bg) ? QColor(0,0,0) : QColor(255,255,255);
+            QColor color(
+                        hover_bg.red() + (aim_color.red()-hover_bg.red()) * hover_progress / 100,
+                        hover_bg.green() + (aim_color.green()-hover_bg.green()) * hover_progress / 100,
+                        hover_bg.blue() + (aim_color.blue()-hover_bg.blue()) * hover_progress / 100
+                        );
+            painter.setPen(color);
+        }
+        else
+            painter.setPen(hover_bg);
+        painter.drawText(rect, Qt::AlignCenter, string);
+    }
 }
 
 QPainterPath WaterFloatButton::getBgPainterPath()

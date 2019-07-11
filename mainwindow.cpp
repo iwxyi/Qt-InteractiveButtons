@@ -40,6 +40,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     InteractiveButtonBase* float_btn = new WaterFloatButton("text", this);
     float_btn->setGeometry(264, 50, 100, 32);
+    float_btn->setBgColor(QColor(102,51,204,192), QColor(102,51,204,255));
+
 }
 
 void MainWindow::enterEvent(QEvent *event)
