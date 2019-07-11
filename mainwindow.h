@@ -9,6 +9,7 @@
 #include "winclosebutton.h"
 #include "winmenubutton.h"
 #include "watercirclebutton.h"
+#include "waterfloatbutton.h"
 
 class MainWindow : public QMainWindow
 {

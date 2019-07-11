@@ -60,7 +60,14 @@ void WaterFloatButton::mouseMoveEvent(QMouseEvent *event)
 
 void WaterFloatButton::resizeEvent(QResizeEvent *event)
 {
+    int w = geometry().width(), h = geometry().height();
+    if (h >= w * 4) // 宽度为准
+        radius = w / 4;
+    else
+        radius = h/2;
+    mwidth = (w-radius*2);
 
+    return InteractiveButtonBase::resizeEvent(event);
 }
 
 void WaterFloatButton::paintEvent(QPaintEvent *event)
@@ -70,15 +77,37 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
 
 QPainterPath WaterFloatButton::getBgPainterPath()
 {
+    QPainterPath path1, path2, path3;
+    int w = size().width(), h = size().height();
 
+    QRect mrect(w/2-mwidth/2, h/2-radius, mwidth, radius*2);
+    path1.addRect(mrect);
+
+    QPoint o1(w/2-mwidth/2, h/2);
+    QPoint o2(w/2+mwidth/2, h/2);
+    path2.addEllipse(o1.x()-radius, o1.y()-radius, radius*2, radius*2);
+    path3.addEllipse(o2.x()-radius, o2.y()-radius, radius*2, radius*2);
+
+    return path1 | path2 | path3;
 }
 
 QPainterPath WaterFloatButton::getWaterPainterPath(InteractiveButtonBase::Water water)
 {
-
+    QPainterPath path = InteractiveButtonBase::getWaterPainterPath(water) & getBgPainterPath();
+    return path;
 }
 
 bool WaterFloatButton::inArea(QPoint point)
 {
-    return true;
+    int w = size().width(), h = size().height();
+    QPoint o1(w/2-mwidth/2, h/2);
+    QPoint o2(w/2+mwidth/2, h/2);
+    QRect mrect(w/2-mwidth/2, h/2-radius, mwidth, radius*2);
+
+    if (mrect.contains(point))
+        return true;
+    if ((point-o1).manhattanLength() <= radius ||
+            (point-o2).manhattanLength() <= radius)
+        return true;
+    return false;
 }
