@@ -203,8 +203,9 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
 
 void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (pressing && event->button() == Qt::LeftButton)
+    if (pressing &&  event->button() == Qt::LeftButton)
     {
+        hovering = false;
         pressing = false;
         release_pos = mapFromGlobal(QCursor::pos());
         release_timestamp = getTimestamp();
@@ -226,6 +227,10 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
 
 void InteractiveButtonBase::mouseMoveEvent(QMouseEvent *event)
 {
+    if (hovering == false) // 失去焦点又回来了
+    {
+        enterEvent(nullptr);
+    }
     mouse_pos = mapFromGlobal(QCursor::pos());
 
     return QPushButton::mouseMoveEvent(event);
@@ -244,6 +249,24 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
     icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
 
     return QPushButton::resizeEvent(event);
+}
+
+void InteractiveButtonBase::focusOutEvent(QFocusEvent *event)
+{
+    if (pressing)
+    {
+        pressing = false;
+        release_pos = mapFromGlobal(QCursor::pos());
+        release_timestamp = getTimestamp();
+
+        if (water_animation && waters.size())
+        {
+            waters.last().release_timestamp = release_timestamp;
+        }
+
+        anchorTimeOut();
+        update();
+    }
 }
 
 void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)

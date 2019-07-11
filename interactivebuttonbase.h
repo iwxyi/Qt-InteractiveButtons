@@ -75,6 +75,7 @@ protected:
     void mouseReleaseEvent(QMouseEvent* event) override;
     void mouseMoveEvent(QMouseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
+    void focusOutEvent(QFocusEvent *event) override;
     void paintEvent(QPaintEvent*) override;
 
 protected:
