@@ -3,6 +3,8 @@
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent), icon(nullptr), text(""),
       icon_paddings(4,4,4,4),
+      show_animation(true), show_ani_appearing(false), show_ani_disappearing(false),
+      show_duration(200), show_timestamp(0), hide_timestamp(0), show_ani_progress(0),
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       offset_pos(0, 0), effect_pos(-1, -1), release_offset(0, 0),
       pressing(false), hovering(false),
@@ -87,6 +89,46 @@ void InteractiveButtonBase::setIconColor(QColor color)
     }
 
     update();
+}
+
+void InteractiveButtonBase::showForeground()
+{
+    if (!anchor_timer->isActive())
+        anchor_timer->start();
+
+    if (!show_animation) return ;
+    if (show_ani_disappearing)
+        show_ani_disappearing = false;
+    show_ani_appearing = true;
+    show_timestamp = getTimestamp();
+
+
+}
+
+void InteractiveButtonBase::showForeground(QPoint point)
+{
+    if (!anchor_timer->isActive())
+        anchor_timer->start();
+
+    if (!show_animation) return ;
+    if (show_ani_disappearing)
+        show_ani_disappearing = false;
+    show_ani_appearing = true;
+    show_timestamp = getTimestamp();
+
+}
+
+void InteractiveButtonBase::hideForeground()
+{
+    if (!anchor_timer->isActive())
+        anchor_timer->start();
+
+    if (!show_animation) return ;
+    if (show_ani_appearing)
+        show_ani_appearing = false;
+    show_ani_disappearing = true;
+    hide_timestamp = getTimestamp();
+
 }
 
 void InteractiveButtonBase::setState(bool s)
@@ -465,6 +507,39 @@ void InteractiveButtonBase::anchorTimeOut()
         }
     }
 
+    // ==== 出现动画 ====
+    if (show_animation)
+    {
+        if (show_ani_appearing)
+        {
+            qint64 delta = getTimestamp() - show_timestamp;
+            if (show_ani_progress >= 100)
+            {
+                show_ani_appearing = false;
+            }
+            else
+            {
+                show_ani_progress = 100 * delta / show_duration;
+                if (show_ani_progress > 100)
+                    show_ani_progress = 100;
+            }
+        }
+        if (show_ani_disappearing)
+        {
+            qint64 delta = getTimestamp() - hide_timestamp;
+            if (show_ani_progress <= 0)
+            {
+                show_ani_disappearing = false;
+            }
+            else
+            {
+                show_ani_progress = 100 - 100 * delta / show_duration;
+                if (show_ani_progress < 0)
+                    show_ani_progress = 0;
+            }
+        }
+    }
+
     // ==== 按下动画 ====
     if (click_ani_disappearing) // 按下动画效果消失
     {
@@ -521,7 +596,9 @@ void InteractiveButtonBase::anchorTimeOut()
         effect_pos.setX( (geometry().width() >>1) + offset_pos.x());
         effect_pos.setY( (geometry().height()>>1) + offset_pos.y());
     }
-    else if (!pressing && !hovering && !hover_progress && !press_progress && !click_ani_appearing && !click_ani_disappearing && !jitters.size() && !waters.size())
+    else if (!pressing && !hovering && !hover_progress && !press_progress
+             && !click_ani_appearing && !click_ani_disappearing && !jitters.size() && !waters.size()
+             && !show_ani_appearing && !show_ani_disappearing)
     {
         anchor_timer->stop();
     }

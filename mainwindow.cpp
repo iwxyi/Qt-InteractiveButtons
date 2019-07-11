@@ -4,6 +4,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
     this->setFixedSize(560, 500);
+    setMouseTracking(true);
 
     InteractiveButtonBase* btn = new InteractiveButtonBase(this);
     btn->setGeometry(300, 300, 100, 100);
@@ -30,9 +31,23 @@ MainWindow::MainWindow(QWidget *parent) :
     InteractiveButtonBase* text_btn = new InteractiveButtonBase("text", this);
     text_btn->setGeometry(100, 50, 100, 32);
 
-    InteractiveButtonBase* icon_btn = new InteractiveButtonBase(QIcon(":/icons/point_menu"), this);
+    icon_btn = new InteractiveButtonBase(QIcon(":/icons/point_menu"), this);
     icon_btn->setGeometry(200, 50, 32, 32);
 
     InteractiveButtonBase* pixmap_btn = new WaterCircleButton(QPixmap(":/icons/point_menu"), this);
     pixmap_btn->setGeometry(232, 50, 32, 32);
+}
+
+void MainWindow::enterEvent(QEvent *event)
+{
+    icon_btn->showForeground();
+
+    return QMainWindow::enterEvent(event);
+}
+
+void MainWindow::leaveEvent(QEvent *event)
+{
+    icon_btn->hideForeground();
+
+    return QMainWindow::leaveEvent(event);
 }

@@ -17,6 +17,13 @@ class MainWindow : public QMainWindow
 public:
     MainWindow(QWidget *parent = nullptr);
 
+protected:
+    void enterEvent(QEvent* event);
+    void leaveEvent(QEvent* event);
+
+private:
+    InteractiveButtonBase* icon_btn;
+
 };
 
 #endif // MAINWINDOW_H
