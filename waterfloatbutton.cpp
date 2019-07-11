@@ -32,7 +32,7 @@ void WaterFloatButton::mouseReleaseEvent(QMouseEvent *event)
     {
         InteractiveButtonBase::mouseReleaseEvent(event);
 
-        if (!pressing && inArea(event->pos()))
+        if (!pressing && !inArea(event->pos()))
         {
             in_area = false;
             InteractiveButtonBase::leaveEvent(event);
