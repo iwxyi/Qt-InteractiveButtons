@@ -3,8 +3,8 @@
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent), icon(nullptr), text(""),
       icon_paddings(4,4,4,4),
-      show_animation(true), show_ani_appearing(false), show_ani_disappearing(false),
-      show_duration(200), show_timestamp(0), hide_timestamp(0), show_ani_progress(0),
+      show_animation(false), show_foreground(true), show_ani_appearing(false), show_ani_disappearing(false),
+      show_duration(300), show_timestamp(0), hide_timestamp(0), show_ani_progress(0), show_ani_point(0,0),
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       offset_pos(0, 0), effect_pos(-1, -1), release_offset(0, 0),
       pressing(false), hovering(false),
@@ -91,39 +91,53 @@ void InteractiveButtonBase::setIconColor(QColor color)
     update();
 }
 
+void InteractiveButtonBase::setShowAni(bool enable)
+{
+    show_animation = enable;
+
+    if (!show_animation) // 关闭隐藏前景
+    {
+        show_foreground = true;
+    }
+    else if (show_animation) // 开启隐藏前景
+    {
+        if (!hovering && !pressing) // 应该是隐藏状态
+        {
+            show_ani_appearing = show_ani_disappearing = show_foreground = false;
+            show_ani_progress = 0;
+        }
+        else // 应该是显示状态
+        {
+            show_foreground = true;
+            show_ani_appearing = show_ani_disappearing = false;
+            show_ani_progress = 100;
+        }
+    }
+}
+
 void InteractiveButtonBase::showForeground()
 {
+    if (!show_animation) return ;
     if (!anchor_timer->isActive())
         anchor_timer->start();
-
-    if (!show_animation) return ;
     if (show_ani_disappearing)
         show_ani_disappearing = false;
     show_ani_appearing = true;
     show_timestamp = getTimestamp();
-
-
+    show_foreground = true;
 }
 
 void InteractiveButtonBase::showForeground(QPoint point)
 {
-    if (!anchor_timer->isActive())
-        anchor_timer->start();
-
-    if (!show_animation) return ;
-    if (show_ani_disappearing)
-        show_ani_disappearing = false;
-    show_ani_appearing = true;
-    show_timestamp = getTimestamp();
+    showForeground();
 
 }
 
 void InteractiveButtonBase::hideForeground()
 {
+    if (!show_animation) return ;
     if (!anchor_timer->isActive())
         anchor_timer->start();
-
-    if (!show_animation) return ;
     if (show_ani_appearing)
         show_ani_appearing = false;
     show_ani_disappearing = true;
@@ -235,7 +249,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 {
     QPainter painter(this);
 
-    // 绘制背景
+    // ==== 绘制背景 ====
     QPainterPath path_back = getBgPainterPath();
     painter.setRenderHint(QPainter::Antialiasing,true);
 
@@ -257,42 +271,67 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
         paintWaterRipple(painter);
     }
 
-    painter.setPen(icon_color);
-    if (model == None)
+    // ==== 绘制前景 ====
+    if (show_foreground)
     {
-        // 子类自己的绘制内容
-    }
-    else if (model == Text)
-    {
-        // 绘制文字教程： https://blog.csdn.net/temetnosce/article/details/78068464
-        painter.drawText(QRect(QPoint(0,0), size()), Qt::AlignCenter, text);
-    }
-    else // 绘制图标
-    {
-
-        QRect rect(icon_paddings.left+offset_pos.x(), icon_paddings.top+offset_pos.y(),
+        painter.setPen(icon_color);
+        QRect rect(icon_paddings.left+offset_pos.x(), icon_paddings.top+offset_pos.y(), // 原来的位置，不包含点击、出现效果
                    (size().width()-icon_paddings.left-icon_paddings.right),
                    size().height()-icon_paddings.top-icon_paddings.bottom);
-        if (click_ani_progress != 0)
+
+        int delta_x = 0, delta_y = 0;
+        if (click_ani_progress != 0) // 图标缩放
         {
-            int delta_x = rect.width() * click_ani_progress / 400;
-            int delta_y = rect.height() * click_ani_progress / 400;
+            delta_x = rect.width() * click_ani_progress / 400;
+            delta_y = rect.height() * click_ani_progress / 400;
+        }
+        else if (show_ani_appearing)
+        {
+            int pro; // 将动画进度转换为回弹动画进度
+            if (show_ani_progress <= 50)
+                pro = show_ani_progress * 2;
+            else if (show_ani_progress <= 75)
+                pro = (show_ani_progress-50)/2 + 100;
+            else
+                pro = 100 + (100-show_ani_progress)/2;
+
+            delta_x = rect.width() * (100-pro) / 100;
+            delta_y = rect.height() * (100-pro) / 100;
+        }
+        else if (show_ani_disappearing)
+        {
+            delta_x = rect.width() * (100-show_ani_progress) / 100;
+            delta_y = rect.height() * (100-show_ani_progress) / 100;
+        }
+        if (delta_x || delta_y)
             rect = QRect(rect.left()+delta_x, rect.top()+delta_y,
                         rect.width()-delta_x*2, rect.height()-delta_y*2);
-        }
-        if (model == Icon)
+
+        if (model == None)
         {
-            icon.paint(&painter, rect, Qt::AlignCenter);
+            // 子类自己的绘制内容
         }
-        else if (model == PixmapMask)
+        else if (model == Text)
         {
-            painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
-            painter.drawPixmap(rect, pixmap);
+            // 绘制文字教程： https://blog.csdn.net/temetnosce/article/details/78068464
+            painter.drawText(rect, Qt::AlignCenter, text);
+        }
+        else // 绘制图标
+        {
+
+            if (model == Icon)
+            {
+                icon.paint(&painter, rect, Qt::AlignCenter);
+            }
+            else if (model == PixmapMask)
+            {
+                painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
+                painter.drawPixmap(rect, pixmap);
+            }
         }
     }
 
-
-    // 绘制鼠标位置
+    // ==== 绘制鼠标位置 ====
 //    painter.drawEllipse(QRect(anchor_pos.x()-5, anchor_pos.y()-5, 10, 10)); // 移动锚点
 //    painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4)); // 影响位置锚点
 
@@ -530,6 +569,7 @@ void InteractiveButtonBase::anchorTimeOut()
             if (show_ani_progress <= 0)
             {
                 show_ani_disappearing = false;
+                show_foreground = false;
             }
             else
             {

@@ -79,7 +79,6 @@ void WaterCircleButton::resizeEvent(QResizeEvent *event)
 {
     center_pos = geometry().center() - geometry().topLeft();
     radius = min(size().width(), size().height())/ 2;
-    qDebug() << center_pos << radius;
 
     return InteractiveButtonBase::resizeEvent(event);
 }

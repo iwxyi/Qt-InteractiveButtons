@@ -60,6 +60,7 @@ public:
     void setBgColor(QColor hover, QColor press);
     void setIconColor(QColor color = QColor(0,0,0));
 
+    void setShowAni(bool enable = true);
     void showForeground();
     void showForeground(QPoint point);
     void hideForeground();
@@ -100,11 +101,12 @@ protected:
     QPixmap pixmap;
     EdgeVal icon_paddings;
 
-    bool show_animation;
+    bool show_animation, show_foreground;
     bool show_ani_appearing, show_ani_disappearing;
     int show_duration;
     qint64 show_timestamp, hide_timestamp;
     int show_ani_progress;
+    QPoint show_ani_point;
 
     QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos/*渐渐靠近鼠标*/;
     QPoint offset_pos, effect_pos, release_offset; // 相对中心、相对左上角、弹起时的平方根偏移
