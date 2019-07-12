@@ -184,6 +184,9 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
 
     if (event->button() == Qt::LeftButton)
     {
+        if (!hovering)
+            enterEvent(new QEvent(QEvent::Type::None));
+
         pressing = true;
         press_pos = mouse_pos;
         press_timestamp = getTimestamp();
@@ -253,7 +256,7 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
 
 void InteractiveButtonBase::focusOutEvent(QFocusEvent *event)
 {
-    hovering = true;
+    hovering = false;
     if (pressing)
     {
         pressing = false;
