@@ -29,17 +29,17 @@ MainWindow::MainWindow(QWidget *parent) :
     cir_btn->setGeometry(528, 10, 32, 32);
 
     InteractiveButtonBase* text_btn = new InteractiveButtonBase("text", this);
-    text_btn->setGeometry(100, 50, 100, 32);
+    text_btn->setGeometry(0, 50, 100, 32);
 
     icon_btn = new WaterCircleButton(QIcon(":/icons/point_menu"), this);
-    icon_btn->setGeometry(200, 50, 32, 32);
+    icon_btn->setGeometry(100, 50, 32, 32);
     icon_btn->setShowAni(true);
 
     InteractiveButtonBase* pixmap_btn = new InteractiveButtonBase(QPixmap(":/icons/point_menu"), this);
-    pixmap_btn->setGeometry(232, 50, 32, 32);
+    pixmap_btn->setGeometry(132, 50, 32, 32);
 
     InteractiveButtonBase* float_btn = new WaterFloatButton("text", this);
-    float_btn->setGeometry(264, 50, 100, 32);
+    float_btn->setGeometry(164, 50, 100, 32);
     float_btn->setBgColor(QColor(102,51,204,192), QColor(102,51,204,255));
 
 }

@@ -50,12 +50,32 @@ InteractiveButtonBase::InteractiveButtonBase(QIcon icon, QWidget *parent)
 InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
-//    pixmap.save("pixmap.png");
     QBitmap mask = pixmap.mask();
     pixmap.fill(icon_color);
     pixmap.setMask(mask);
     this->pixmap = pixmap;
     model = PaintModel::PixmapMask;
+}
+
+void InteractiveButtonBase::changeEvent(QEvent *event)
+{
+    QPushButton::changeEvent(event);
+
+    if (event->type() == QEvent::EnabledChange && model == PixmapMask) // 可用状态改变了
+    {
+        if (isEnabled())
+        {
+            QColor color = icon_color;
+            color.setAlpha(color.alpha() * 2);
+            setIconColor(color);
+        }
+        else
+        {
+            QColor color = icon_color;
+            color.setAlpha(color.alpha() / 2);
+            setIconColor(color);
+        }
+    }
 }
 
 void InteractiveButtonBase::setWaterRipple(bool enable)
@@ -80,6 +100,9 @@ void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
 void InteractiveButtonBase::setIconColor(QColor color)
 {
     icon_color = color;
+
+    if (!isEnabled() && model != PaintModel::PixmapMask)
+        icon_color.setAlpha(icon_color.alpha() / 2);
 
     if (model == PaintModel::PixmapMask)
     {
@@ -299,7 +322,17 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     // ==== 绘制前景 ====
     if (show_foreground)
     {
-        painter.setPen(icon_color);
+        if (isEnabled())
+        {
+            painter.setPen(icon_color);
+        }
+        else // 不可用状态，透明度减半
+        {
+            QColor half = icon_color;
+            half.setAlpha(half.alpha() / 2);
+            painter.setPen(half);
+        }
+
         QRect rect(icon_paddings.left+offset_pos.x(), icon_paddings.top+offset_pos.y(), // 原来的位置，不包含点击、出现效果
                    (size().width()-icon_paddings.left-icon_paddings.right),
                    size().height()-icon_paddings.top-icon_paddings.bottom);
@@ -373,6 +406,13 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
                 rect = QRect(rect.left()+delta_x, rect.top()+delta_y,
                             rect.width()-delta_x*2, rect.height()-delta_y*2);
         }
+
+        /*if (this->isEnabled())
+        {
+            QColor color = icon_color;
+            color.setAlpha(color.alpha() / 2);
+            painter.setPen(color);
+        }*/
 
         if (model == None)
         {

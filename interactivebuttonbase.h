@@ -55,6 +55,7 @@ public:
         int left, top, right, bottom;
     };
 
+
     void setWaterRipple(bool enable = true);
     void setJitterAni(bool enable = true);
     void setBgColor(QColor hover, QColor press);
@@ -76,6 +77,7 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
     void focusOutEvent(QFocusEvent *event) override;
+    void changeEvent(QEvent* event) override;
     void paintEvent(QPaintEvent*) override;
 
 protected:
