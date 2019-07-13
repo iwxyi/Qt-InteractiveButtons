@@ -114,6 +114,16 @@ void InteractiveButtonBase::setIconColor(QColor color)
     update();
 }
 
+/**
+ * 如果点击失去焦点的话，即使鼠标移到上面，也不会出现背景
+ * 可以用这个方法继续保持悬浮状态
+ */
+void InteractiveButtonBase::setHover()
+{
+    if (!hovering && inArea(mapFromGlobal(QCursor::pos())))
+        InteractiveButtonBase::enterEvent(new QEvent(QEvent::Type::None));
+}
+
 void InteractiveButtonBase::setShowAni(bool enable)
 {
     show_animation = enable;
@@ -229,10 +239,12 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
 
 void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
 {
-    if (pressing &&  event->button() == Qt::LeftButton)
+    if (pressing && event->button() == Qt::LeftButton)
     {
-        if (!inArea(mapFromGlobal(QCursor::pos())))
+        if (!inArea(event->pos()))
+        {
             hovering = false;
+        }
         pressing = false;
         release_pos = mapFromGlobal(QCursor::pos());
         release_timestamp = getTimestamp();

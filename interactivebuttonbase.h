@@ -55,11 +55,11 @@ public:
         int left, top, right, bottom;
     };
 
-
     void setWaterRipple(bool enable = true);
     void setJitterAni(bool enable = true);
     void setBgColor(QColor hover, QColor press);
     void setIconColor(QColor color = QColor(0,0,0));
+    void setHover();
 
     void setShowAni(bool enable = true);
     void showForeground();
