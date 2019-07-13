@@ -24,7 +24,7 @@ protected:
     QPainterPath getBgPainterPath() override;
     QPainterPath getWaterPainterPath(Water water) override;
 
-    bool inArea(QPoint point);
+    bool inArea(QPoint point) override;
 
 protected:
     QPoint center_pos;

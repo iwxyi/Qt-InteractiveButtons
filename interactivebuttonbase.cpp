@@ -231,7 +231,8 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
 {
     if (pressing &&  event->button() == Qt::LeftButton)
     {
-        hovering = false;
+        if (!inArea(mapFromGlobal(QCursor::pos())))
+            hovering = false;
         pressing = false;
         release_pos = mapFromGlobal(QCursor::pos());
         release_timestamp = getTimestamp();
@@ -443,6 +444,11 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 //    painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4)); // 影响位置锚点
 
     //    return QPushButton::paintEvent(event); // 不绘制父类背景了
+}
+
+bool InteractiveButtonBase::inArea(QPoint point)
+{
+    return !(point.x() < 0 || point.y() < 0 || point.x() > size().width() || point.y() > size().height());
 }
 
 QPainterPath InteractiveButtonBase::getBgPainterPath()

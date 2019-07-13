@@ -81,6 +81,7 @@ protected:
     void paintEvent(QPaintEvent*) override;
 
 protected:
+    virtual bool inArea(QPoint point);
     virtual QPainterPath getBgPainterPath();
     virtual QPainterPath getWaterPainterPath(Water water);
 
