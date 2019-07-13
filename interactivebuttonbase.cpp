@@ -208,7 +208,7 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
     if (event->button() == Qt::LeftButton)
     {
         if (!hovering)
-            enterEvent(new QEvent(QEvent::Type::None));
+            InteractiveButtonBase::enterEvent(new QEvent(QEvent::Type::None));
 
         pressing = true;
         press_pos = mouse_pos;
@@ -276,6 +276,14 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
     icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
 
     return QPushButton::resizeEvent(event);
+}
+
+void InteractiveButtonBase::focusInEvent(QFocusEvent *event)
+{
+    if (!hovering && inArea(mapFromGlobal(QCursor::pos())))
+        InteractiveButtonBase::enterEvent(new QEvent(QEvent::Type::None));
+
+    return QPushButton::focusInEvent(event);
 }
 
 void InteractiveButtonBase::focusOutEvent(QFocusEvent *event)
