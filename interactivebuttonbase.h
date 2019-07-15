@@ -142,6 +142,8 @@ protected:
     int water_radius;
 
     bool _state; // 一个记录状态的变量，比如是否持续
+    int _l, _t, _w, _h;
+    bool unified_geometry;
 };
 
 
