@@ -566,6 +566,8 @@ QPainterPath InteractiveButtonBase::getWaterPainterPath(InteractiveButtonBase::W
                 water_radius*water.progress/50);
     QPainterPath path;
     path.addEllipse(circle);
+    if (radius_x || radius_y)
+        return path & getBgPainterPath();
     return path;
 }
 
