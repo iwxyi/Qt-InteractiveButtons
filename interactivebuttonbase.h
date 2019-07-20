@@ -11,7 +11,6 @@
 #include <QDateTime>
 #include <QList>
 #include <QBitmap>
-#include "globalvar.h"
 
 #define PI 3.1415926
 #define GOLDEN_RATIO 0.618
@@ -60,6 +59,7 @@ public:
     void setWaterRipple(bool enable = true);
     void setJitterAni(bool enable = true);
     void setUnifyGeomerey(bool enable = true);
+    void setBgColor(QColor bg);
     void setBgColor(QColor hover, QColor press);
     void setIconColor(QColor color = QColor(0,0,0));
     void setHover();

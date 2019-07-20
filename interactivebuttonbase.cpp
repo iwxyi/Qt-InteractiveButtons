@@ -12,7 +12,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       hover_bg_duration(100), press_bg_duration(100), click_ani_duration(300),
       move_speed(5),
       icon_color(0, 0, 0),
-      normal_bg(128, 128, 128, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64),
+      normal_bg(0xF2, 0xF2, 0xF2, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64),
       hover_speed(5), press_start(40), press_speed(5),
       hover_progress(0), press_progress(0),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
@@ -93,7 +93,13 @@ void InteractiveButtonBase::setJitterAni(bool enable)
 void InteractiveButtonBase::setUnifyGeomerey(bool enable)
 {
 //    unified_geometry = enable;
-//    _l = _t = 0; _w = size().width(); _h = size().height();
+    //    _l = _t = 0; _w = size().width(); _h = size().height();
+}
+
+void InteractiveButtonBase::setBgColor(QColor bg)
+{
+    normal_bg = bg;
+    update();
 }
 
 void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
@@ -102,6 +108,7 @@ void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
         hover_bg = hover;
     if (press != Qt::black)
         press_bg = press;
+    update();
 }
 
 void InteractiveButtonBase::setIconColor(QColor color)
@@ -371,6 +378,18 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     // ==== 绘制背景 ====
     QPainterPath path_back = getBgPainterPath();
     painter.setRenderHint(QPainter::Antialiasing,true);
+
+    if (normal_bg.alpha() != 0) // 默认背景
+    {
+        if (isEnabled())
+        {
+            QColor bg_color = normal_bg;
+            bg_color.setAlpha(normal_bg.alpha() / 2);
+            painter.fillPath(path_back, QBrush(bg_color));
+        }
+        else
+            painter.fillPath(path_back, normal_bg);
+    }
 
     if (hover_progress) // 悬浮背景
     {
