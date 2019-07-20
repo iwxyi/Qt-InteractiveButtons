@@ -66,6 +66,7 @@ public:
     void setAlign(Qt::Alignment a);
     void setRadius(int r);
     void setRadius(int rx, int ry);
+    void setDisabled(bool dis = true);
 
     void setShowAni(bool enable = true);
     void showForeground();

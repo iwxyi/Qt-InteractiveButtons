@@ -156,6 +156,16 @@ void InteractiveButtonBase::setRadius(int rx, int ry)
     radius_y = ry;
 }
 
+void InteractiveButtonBase::setDisabled(bool dis)
+{
+    setEnabled(!dis);
+
+    if (parentWidget()!=nullptr)
+    {
+        setAttribute(Qt::WA_TransparentForMouseEvents, dis); // 点击穿透
+    }
+}
+
 void InteractiveButtonBase::setShowAni(bool enable)
 {
     show_animation = enable;
