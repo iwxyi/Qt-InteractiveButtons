@@ -52,10 +52,7 @@ InteractiveButtonBase::InteractiveButtonBase(QIcon icon, QWidget *parent)
 InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
-    QBitmap mask = pixmap.mask();
-    pixmap.fill(icon_color);
-    pixmap.setMask(mask);
-    this->pixmap = pixmap;
+    this->pixmap = getMaskPixmap(pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
     model = PaintModel::PixmapMask;
 }
 
@@ -73,10 +70,7 @@ void InteractiveButtonBase::setIcon(QIcon icon)
 
 void InteractiveButtonBase::setPixmap(QPixmap pixmap)
 {
-    QBitmap mask = pixmap.mask();
-    pixmap.fill(icon_color);
-    pixmap.setMask(mask);
-    this->pixmap = pixmap;
+    this->pixmap = getMaskPixmap(pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
     update();
 }
 
@@ -146,21 +140,14 @@ void InteractiveButtonBase::setIconColor(QColor color)
 {
     icon_color = color;
 
-    if (!isEnabled() && model != PaintModel::PixmapMask)
-        icon_color.setAlpha(icon_color.alpha() / 2);
-
     if (model == PaintModel::PixmapMask || model == PaintModel::PixmapText)
     {
-        QBitmap mask = pixmap.mask();
-        pixmap.fill(icon_color);
-        pixmap.setMask(mask);
+        pixmap = getMaskPixmap(pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
     }
 
     if (paint_addin.enable)
     {
-        QBitmap mask = paint_addin.pixmap.mask();
-        paint_addin.pixmap.fill(icon_color);
-        paint_addin.pixmap.setMask(mask);
+        paint_addin.pixmap = getMaskPixmap(paint_addin.pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
     }
 
     update();
@@ -201,12 +188,22 @@ void InteractiveButtonBase::setRadius(int rx, int ry)
 
 void InteractiveButtonBase::setDisabled(bool dis)
 {
+    if (dis == !isEnabled()) // 相同的
+        return ;
+
     setEnabled(!dis);
 
     if (parentWidget()!=nullptr)
     {
         setAttribute(Qt::WA_TransparentForMouseEvents, dis); // 点击穿透
     }
+
+    if (model == PixmapMask || model == PixmapText)
+    {
+        pixmap = getMaskPixmap(pixmap, dis?getOpacityColor(icon_color):icon_color);
+    }
+
+    update(); // 修改透明度
 }
 
 void InteractiveButtonBase::setShowAni(bool enable)
@@ -448,28 +445,17 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
     if (normal_bg.alpha() != 0) // 默认背景
     {
-        if (isEnabled())
-        {
-            QColor bg_color = normal_bg;
-            bg_color.setAlpha(normal_bg.alpha() / 2);
-            painter.fillPath(path_back, QBrush(bg_color));
-        }
-        else
-            painter.fillPath(path_back, normal_bg);
+        painter.fillPath(path_back, isEnabled()?normal_bg:getOpacityColor(normal_bg));
     }
 
     if (hover_progress) // 悬浮背景
     {
-        QColor bg_color = hover_bg;
-        bg_color.setAlpha(hover_bg.alpha() * hover_progress / 100);
-        painter.fillPath(path_back, QBrush(bg_color));
+         painter.fillPath(path_back, getOpacityColor(hover_bg, hover_progress / 100.0));
     }
 
     if (press_progress && !water_animation) // 按下渐变淡化消失
     {
-        QColor bg_color = press_bg;
-        bg_color.setAlpha(press_bg.alpha() * press_progress / 100);
-        painter.fillPath(path_back, QBrush(bg_color));
+        painter.fillPath(path_back, getOpacityColor(press_bg, press_progress/100.0));
     }
     else if (water_animation && waters.size()) // 水波纹，且至少有一个水波纹
     {
@@ -808,6 +794,14 @@ QColor InteractiveButtonBase::getOpacityColor(QColor color, double level)
 {
     color.setAlpha(static_cast<int>(color.alpha() * level));
     return color;
+}
+
+QPixmap InteractiveButtonBase::getMaskPixmap(QPixmap p, QColor c)
+{
+    QBitmap mask = p.mask();
+    p.fill(c);
+    p.setMask(mask);
+    return p;
 }
 
 /**

@@ -122,6 +122,7 @@ protected:
     bool isLightColor(QColor color);
     int getSpringBackProgress(int x, int max);
     QColor getOpacityColor(QColor color, double level = 0.5);
+    QPixmap getMaskPixmap(QPixmap p, QColor c);
 
 signals:
     void showAniFinished();
