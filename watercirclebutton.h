@@ -29,7 +29,7 @@ protected:
 protected:
     QPoint center_pos;
     bool in_circle;
-    int radius;
+    int radius_x;
 };
 
 #endif // WATERCIRCLEBUTTON_H

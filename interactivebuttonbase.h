@@ -64,6 +64,8 @@ public:
     void setIconColor(QColor color = QColor(0,0,0));
     void setHover();
     void setAlign(Qt::Alignment a);
+    void setRadius(int r);
+    void setRadius(int rx, int ry);
 
     void setShowAni(bool enable = true);
     void showForeground();
@@ -92,6 +94,7 @@ protected:
     virtual QPainterPath getWaterPainterPath(Water water);
 
     QRect getUnifiedGeometry();
+    void updateUnifiedGeometry();
     void paintWaterRipple(QPainter &painter);
     void setJitter();
 
@@ -143,12 +146,13 @@ protected:
     QColor normal_bg, hover_bg, press_bg; // 各种背景颜色
     int hover_speed, press_start, press_speed; // 颜色渐变速度
     int hover_progress, press_progress; // 颜色渐变进度
+    int radius_x, radius_y;
 
     bool click_ani_appearing, click_ani_disappearing; // 是否正在按下的动画效果中
     int click_ani_progress; // 按下的进度（使用时间差计算）
 
-    bool unified_geometry; // 统一图标尺寸 // 上面用不到的话，这个也用不到……
-//    int ul;
+    bool unified_geometry; // 统一图标绘制区域尺寸 // 上面用不到的话，这个也用不到……
+    int _l, _t, _w, _h;
 
     bool jitter_animation; // 是否开启鼠标松开时的抖动效果
     double elastic_coefficient; // 弹性系数

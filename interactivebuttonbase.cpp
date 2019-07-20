@@ -15,10 +15,11 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       normal_bg(0xF2, 0xF2, 0xF2, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64),
       hover_speed(5), press_start(40), press_speed(5),
       hover_progress(0), press_progress(0),
+      radius_x(0), radius_y(0),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
       water_animation(true), water_press_duration(800), water_release_duration(400), water_finish_duration(300),
-//      unify_geometry(false), _l(0), _t(0), _w(32), _h(32),
+      unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
       align(Qt::AlignCenter), _state(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
@@ -92,8 +93,8 @@ void InteractiveButtonBase::setJitterAni(bool enable)
 
 void InteractiveButtonBase::setUnifyGeomerey(bool enable)
 {
-//    unified_geometry = enable;
-    //    _l = _t = 0; _w = size().width(); _h = size().height();
+    unified_geometry = enable;
+    _l = _t = 0; _w = size().width(); _h = size().height();
 }
 
 void InteractiveButtonBase::setBgColor(QColor bg)
@@ -144,6 +145,17 @@ void InteractiveButtonBase::setAlign(Qt::Alignment a)
     update();
 }
 
+void InteractiveButtonBase::setRadius(int r)
+{
+    radius_x = radius_y = r;
+}
+
+void InteractiveButtonBase::setRadius(int rx, int ry)
+{
+    radius_x = rx;
+    radius_y = ry;
+}
+
 void InteractiveButtonBase::setShowAni(bool enable)
 {
     show_animation = enable;
@@ -187,6 +199,9 @@ void InteractiveButtonBase::showForeground2(QPoint point)
     if (point == QPoint(0,0))
         point = mapFromGlobal(QCursor::pos()) - QPoint(size().width()/2, size().height()/2); // 相对于按钮中心
     show_ani_point = point;
+
+    if (unified_geometry) // 统一出现动画
+        updateUnifiedGeometry();
 }
 
 void InteractiveButtonBase::hideForeground()
@@ -198,7 +213,6 @@ void InteractiveButtonBase::hideForeground()
         show_ani_appearing = false;
     show_ani_disappearing = true;
     hide_timestamp = getTimestamp();
-
 }
 
 void InteractiveButtonBase::delayShowed(int time, QPoint point)
@@ -537,7 +551,10 @@ bool InteractiveButtonBase::inArea(QPoint point)
 QPainterPath InteractiveButtonBase::getBgPainterPath()
 {
     QPainterPath path;
-    path.addRect(QRect(0,0,size().width(),size().height()));
+    if (radius_x || radius_y)
+        path.addRoundedRect(QRect(0,0,size().width(),size().height()), radius_x, radius_y);
+    else
+        path.addRect(QRect(0,0,size().width(),size().height()));
     return path;
 }
 
@@ -570,6 +587,27 @@ QRect InteractiveButtonBase::getUnifiedGeometry()
     uh = uh * pro / 100;
 
     return QRect(ul, ut, uw, uh);
+}
+
+void InteractiveButtonBase::updateUnifiedGeometry()
+{
+    _l = 0; _t = 0; _w = geometry().width(); _h = geometry().height();
+    if ((show_ani_appearing || show_ani_disappearing) && show_ani_point != QPoint( 0, 0 ))
+    {
+        int pro; // 将动画进度转换为回弹动画进度
+        pro = show_ani_appearing ? getSpringBackProgress(show_ani_progress,50) : show_ani_progress;
+
+        // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
+        int x = show_ani_point.x(), y = show_ani_point.y();
+        int gen = quick_sqrt(x*x + y*y);
+        x = - water_radius * x / gen; // 动画起始中心点横坐标 反向
+        y = - water_radius * y / gen; // 动画起始中心点纵坐标 反向
+
+        _l = _l + x * (100-pro) / 100 + _w * (100-pro) / 200;
+        _t = _t + y * (100-pro) / 100 + _h * (100-pro) / 200;
+        _w = _w * pro / 100;
+        _h = _h * pro / 100;
+    }
 }
 
 void InteractiveButtonBase::paintWaterRipple(QPainter& painter)
@@ -879,6 +917,12 @@ void InteractiveButtonBase::anchorTimeOut()
              && !show_ani_appearing && !show_ani_disappearing)
     {
         anchor_timer->stop();
+    }
+
+    // ==== 统一坐标的出现动画 ====
+    if (unified_geometry)
+    {
+        updateUnifiedGeometry();
     }
 
     update();

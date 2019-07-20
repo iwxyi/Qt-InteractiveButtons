@@ -1,16 +1,16 @@
 #include "watercirclebutton.h"
 
-WaterCircleButton::WaterCircleButton(QWidget* parent) : InteractiveButtonBase (parent), in_circle(false), radius(16)
+WaterCircleButton::WaterCircleButton(QWidget* parent) : InteractiveButtonBase (parent), in_circle(false), radius_x(16)
 {
 
 }
 
-WaterCircleButton::WaterCircleButton(QIcon icon, QWidget *parent) : InteractiveButtonBase (icon, parent), in_circle(false), radius(16)
+WaterCircleButton::WaterCircleButton(QIcon icon, QWidget *parent) : InteractiveButtonBase (icon, parent), in_circle(false), radius_x(16)
 {
 
 }
 
-WaterCircleButton::WaterCircleButton(QPixmap pixmap, QWidget *parent) : InteractiveButtonBase (pixmap, parent), in_circle(false), radius(16)
+WaterCircleButton::WaterCircleButton(QPixmap pixmap, QWidget *parent) : InteractiveButtonBase (pixmap, parent), in_circle(false), radius_x(16)
 {
 
 }
@@ -71,7 +71,7 @@ void WaterCircleButton::mouseMoveEvent(QMouseEvent *event)
 void WaterCircleButton::resizeEvent(QResizeEvent *event)
 {
     center_pos = geometry().center() - geometry().topLeft();
-    radius = min(size().width(), size().height())/ 2;
+    radius_x = min(size().width(), size().height())/ 2;
 
     return InteractiveButtonBase::resizeEvent(event);
 }
@@ -85,7 +85,7 @@ QPainterPath WaterCircleButton::getBgPainterPath()
 {
     QPainterPath path;
     int w = size().width(), h = size().height();
-    QRect rect(w/2-radius, h/2-radius, radius*2, radius*2);
+    QRect rect(w/2-radius_x, h/2-radius_x, radius_x*2, radius_x*2);
     path.addEllipse(rect);
     return path;
 }
@@ -99,5 +99,5 @@ QPainterPath WaterCircleButton::getWaterPainterPath(InteractiveButtonBase::Water
 bool WaterCircleButton::inArea(QPoint point)
 {
     int manh = (point - center_pos).manhattanLength();
-    return manh <= radius;
+    return manh <= radius_x;
 }

@@ -27,7 +27,7 @@ protected:
     QPoint center_pos;
     bool in_area;
     int mwidth;
-    int radius;
+    int radius_x;
 
     QString string;
 };

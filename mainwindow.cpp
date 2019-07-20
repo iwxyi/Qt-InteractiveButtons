@@ -9,6 +9,7 @@ MainWindow::MainWindow(QWidget *parent) :
     InteractiveButtonBase* btn = new InteractiveButtonBase(this);
     btn->setGeometry(300, 300, 100, 100);
     btn->setBgColor(QColor(128, 0, 0, 100));
+    btn->setRadius(5);
 
     WinMenuButton* menu_btn = new WinMenuButton(this);
     menu_btn->setGeometry(368, 10, 32, 32);
