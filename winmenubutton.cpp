@@ -10,7 +10,26 @@ void WinMenuButton::paintEvent(QPaintEvent *event)
 {
     InteractiveButtonBase::paintEvent(event);
 
-    int w = geometry().width(), h = geometry().height();
+    if (!show_foreground) return ; // 不显示前景
+    int _l = 0, _t = 0, _w = geometry().width(), _h = geometry().height();
+    if ((show_ani_appearing || show_ani_disappearing) && show_ani_point != QPoint( 0, 0 ))
+    {
+        int pro; // 将动画进度转换为回弹动画进度
+        pro = show_ani_appearing ? getSpringBackProgress(show_ani_progress,50) : show_ani_progress;
+
+        // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
+        int x = show_ani_point.x(), y = show_ani_point.y();
+        int gen = quick_sqrt(x*x + y*y);
+        x = - water_radius * x / gen; // 动画起始中心点横坐标 反向
+        y = - water_radius * y / gen; // 动画起始中心点纵坐标 反向
+
+        _l = _l + x * (100-pro) / 100 + _w * (100-pro) / 200;
+        _t = _t + y * (100-pro) / 100 + _h * (100-pro) / 200;
+        _w = _w * pro / 100;
+        _h = _h * pro / 100;
+    }
+
+    int w = _w, h = _h;
     int dx = offset_pos.x(), dy = offset_pos.y();
 
     QPainter painter(this);
@@ -23,13 +42,13 @@ void WinMenuButton::paintEvent(QPaintEvent *event)
             pro = 1 - pro;
 
         int len = w/3;
-        int l = w/3, r = w*2/3, t = h/3 + pro*h/3;
+        int l = _l+w/3, r = _l+w*2/3, t = _t+h/3 + pro*h/3;
         painter.drawLine(QPoint(l+dx/4,t+dy/4), QPoint(r+dx/4,t+dy/4));
 
-        l = w/3+pro*w/24, r = w*2/3-pro*w/24, t = w/2+pro*h*5/18;
+        l = _l+w/3+pro*w/24, r = _l+w*2/3-pro*w/24, t = _t+w/2+pro*h*5/18;
         painter.drawLine(QPoint(l+dx/2,t+dy/2), QPoint(r+dx/2,t+dy/2));
 
-        l = w/3+pro*w/12, r = w*2/3-pro*w/12, t=w*2/3+pro*h*2/9;
+        l = _l+w/3+pro*w/12, r = _l+w*2/3-pro*w/12, t = _t+w*2/3+pro*h*2/9;
         painter.drawLine(QPoint(l+dx,t+dy), QPoint(r+dx,t+dy));
 
         /*int half_len = w/6;//quick_sqrt(w/3*w/3 + h/3*h/3) / 2; // 长度
@@ -76,18 +95,18 @@ void WinMenuButton::paintEvent(QPaintEvent *event)
     }
     else if (getState())
     {
-        painter.drawLine(w/3+dx/4,h*2/3+dy/4, w*2/3+dx/4,h*2/3+dy/4);
-        painter.drawLine(w/3+w/24+dx/2, h*7/9+dy/2, w*2/3-w/24+dx/2, h*7/9+dy/2);
-        painter.drawLine(w/3+w/12+dx, h*8/9+dy, w*2/3-w/12+dx, h*8/9+dy);
+        painter.drawLine(_l+w/3+dx/4, _t+h*2/3+dy/4, w*2/3+dx/4,h*2/3+dy/4);
+        painter.drawLine(_l+w/3+w/24+dx/2, _t+h*7/9+dy/2, w*2/3-w/24+dx/2, h*7/9+dy/2);
+        painter.drawLine(_l+w/3+w/12+dx, _t+h*8/9+dy, w*2/3-w/12+dx, h*8/9+dy);
 
         /*painter.drawLine(QPoint(0.39*w, 0.39*h), QPoint(0.61*w, 0.61*h));
         painter.drawLine(QPoint(0.39*w, 0.61*h), QPoint(0.61*w, 0.39*h));*/
     }
     else
     {
-        painter.drawLine(QPoint(w/3+dx/4,h/3+dy/4), QPoint(w*2/3+dx/4,h/3+dy/4));
-        painter.drawLine(QPoint(w/3+dx/2,h/2+dy/2), QPoint(w*2/3+dx/2,h/2+dy/2));
-        painter.drawLine(QPoint(w/3+dx,h*2/3+dy), QPoint(w*2/3+dx,h*2/3+dy));
+        painter.drawLine(QPoint(_l+w/3+dx/4,_t+h/3+dy/4), QPoint(_l+w*2/3+dx/4,_t+h/3+dy/4));
+        painter.drawLine(QPoint(_l+w/3+dx/2,_t+h/2+dy/2), QPoint(_l+w*2/3+dx/2,_t+h/2+dy/2));
+        painter.drawLine(QPoint(_l+w/3+dx,_t+h*2/3+dy), QPoint(_l+w*2/3+dx,_t+h*2/3+dy));
     }
 }
 

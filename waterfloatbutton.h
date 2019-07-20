@@ -3,12 +3,6 @@
 
 #include "interactivebuttonbase.h"
 
-
-/**
- * 一个两边圆形中间时矩形的悬浮按钮
- * 注意：这个按钮的主色调就是 hover_bg，而不是 icon_color，后者已经没用了
- */
-
 class WaterFloatButton : public InteractiveButtonBase
 {
 public:

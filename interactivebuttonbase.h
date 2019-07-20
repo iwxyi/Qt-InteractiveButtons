@@ -11,6 +11,7 @@
 #include <QDateTime>
 #include <QList>
 #include <QBitmap>
+#include "globalvar.h"
 
 #define PI 3.1415926
 #define GOLDEN_RATIO 0.618
@@ -51,23 +52,28 @@ public:
     };
 
     struct EdgeVal {
+        EdgeVal() {}
         EdgeVal(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
         int left, top, right, bottom;
     };
 
     void setWaterRipple(bool enable = true);
     void setJitterAni(bool enable = true);
+    void setUnifyGeomerey(bool enable = true);
     void setBgColor(QColor hover, QColor press);
     void setIconColor(QColor color = QColor(0,0,0));
     void setHover();
+    void setAlign(Qt::Alignment a);
 
     void setShowAni(bool enable = true);
     void showForeground();
-    void showForeground2();
+    void showForeground2(QPoint point = QPoint(0,0));
     void hideForeground();
+    void delayShowed(int time, QPoint point = QPoint(0,0));
 
     void setState(bool s = true);
     bool getState();
+    void simulateStatePress(bool s = true);
 
 protected:
     void enterEvent(QEvent* event) override;
@@ -81,11 +87,11 @@ protected:
     void changeEvent(QEvent* event) override;
     void paintEvent(QPaintEvent*) override;
 
-protected:
     virtual bool inArea(QPoint point);
     virtual QPainterPath getBgPainterPath();
     virtual QPainterPath getWaterPainterPath(Water water);
 
+    QRect getUnifiedGeometry();
     void paintWaterRipple(QPainter &painter);
     void setJitter();
 
@@ -95,18 +101,28 @@ protected:
     int moveSuitable(int speed, int delta) const;
     qint64 getTimestamp() const;
     bool isLightColor(QColor color);
+    int getSpringBackProgress(int x, int max);
+
+signals:
+    void showAniFinished();
+    void hideAniFinished();
+    void pressAppearAniFinished();
+    void pressDisappearAniFinished();
+    void jitterAniFinished();
 
 public slots:
     void anchorTimeOut();
     virtual void slotClicked();
+    void slotCloseState();
 
-protected:
+public:
     PaintModel model;
     QIcon icon;
     QString text;
     QPixmap pixmap;
     EdgeVal icon_paddings;
 
+protected:
     bool show_animation, show_foreground;
     bool show_ani_appearing, show_ani_disappearing;
     int show_duration;
@@ -131,6 +147,9 @@ protected:
     bool click_ani_appearing, click_ani_disappearing; // 是否正在按下的动画效果中
     int click_ani_progress; // 按下的进度（使用时间差计算）
 
+    bool unified_geometry; // 统一图标尺寸 // 上面用不到的话，这个也用不到……
+//    int ul;
+
     bool jitter_animation; // 是否开启鼠标松开时的抖动效果
     double elastic_coefficient; // 弹性系数
     QList<Jitter>jitters;
@@ -141,9 +160,8 @@ protected:
     int water_press_duration, water_release_duration, water_finish_duration;
     int water_radius;
 
+    Qt::Alignment align;
     bool _state; // 一个记录状态的变量，比如是否持续
-    int _l, _t, _w, _h;
-    bool unified_geometry;
 };
 
 

@@ -83,7 +83,7 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
 //    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter.setRenderHint(QPainter::Antialiasing,true);
 
-    QPainterPath path = getBgPainterPath();
+    // 进度
     QColor edge_color = hover_bg;
     int pro = 0;
     if (hover_progress > 0 || press_progress || waters.size())
@@ -105,9 +105,33 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
         }
         edge_color.setAlpha(255 * (100 - pro) / 100);
     }
-    painter.setPen(hover_bg);
-    painter.drawPath(path);
 
+    // 画边框
+    QPainterPath path;
+    if (show_foreground)
+    {
+        path = getBgPainterPath(); // 整体背景
+
+        // 出现动画
+        if (show_ani_appearing && show_ani_progress != 100)
+        {
+            int pw = size().width() * show_ani_progress / 100;
+            QRect rect(0, 0, pw, size().height());
+            QPainterPath rect_path;
+            rect_path.addRect(rect);
+            path &= rect_path;
+
+            int x = show_ani_point.x(), y = show_ani_point.y();
+            int gen = quick_sqrt(x*x + y*y);
+            x = - water_radius * x / gen; // 动画起始中心点横坐标 反向
+            y = - water_radius * y / gen; // 动画起始中心点纵坐标 反向
+        }
+
+        painter.setPen(hover_bg);
+        painter.drawPath(path);
+    }
+
+    // 画文字
     if (!string.isEmpty())
     {
         QRect rect = QRect(QPoint(0,0), size());

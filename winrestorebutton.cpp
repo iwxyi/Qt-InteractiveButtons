@@ -10,31 +10,51 @@ void WinRestoreButton::paintEvent(QPaintEvent* event)
 {
     InteractiveButtonBase::paintEvent(event);
 
-    int w = geometry().width(), h = geometry().height();
+    if (!show_foreground) return ; // 不显示前景
+    int _l = 0, _t = 0, _w = geometry().width(), _h = geometry().height();
+    if ((show_ani_appearing || show_ani_disappearing) && show_ani_point != QPoint( 0, 0 ))
+    {
+        int pro; // 将动画进度转换为回弹动画进度
+        pro = show_ani_appearing ? getSpringBackProgress(show_ani_progress,50) : show_ani_progress;
+
+        // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
+        int x = show_ani_point.x(), y = show_ani_point.y();
+        int gen = quick_sqrt(x*x + y*y);
+        x = - water_radius * x / gen; // 动画起始中心点横坐标 反向
+        y = - water_radius * y / gen; // 动画起始中心点纵坐标 反向
+
+        _l = _l + x * (100-pro) / 100 + _w * (100-pro) / 200;
+        _t = _t + y * (100-pro) / 100 + _h * (100-pro) / 200;
+        _w = _w * pro / 100;
+        _h = _h * pro / 100;
+    }
+
+    // 画出现一角的矩形
+    int w = _w, h = _h;
     int dx = offset_pos.x(), dy = offset_pos.y();
     QRect br;
     if (click_ani_appearing || click_ani_disappearing)
     {
         double pro = click_ani_progress / 800.0;
         br = QRect(
-                    (w/3+dx) - (w/3+dx)*pro,
-                    (h/3+dy) - (h/3+dy)*pro,
+                    _l+(w/3+dx) - (w/3+dx)*pro,
+                    _t+(h/3+dy) - (h/3+dy)*pro,
                     w/3 + (w*2/3)*pro,
                     h/3 + (h*2/3)*pro
                     );
     }
     else
     {
-        br = QRect(w/3+dx, h/3+dy, w/3, h/3);
+        br = QRect(_l+w/3+dx, _t+h/3+dy, w/3, h/3);
     }
 
-    // 画原来的圆
+    // 画原来的矩形
     QPainter painter(this);
     painter.setPen(QPen(icon_color));
     painter.drawRect(br);
 
     dx /= 2; dy /= 2;
-    int l = w*4/9+dx, t = h*2/9+dy, r = w*7/9+dx, b = h*5/9+dy;
+    int l = _l+w*4/9+dx, t = _t+h*2/9+dy, r = _l+w*7/9+dx, b = _t+h*5/9+dy;
     if (click_ani_appearing || click_ani_disappearing)
     {
         double pro = click_ani_progress / 800.0;
