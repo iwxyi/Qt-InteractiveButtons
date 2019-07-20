@@ -1,7 +1,7 @@
 #include "interactivebuttonbase.h"
 
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
-    : QPushButton(parent), icon(nullptr), text(""),
+    : QPushButton(parent), icon(nullptr), text(""), paint_addin(),
       icon_paddings(4,4,4,4),
       show_animation(false), show_foreground(true), show_ani_appearing(false), show_ani_disappearing(false),
       show_duration(300), show_timestamp(0), hide_timestamp(0), show_ani_progress(0), show_ani_point(0,0),
@@ -11,7 +11,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       hover_timestamp(0), press_timestamp(0), release_timestamp(0),
       hover_bg_duration(100), press_bg_duration(100), click_ani_duration(300),
       move_speed(5),
-      icon_color(0, 0, 0),
+      icon_color(0, 0, 0), text_color(0,0,0),
       normal_bg(0xF2, 0xF2, 0xF2, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64),
       hover_speed(5), press_start(40), press_speed(5),
       hover_progress(0), press_progress(0),
@@ -57,6 +57,36 @@ InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
     pixmap.setMask(mask);
     this->pixmap = pixmap;
     model = PaintModel::PixmapMask;
+}
+
+void InteractiveButtonBase::setText(QString text)
+{
+    this->text = text;
+    update();
+}
+
+void InteractiveButtonBase::setIcon(QIcon icon)
+{
+    this->icon = icon;
+    update();
+}
+
+void InteractiveButtonBase::setPixmap(QPixmap pixmap)
+{
+    QBitmap mask = pixmap.mask();
+    pixmap.fill(icon_color);
+    pixmap.setMask(mask);
+    this->pixmap = pixmap;
+    update();
+}
+
+void InteractiveButtonBase::setPaintAddin(QPixmap pixmap, Qt::Alignment align, QSize size)
+{
+    QBitmap mask = pixmap.mask();
+    pixmap.fill(icon_color);
+    pixmap.setMask(mask);
+    paint_addin = PaintAddin(pixmap, align, size);
+    update();
 }
 
 void InteractiveButtonBase::changeEvent(QEvent *event)
@@ -119,13 +149,26 @@ void InteractiveButtonBase::setIconColor(QColor color)
     if (!isEnabled() && model != PaintModel::PixmapMask)
         icon_color.setAlpha(icon_color.alpha() / 2);
 
-    if (model == PaintModel::PixmapMask)
+    if (model == PaintModel::PixmapMask || model == PaintModel::PixmapText)
     {
         QBitmap mask = pixmap.mask();
         pixmap.fill(icon_color);
         pixmap.setMask(mask);
     }
 
+    if (paint_addin.enable)
+    {
+        QBitmap mask = paint_addin.pixmap.mask();
+        paint_addin.pixmap.fill(icon_color);
+        paint_addin.pixmap.setMask(mask);
+    }
+
+    update();
+}
+
+void InteractiveButtonBase::setTextColor(QColor color)
+{
+    text_color = color;
     update();
 }
 
@@ -436,15 +479,34 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     // ==== 绘制前景 ====
     if (show_foreground)
     {
-        if (isEnabled())
+        painter.setPen(isEnabled()?icon_color:getOpacityColor(icon_color));
+
+        // 绘制额外内容（可能被前景覆盖）
+        if (paint_addin.enable)
         {
-            painter.setPen(icon_color);
-        }
-        else // 不可用状态，透明度减半
-        {
-            QColor half = icon_color;
-            half.setAlpha(half.alpha() / 2);
-            painter.setPen(half);
+            int l = icon_paddings.left, t = icon_paddings.top, r = size().width()-icon_paddings.right, b = size().height()-icon_paddings.bottom;
+            int small_edge = min(size().height(), size().width());
+            int pw = paint_addin.size.width() ? paint_addin.size.width() : small_edge-icon_paddings.left-icon_paddings.right;
+            int ph = paint_addin.size.height() ? paint_addin.size.height() : small_edge-icon_paddings.top-icon_paddings.bottom;
+            if (paint_addin.align & Qt::AlignLeft)
+                r = l + pw;
+            else if (paint_addin.align & Qt::AlignRight)
+                l = r - pw;
+            else if (paint_addin.align & Qt::AlignHCenter)
+            {
+                l = size().width()/2-pw/2;
+                r = l+pw;
+            }
+            if (paint_addin.align & Qt::AlignTop)
+                b = t + ph;
+            else if (paint_addin.align & Qt::AlignBottom)
+                t = b - ph;
+            else if (paint_addin.align & Qt::AlignVCenter)
+            {
+                t = size().height()/2-ph/2;
+                b = t+ph;
+            }
+            painter.drawPixmap(QRect(l,t,r-l,b-t), paint_addin.pixmap);
         }
 
         QRect rect(icon_paddings.left+offset_pos.x(), icon_paddings.top+offset_pos.y(), // 原来的位置，不包含点击、出现效果
@@ -529,20 +591,22 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
         else if (model == Text)
         {
             // 绘制文字教程： https://blog.csdn.net/temetnosce/article/details/78068464
+            painter.setPen(text_color);
+            painter.setPen(isEnabled()?text_color:getOpacityColor(text_color));
             painter.drawText(rect, align, text);
         }
-        else // 绘制图标
+        else if (model == Icon) // 绘制图标
+        {
+            icon.paint(&painter, rect, align);
+        }
+        else if (model == PixmapMask)
+        {
+            painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
+            painter.drawPixmap(rect, pixmap);
+        }
+        else if (model == PixmapText)
         {
 
-            if (model == Icon)
-            {
-                icon.paint(&painter, rect, align);
-            }
-            else if (model == PixmapMask)
-            {
-                painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
-                painter.drawPixmap(rect, pixmap);
-            }
         }
     }
 
@@ -738,6 +802,12 @@ int InteractiveButtonBase::getSpringBackProgress(int x, int max)
     if (x <= max + (100-max)/2)
         return (x-max)/2+100;
     return 100 + (100-x)/2;
+}
+
+QColor InteractiveButtonBase::getOpacityColor(QColor color, double level)
+{
+    color.setAlpha(static_cast<int>(color.alpha() * level));
+    return color;
 }
 
 /**

@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     InteractiveButtonBase* pixmap_btn = new InteractiveButtonBase(QPixmap(":/icons/point_menu"), this);
     pixmap_btn->setGeometry(132, 50, 32, 32);
+    pixmap_btn->setDisabled(true);
 
     InteractiveButtonBase* float_btn = new WaterFloatButton("text", this);
     float_btn->setGeometry(164, 50, 100, 32);

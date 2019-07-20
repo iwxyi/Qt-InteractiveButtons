@@ -33,6 +33,15 @@ public:
         PixmapText
     };
 
+    struct PaintAddin {
+        PaintAddin() : enable(false) {}
+        PaintAddin(QPixmap p, Qt::Alignment a, QSize s) : enable(true), pixmap(p), align(a), size(s) {}
+        bool enable;
+        QPixmap pixmap;
+        Qt::Alignment align;
+        QSize size;
+    };
+
     struct Jitter {
         Jitter(QPoint p, qint64 t) : point(p), timestamp(t) {}
         QPoint point;
@@ -56,12 +65,18 @@ public:
         int left, top, right, bottom;
     };
 
+    void setText(QString text);
+    void setIcon(QIcon icon);
+    void setPixmap(QPixmap pixmap);
+    void setPaintAddin(QPixmap pixmap, Qt::Alignment align = Qt::AlignRight, QSize size = QSize(0,0));
+
     void setWaterRipple(bool enable = true);
     void setJitterAni(bool enable = true);
     void setUnifyGeomerey(bool enable = true);
     void setBgColor(QColor bg);
     void setBgColor(QColor hover, QColor press);
     void setIconColor(QColor color = QColor(0,0,0));
+    void setTextColor(QColor color = QColor(0,0,0));
     void setHover();
     void setAlign(Qt::Alignment a);
     void setRadius(int r);
@@ -106,6 +121,7 @@ protected:
     qint64 getTimestamp() const;
     bool isLightColor(QColor color);
     int getSpringBackProgress(int x, int max);
+    QColor getOpacityColor(QColor color, double level = 0.5);
 
 signals:
     void showAniFinished();
@@ -124,6 +140,7 @@ public:
     QIcon icon;
     QString text;
     QPixmap pixmap;
+    PaintAddin paint_addin;
     EdgeVal icon_paddings;
 
 protected:
@@ -143,7 +160,7 @@ protected:
     QTimer* anchor_timer;
     int move_speed;
 
-    QColor icon_color; // 前景颜色
+    QColor icon_color, text_color; // 前景颜色
     QColor normal_bg, hover_bg, press_bg; // 各种背景颜色
     int hover_speed, press_start, press_speed; // 颜色渐变速度
     int hover_progress, press_progress; // 颜色渐变进度
