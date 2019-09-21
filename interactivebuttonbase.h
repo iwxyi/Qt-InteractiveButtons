@@ -5,6 +5,7 @@
 #include <QPushButton>
 #include <QPoint>
 #include <QTimer>
+#include <QPropertyAnimation>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QDebug>
@@ -18,6 +19,7 @@
 class InteractiveButtonBase : public QPushButton
 {
     Q_OBJECT
+    Q_PROPERTY(int font_size READ getFontSizeT WRITE setFontSizeT)
 public:
     InteractiveButtonBase(QWidget* parent = nullptr);
     InteractiveButtonBase(QString text, QWidget* parent = nullptr);
@@ -65,11 +67,15 @@ public:
         int left, top, right, bottom;
     };
 
-    void setText(QString text);
-    void setIcon(QIcon icon);
-    void setPixmap(QPixmap pixmap);
-    void setPaintAddin(QPixmap pixmap, Qt::Alignment align = Qt::AlignRight, QSize size = QSize(0,0));
+    virtual void setText(QString text);
+    virtual void setIcon(QIcon icon);
+    virtual void setPixmap(QPixmap pixmap);
+    virtual void setPaintAddin(QPixmap pixmap, Qt::Alignment align = Qt::AlignRight, QSize size = QSize(0,0));
 
+    void setHoverAniDuration(int d);
+    void setPressAniDuration(int d);
+    void setClickAniDuration(int d);
+    void setWaterAniDuration(int press, int release, int finish);
     void setWaterRipple(bool enable = true);
     void setJitterAni(bool enable = true);
     void setUnifyGeomerey(bool enable = true);
@@ -77,11 +83,18 @@ public:
     void setBgColor(QColor hover, QColor press);
     void setIconColor(QColor color = QColor(0,0,0));
     void setTextColor(QColor color = QColor(0,0,0));
+    void setFontSize(int f);
     void setHover();
     void setAlign(Qt::Alignment a);
     void setRadius(int r);
     void setRadius(int rx, int ry);
     void setDisabled(bool dis = true);
+    void setPaddings(int l, int r, int t, int b);
+    void setPaddings(int x);
+    void setFixedTextPos(bool f = true);
+    void setFixedForeSize(bool f = true, int addin = 0);
+    void setTextDynamicSize(bool d = true);
+    void setLeaveAfterClick(bool l = true);
 
     void setShowAni(bool enable = true);
     void showForeground();
@@ -89,9 +102,10 @@ public:
     void hideForeground();
     void delayShowed(int time, QPoint point = QPoint(0,0));
 
+    void setMenu(QMenu* menu);
     void setState(bool s = true);
     bool getState();
-    void simulateStatePress(bool s = true);
+    virtual void simulateStatePress(bool s = true);
 
 protected:
     void enterEvent(QEvent* event) override;
@@ -113,6 +127,9 @@ protected:
     void updateUnifiedGeometry();
     void paintWaterRipple(QPainter &painter);
     void setJitter();
+
+    int getFontSizeT();
+    void setFontSizeT(int f);
 
     int max(int a, int b) const;
     int min(int a, int b) const;
@@ -166,6 +183,10 @@ protected:
     int hover_speed, press_start, press_speed; // 颜色渐变速度
     int hover_progress, press_progress; // 颜色渐变进度
     int radius_x, radius_y;
+    int font_size;
+    bool fixed_fore_pos;    // 鼠标进入时是否固定文字位置
+    bool fixed_fore_size;   // 鼠标进入/点击时是否固定前景大小
+    bool text_dynamic_size; // 设置字体时自动调整最小宽高
 
     bool click_ani_appearing, click_ani_disappearing; // 是否正在按下的动画效果中
     int click_ani_progress; // 按下的进度（使用时间差计算）
@@ -185,6 +206,7 @@ protected:
 
     Qt::Alignment align;
     bool _state; // 一个记录状态的变量，比如是否持续
+    bool leave_after_clicked; // 鼠标点击后是否取消聚焦（针对子类异形按钮）
 };
 
 

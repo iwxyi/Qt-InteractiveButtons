@@ -3,7 +3,7 @@
 WinMenuButton::WinMenuButton(QWidget* parent)
     : InteractiveButtonBase (parent)
 {
-
+    setUnifyGeomerey(true);
 }
 
 void WinMenuButton::paintEvent(QPaintEvent *event)

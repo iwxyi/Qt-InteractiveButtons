@@ -7,7 +7,7 @@ class WaterFloatButton : public InteractiveButtonBase
 {
 public:
     WaterFloatButton(QWidget* parent = nullptr);
-    WaterFloatButton(QString text, QWidget* parent = nullptr);
+    WaterFloatButton(QString s, QWidget* parent = nullptr);
 
 protected:
     void enterEvent(QEvent* event) override;
@@ -18,18 +18,18 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
     void paintEvent(QPaintEvent *event) override;
 
+    void setText(QString s) override;
     QPainterPath getBgPainterPath() override;
     QPainterPath getWaterPainterPath(Water water) override;
 
-    bool inArea(QPoint point);
+    bool inArea(QPoint point) override;
 
 protected:
+    QString string;
     QPoint center_pos;
     bool in_area;
     int mwidth;
-    int radius_x;
-
-    QString string;
+    int radius;
 };
 
 #endif // WATERFLOATBUTTON_H

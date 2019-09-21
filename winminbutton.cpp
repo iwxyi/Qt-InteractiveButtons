@@ -3,7 +3,7 @@
 WinMinButton::WinMinButton(QWidget* parent)
 	: InteractiveButtonBase(parent)
 {
-
+    setUnifyGeomerey(true);
 }
 
 void WinMinButton::paintEvent(QPaintEvent* event)

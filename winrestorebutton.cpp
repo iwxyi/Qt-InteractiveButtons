@@ -3,7 +3,7 @@
 WinRestoreButton::WinRestoreButton(QWidget* parent)
     : InteractiveButtonBase(parent)
 {
-
+    setUnifyGeomerey(true);
 }
 
 void WinRestoreButton::paintEvent(QPaintEvent* event)

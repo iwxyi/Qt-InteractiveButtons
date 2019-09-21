@@ -3,7 +3,7 @@
 WinCloseButton::WinCloseButton(QWidget *parent)
     : InteractiveButtonBase (parent)
 {
-
+    setUnifyGeomerey(true);
 }
 
 void WinCloseButton::paintEvent(QPaintEvent *event)

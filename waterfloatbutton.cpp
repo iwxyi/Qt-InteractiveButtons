@@ -1,11 +1,11 @@
 #include "waterfloatbutton.h"
 
-WaterFloatButton::WaterFloatButton(QWidget *parent) : InteractiveButtonBase(parent), in_area(false), mwidth(16), radius_x(8)
+WaterFloatButton::WaterFloatButton(QWidget *parent) : InteractiveButtonBase(parent), in_area(false), mwidth(16), radius(8)
 {
 
 }
 
-WaterFloatButton::WaterFloatButton(QString text, QWidget *parent) : InteractiveButtonBase(parent), in_area(false), mwidth(16), radius_x(8), string(text)
+WaterFloatButton::WaterFloatButton(QString s, QWidget *parent) : InteractiveButtonBase("", parent), string(s), in_area(false), mwidth(16), radius(8)
 {
 
 }
@@ -67,10 +67,10 @@ void WaterFloatButton::resizeEvent(QResizeEvent *event)
 {
     int w = geometry().width(), h = geometry().height();
     if (h >= w * 4) // 宽度为准
-        radius_x = w / 4;
+        radius = w / 4;
     else
-        radius_x = h/2;
-    mwidth = (w-radius_x*2);
+        radius = h/2;
+    mwidth = (w-radius*2);
 
     return InteractiveButtonBase::resizeEvent(event);
 }
@@ -83,7 +83,7 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
 //    painter.setRenderHint(QPainter::SmoothPixmapTransform, true);
     painter.setRenderHint(QPainter::Antialiasing,true);
 
-    // 进度
+    // 鼠标悬浮进度
     QColor edge_color = hover_bg;
     int pro = 0;
     if (hover_progress > 0 || press_progress || waters.size())
@@ -126,9 +126,11 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
             x = - water_radius * x / gen; // 动画起始中心点横坐标 反向
             y = - water_radius * y / gen; // 动画起始中心点纵坐标 反向
         }
-
-        painter.setPen(hover_bg);
-        painter.drawPath(path);
+        if (normal_bg.alpha() == 0) // 如果有背景，则不进行画背景线条
+        {
+            painter.setPen(hover_bg);
+            painter.drawPath(path);
+        }
     }
 
     // 画文字
@@ -140,21 +142,32 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
         {
             QColor aim_color = isLightColor(hover_bg) ? QColor(0,0,0) : QColor(255,255,255);
             color = QColor(
-                        hover_bg.red() + (aim_color.red()-hover_bg.red()) * pro / 100,
-                        hover_bg.green() + (aim_color.green()-hover_bg.green()) * pro / 100,
-                        hover_bg.blue() + (aim_color.blue()-hover_bg.blue()) * pro / 100,
+                        text_color.red() + (aim_color.red()-text_color.red()) * pro / 100,
+                        text_color.green() + (aim_color.green()-text_color.green()) * pro / 100,
+                        text_color.blue() + (aim_color.blue()-text_color.blue()) * pro / 100,
                         255
                         );
             painter.setPen(color);
         }
         else
         {
-            color = hover_bg;
+            color = text_color;
             color.setAlpha(255);
         }
         painter.setPen(color);
+        if (font_size > 0)
+        {
+            QFont font = painter.font();
+            font.setPointSize(font_size);
+            painter.setFont(font);
+        }
         painter.drawText(rect, Qt::AlignCenter, string);
     }
+}
+
+void WaterFloatButton::setText(QString s)
+{
+    string = s;
 }
 
 QPainterPath WaterFloatButton::getBgPainterPath()
@@ -162,13 +175,13 @@ QPainterPath WaterFloatButton::getBgPainterPath()
     QPainterPath path1, path2, path3;
     int w = size().width(), h = size().height();
 
-    QRect mrect(w/2-mwidth/2, h/2-radius_x, mwidth, radius_x*2);
+    QRect mrect(w/2-mwidth/2, h/2-radius, mwidth, radius*2);
     path1.addRect(mrect);
 
     QPoint o1(w/2-mwidth/2, h/2);
     QPoint o2(w/2+mwidth/2, h/2);
-    path2.addEllipse(o1.x()-radius_x, o1.y()-radius_x, radius_x*2, radius_x*2);
-    path3.addEllipse(o2.x()-radius_x, o2.y()-radius_x, radius_x*2, radius_x*2);
+    path2.addEllipse(o1.x()-radius, o1.y()-radius, radius*2, radius*2);
+    path3.addEllipse(o2.x()-radius, o2.y()-radius, radius*2, radius*2);
 
     return path1 | path2 | path3;
 }
@@ -184,12 +197,12 @@ bool WaterFloatButton::inArea(QPoint point)
     int w = size().width(), h = size().height();
     QPoint o1(w/2-mwidth/2, h/2);
     QPoint o2(w/2+mwidth/2, h/2);
-    QRect mrect(w/2-mwidth/2, h/2-radius_x, mwidth, radius_x*2);
+    QRect mrect(w/2-mwidth/2, h/2-radius, mwidth, radius*2);
 
     if (mrect.contains(point))
         return true;
-    if ((point-o1).manhattanLength() <= radius_x ||
-            (point-o2).manhattanLength() <= radius_x)
+    if ((point-o1).manhattanLength() <= radius ||
+            (point-o2).manhattanLength() <= radius)
         return true;
     return false;
 }

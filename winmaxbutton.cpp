@@ -3,7 +3,7 @@
 WinMaxButton::WinMaxButton(QWidget *parent)
     : InteractiveButtonBase (parent)
 {
-//    setUnifyGeometry(true);
+    setUnifyGeomerey(true);
 }
 
 void WinMaxButton::paintEvent(QPaintEvent *event)
