@@ -10,7 +10,7 @@ void WinCloseButton::paintEvent(QPaintEvent *event)
 {
     InteractiveButtonBase::paintEvent(event);
 
-    if (!show_foreground) return ; // 不显示前景
+    if (!show_foreground) return; // 不显示前景
 
     int w = _w, h = _h;
     int l = _l+w/3, t = _t+h/3, r = w*2/3, b = h*2/3;

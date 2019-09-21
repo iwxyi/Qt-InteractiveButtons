@@ -28,6 +28,7 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     interactivebuttonbase.cpp \
+    pointmenubutton.cpp \
     winminbutton.cpp \
     generalbuttoninterface.cpp \
     winmaxbutton.cpp \
@@ -38,6 +39,7 @@ SOURCES += \
     waterfloatbutton.cpp
 
 HEADERS += \
+    PointMenuButton.h \
         mainwindow.h \
     interactivebuttonbase.h \
     winminbutton.h \

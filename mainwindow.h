@@ -10,6 +10,7 @@
 #include "winmenubutton.h"
 #include "watercirclebutton.h"
 #include "waterfloatbutton.h"
+#include "pointmenubutton.h"
 
 class MainWindow : public QMainWindow
 {
