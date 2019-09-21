@@ -39,9 +39,9 @@ SOURCES += \
     waterfloatbutton.cpp
 
 HEADERS += \
-    PointMenuButton.h \
         mainwindow.h \
     interactivebuttonbase.h \
+    pointmenubutton.h \
     winminbutton.h \
     generalbuttoninterface.h \
     winmaxbutton.h \

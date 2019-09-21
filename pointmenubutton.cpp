@@ -30,16 +30,16 @@ void PointMenuButton::paintEvent(QPaintEvent * event)
     if (offset_pos != QPoint(0,0))
     {
         QPainterPath path;
-        path.moveTo(QPoint(l,t));
+        /*path.moveTo(QPoint(l,t));
         path.cubicTo(QPoint(l,t), QPoint(mx,my), QPoint(r,b));
         path.moveTo(QPoint(r,t));
-        path.cubicTo(QPoint(r,t), QPoint(mx,my), QPoint(l,b));
+        path.cubicTo(QPoint(r,t), QPoint(mx,my), QPoint(l,b));*/
 
         painter.drawPath(path);
     }
     else
     {
-        painter.drawLine(QPoint(l,t), QPoint(r,b));
-        painter.drawLine(QPoint(r,t), QPoint(l,b));
+        /*painter.drawLine(QPoint(l,t), QPoint(r,b));
+        painter.drawLine(QPoint(r,t), QPoint(l,b));*/
     }
 }
