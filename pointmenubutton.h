@@ -3,7 +3,10 @@
 
 #include <QWidget>
 #include <QObject>
+#include <QtMath>
 #include "interactivebuttonbase.h"
+
+#define ANI_STEP_3 40
 
 class PointMenuButton : public InteractiveButtonBase
 {
@@ -12,6 +15,9 @@ public:
 
 protected:
     void paintEvent(QPaintEvent*event);
+
+private:
+    int radius;
 };
 
 #endif // POINTMENUBUTTON_H
