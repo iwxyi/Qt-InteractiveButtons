@@ -4,13 +4,7 @@ PointMenuButton::PointMenuButton(QWidget *parent) : InteractiveButtonBase(parent
 {
     setUnifyGeomerey(true);
     radius = 1;
-    setClickAniDuration(600);
-}
-
-void PointMenuButton::mousePressEvent(QMouseEvent *event)
-{
-    InteractiveButtonBase::slotClicked();
-    return InteractiveButtonBase::mousePressEvent(event);
+    setClickAniDuration(3000);
 }
 
 void PointMenuButton::paintEvent(QPaintEvent * event)

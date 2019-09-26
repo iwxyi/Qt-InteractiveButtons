@@ -98,3 +98,8 @@ void PointMenuButton::paintEvent(QPaintEvent * event)
     }
 
 }
+
+void PointMenuButton::slotClicked()
+{
+
+}

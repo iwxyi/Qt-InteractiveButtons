@@ -14,9 +14,6 @@ MainWindow::MainWindow(QWidget *parent) :
     btn->setBgColor(QColor(128, 0, 0, 100));
     btn->setRadius(5);
 
-    PointMenuButton* pm_btn = new PointMenuButton(this);
-    pm_btn->setGeometry(336, 10, 32, 32);
-
     WinMenuButton* menu_btn = new WinMenuButton(this);
     menu_btn->setGeometry(368, 10, 32, 32);
 
@@ -51,6 +48,9 @@ MainWindow::MainWindow(QWidget *parent) :
     float_btn->setGeometry(164, 50, 100, 32);
     float_btn->setBgColor(QColor(102,51,204,192), QColor(102,51,204,255));
 
+
+    PointMenuButton* pm_btn = new PointMenuButton(this);
+    pm_btn->setGeometry(200, 200, 100, 100);
 }
 
 void MainWindow::enterEvent(QEvent *event)
