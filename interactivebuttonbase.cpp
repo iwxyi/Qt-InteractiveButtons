@@ -282,7 +282,6 @@ void InteractiveButtonBase::setAlign(Qt::Alignment a)
 void InteractiveButtonBase::setRadius(int r)
 {
     radius_x = radius_y = r;
-    qDebug() << "set radius" << r;
 }
 
 void InteractiveButtonBase::setRadius(int rx, int ry)
@@ -340,7 +339,6 @@ void InteractiveButtonBase::setTextDynamicSize(bool d)
 void InteractiveButtonBase::setFixedTextPos(bool f)
 {
     fixed_fore_pos = f;
-    update();
 }
 
 void InteractiveButtonBase::setFixedForeSize(bool f, int addin)

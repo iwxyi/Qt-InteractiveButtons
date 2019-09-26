@@ -47,6 +47,8 @@ MainWindow::MainWindow(QWidget *parent) :
     InteractiveButtonBase* float_btn = new WaterFloatButton("text", this);
     float_btn->setGeometry(164, 50, 100, 32);
     float_btn->setBgColor(QColor(102,51,204,192), QColor(102,51,204,255));
+    float_btn->setIconColor(QColor(102,51,204,192));
+    float_btn->setStyleSheet("qproperty-text: abcdefg; qproperty-water_animation: true; ");
 
     PointMenuButton* pm_btn = new PointMenuButton(this);
     pm_btn->setGeometry(200, 200, 100, 100);

@@ -1,4 +1,4 @@
-#include "waterfloatbutton.h"
+﻿#include "waterfloatbutton.h"
 
 WaterFloatButton::WaterFloatButton(QWidget *parent) : InteractiveButtonBase(parent), in_area(false), mwidth(16), radius(8)
 {
@@ -113,7 +113,7 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
         path = getBgPainterPath(); // 整体背景
 
         // 出现动画
-        if (show_ani_appearing && show_ani_progress != 100)
+        if (show_ani_appearing && show_ani_progress != 100 && border_bg.alpha() != 0)
         {
             int pw = size().width() * show_ani_progress / 100;
             QRect rect(0, 0, pw, size().height());
@@ -125,10 +125,16 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
             int gen = quick_sqrt(x*x + y*y);
             x = - water_radius * x / gen; // 动画起始中心点横坐标 反向
             y = - water_radius * y / gen; // 动画起始中心点纵坐标 反向
+
+            /*if (border_bg.alpha() != 0) // 如果有背景，则不进行画背景线条
+            {
+                painter.setPen(border_bg);
+                painter.drawPath(path);
+            }*/
         }
-        if (normal_bg.alpha() == 0) // 如果有背景，则不进行画背景线条
+        if (icon_color.alpha() != 0) // 如果有背景，则不进行画背景线条
         {
-            painter.setPen(hover_bg);
+            painter.setPen(icon_color);
             painter.drawPath(path);
         }
     }

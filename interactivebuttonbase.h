@@ -27,8 +27,16 @@ class InteractiveButtonBase : public QPushButton
     Q_PROPERTY(QColor border_color WRITE setBorderColor)
     Q_PROPERTY(QColor hover_color WRITE setHoverColor)
     Q_PROPERTY(QColor press_color WRITE setPressColor)
+    Q_PROPERTY(int hover_duration WRITE setHoverAniDuration)
+    Q_PROPERTY(int press_duration WRITE setPressAniDuration)
+    Q_PROPERTY(int click_duration WRITE setClickAniDuration)
     Q_PROPERTY(int radius WRITE setRadius)
     Q_PROPERTY(int border_width WRITE setBorderWidth)
+    Q_PROPERTY(bool fixed_fore_pos WRITE setFixedTextPos)
+    Q_PROPERTY(bool text_dynamic_size WRITE setTextDynamicSize)
+    Q_PROPERTY(bool leave_after_clicked WRITE setLeaveAfterClick)
+    Q_PROPERTY(bool show_animation WRITE setShowAni)
+    Q_PROPERTY(bool water_animation WRITE setWaterRipple)
 public:
     InteractiveButtonBase(QWidget* parent = nullptr);
     InteractiveButtonBase(QString text, QWidget* parent = nullptr);
