@@ -17,8 +17,6 @@ protected:
     void mousePressEvent(QMouseEvent *event) override;
     void paintEvent(QPaintEvent*event) override;
 
-    void slotClicked() override;
-
 private:
     int radius;
 };

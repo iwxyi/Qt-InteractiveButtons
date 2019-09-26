@@ -1082,7 +1082,7 @@ void InteractiveButtonBase::anchorTimeOut()
     }
 
     // ==== 按下动画 ====
-    if (click_ani_disappearing) // 按下动画效果消失
+    if (click_ani_disappearing) // 点击动画效果消失
     {
         qint64 delta = getTimestamp()-release_timestamp-click_ani_duration;
         if (delta <= 0) click_ani_progress = 100;
@@ -1094,7 +1094,7 @@ void InteractiveButtonBase::anchorTimeOut()
             emit pressAppearAniFinished();
         }
     }
-    if (click_ani_appearing) // 按下动画效果
+    if (click_ani_appearing) // 点击动画效果
     {
         qint64 delta = getTimestamp()-release_timestamp;
         if (delta <= 0) click_ani_progress = 0;
