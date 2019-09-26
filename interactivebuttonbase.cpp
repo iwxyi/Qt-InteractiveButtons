@@ -12,7 +12,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       hover_bg_duration(100), press_bg_duration(100), click_ani_duration(300),
       move_speed(5),
       icon_color(0, 0, 0), text_color(0,0,0),
-      normal_bg(0xF2, 0xF2, 0xF2, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64),
+      normal_bg(0xF2, 0xF2, 0xF2, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64), border_bg(0,0,0,0),
       hover_speed(5), press_start(40), press_speed(5),
       hover_progress(0), press_progress(0),
       radius_x(0), radius_y(0), font_size(0), fixed_fore_pos(false), fixed_fore_size(false), text_dynamic_size(false),
@@ -163,17 +163,37 @@ void InteractiveButtonBase::setUnifyGeomerey(bool enable)
 
 void InteractiveButtonBase::setBgColor(QColor bg)
 {
-    normal_bg = bg;
+    setNormalColor(bg);
     update();
 }
 
 void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
 {
     if (hover != Qt::black)
-        hover_bg = hover;
+        setHoverColor(hover);
     if (press != Qt::black)
-        press_bg = press;
+        setPressColor(press);
     update();
+}
+
+void InteractiveButtonBase::setNormalColor(QColor color)
+{
+    normal_bg = color;
+}
+
+void InteractiveButtonBase::setBorderColor(QColor color)
+{
+    border_bg = color;
+}
+
+void InteractiveButtonBase::setHoverColor(QColor color)
+{
+    hover_bg = color;
+}
+
+void InteractiveButtonBase::setPressColor(QColor color)
+{
+    press_bg = color;
 }
 
 void InteractiveButtonBase::setIconColor(QColor color)
@@ -262,6 +282,7 @@ void InteractiveButtonBase::setAlign(Qt::Alignment a)
 void InteractiveButtonBase::setRadius(int r)
 {
     radius_x = radius_y = r;
+    qDebug() << "set radius" << r;
 }
 
 void InteractiveButtonBase::setRadius(int rx, int ry)
@@ -598,6 +619,11 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
     if (normal_bg.alpha() != 0) // 默认背景
     {
         painter.fillPath(path_back, isEnabled()?normal_bg:getOpacityColor(normal_bg));
+    }
+
+    if (border_bg.alpha() != 0)
+    {
+        painter.fillPath(path_back, border_bg);
     }
 
     if (hover_progress) // 悬浮背景

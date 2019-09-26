@@ -20,6 +20,14 @@ class InteractiveButtonBase : public QPushButton
 {
     Q_OBJECT
     Q_PROPERTY(int font_size READ getFontSizeT WRITE setFontSizeT)
+    Q_PROPERTY(QString text WRITE setText)
+    Q_PROPERTY(QColor icon_color WRITE setIconColor)
+    Q_PROPERTY(QColor text_color WRITE setTextColor)
+    Q_PROPERTY(QColor background_color WRITE setNormalColor)
+    Q_PROPERTY(QColor border_color WRITE setBorderColor)
+    Q_PROPERTY(QColor hover_color WRITE setHoverColor)
+    Q_PROPERTY(QColor press_color WRITE setPressColor)
+    Q_PROPERTY(int radius WRITE setRadius)
 public:
     InteractiveButtonBase(QWidget* parent = nullptr);
     InteractiveButtonBase(QString text, QWidget* parent = nullptr);
@@ -81,6 +89,10 @@ public:
     void setUnifyGeomerey(bool enable = true);
     void setBgColor(QColor bg);
     void setBgColor(QColor hover, QColor press);
+    void setNormalColor(QColor color);
+    void setBorderColor(QColor color);
+    void setHoverColor(QColor color);
+    void setPressColor(QColor color);
     void setIconColor(QColor color = QColor(0,0,0));
     void setTextColor(QColor color = QColor(0,0,0));
     void setFontSize(int f);
@@ -179,7 +191,7 @@ protected:
     int move_speed;
 
     QColor icon_color, text_color; // 前景颜色
-    QColor normal_bg, hover_bg, press_bg; // 各种背景颜色
+    QColor normal_bg, hover_bg, press_bg, border_bg; // 各种背景颜色
     int hover_speed, press_start, press_speed; // 颜色渐变速度
     int hover_progress, press_progress; // 颜色渐变进度
     int radius_x, radius_y;
