@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QApplication>
 #include <QMainWindow>
+#include <QDesktopWidget>
 #include "interactivebuttonbase.h"
 #include "winminbutton.h"
 #include "winmaxbutton.h"

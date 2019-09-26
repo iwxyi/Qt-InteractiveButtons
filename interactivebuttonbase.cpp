@@ -321,6 +321,7 @@ void InteractiveButtonBase::setFixedForeSize(bool f, int addin)
 {
     fixed_fore_size = f;
 
+    if (!f) return ;
     if (model == PaintModel::Text)
     {
         QFont font = this->font();

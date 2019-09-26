@@ -3,7 +3,10 @@
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent)
 {
-    this->setFixedSize(560, 500);
+    setFixedSize(560, 500);
+    QDesktopWidget* desktop = QApplication::desktop();
+    move((desktop->width() - this->width())/2, (desktop->height() - this->height())/2);
+
     setMouseTracking(true);
 
     InteractiveButtonBase* btn = new InteractiveButtonBase(this);

@@ -2,8 +2,9 @@
 #define WINCLOSEBUTTON_H
 
 #include <QWidget>
-#include <QObject>
 #include "interactivebuttonbase.h"
+
+#include <QObject>
 
 class WinCloseButton : public InteractiveButtonBase
 {
