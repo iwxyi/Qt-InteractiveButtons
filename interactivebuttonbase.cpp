@@ -15,7 +15,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       normal_bg(0xF2, 0xF2, 0xF2, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64), border_bg(0,0,0,0),
       hover_speed(5), press_start(40), press_speed(5),
       hover_progress(0), press_progress(0),
-      radius_x(0), radius_y(0), font_size(0), fixed_fore_pos(false), fixed_fore_size(false), text_dynamic_size(false),
+      border_width(1), radius_x(0), radius_y(0), font_size(0), fixed_fore_pos(false), fixed_fore_size(false), text_dynamic_size(false),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
       water_animation(true), water_press_duration(800), water_release_duration(400), water_finish_duration(300),
@@ -289,6 +289,11 @@ void InteractiveButtonBase::setRadius(int rx, int ry)
 {
     radius_x = rx;
     radius_y = ry;
+}
+
+void InteractiveButtonBase::setBorderWidth(int x)
+{
+    border_width = x;
 }
 
 void InteractiveButtonBase::setDisabled(bool dis)
@@ -623,7 +628,13 @@ void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
 
     if (border_bg.alpha() != 0)
     {
-        painter.fillPath(path_back, border_bg);
+        painter.save();
+        QPen pen;
+        pen.setColor(border_bg);
+        pen.setWidth(border_width);
+        painter.setPen(pen);
+        painter.drawPath(path_back);
+        painter.restore();
     }
 
     if (hover_progress) // 悬浮背景

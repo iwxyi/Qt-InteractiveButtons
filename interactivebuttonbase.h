@@ -28,6 +28,7 @@ class InteractiveButtonBase : public QPushButton
     Q_PROPERTY(QColor hover_color WRITE setHoverColor)
     Q_PROPERTY(QColor press_color WRITE setPressColor)
     Q_PROPERTY(int radius WRITE setRadius)
+    Q_PROPERTY(int border_width WRITE setBorderWidth)
 public:
     InteractiveButtonBase(QWidget* parent = nullptr);
     InteractiveButtonBase(QString text, QWidget* parent = nullptr);
@@ -100,6 +101,7 @@ public:
     void setAlign(Qt::Alignment a);
     void setRadius(int r);
     void setRadius(int rx, int ry);
+    void setBorderWidth(int x);
     void setDisabled(bool dis = true);
     void setPaddings(int l, int r, int t, int b);
     void setPaddings(int x);
@@ -194,6 +196,7 @@ protected:
     QColor normal_bg, hover_bg, press_bg, border_bg; // 各种背景颜色
     int hover_speed, press_start, press_speed; // 颜色渐变速度
     int hover_progress, press_progress; // 颜色渐变进度
+    int border_width;
     int radius_x, radius_y;
     int font_size;
     bool fixed_fore_pos;    // 鼠标进入时是否固定文字位置

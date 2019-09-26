@@ -50,7 +50,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     PointMenuButton* pm_btn = new PointMenuButton(this);
     pm_btn->setGeometry(200, 200, 100, 100);
-    pm_btn->setStyleSheet("qproperty-background_color: red; qproperty-radius: 5; ");
+    pm_btn->setStyleSheet("qproperty-background_color: red; qproperty-radius: 20; qproperty-border_color: green; qproperty-border_width:3;"
+                          "qproperty-icon_color: blue; ");
 }
 
 void MainWindow::enterEvent(QEvent *event)
