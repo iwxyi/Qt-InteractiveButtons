@@ -16,6 +16,20 @@
 #define PI 3.1415926
 #define GOLDEN_RATIO 0.618
 
+/**
+ * Copyright (c) 2019 命燃芯乂 All rights reserved.
+ ×
+ * 邮箱：iwxyiii@gmail.com
+ * QQ号：482582886
+ * 时间：2019.9.27
+ *
+ * 说明：灵性的自定义按钮，简单又又去
+ * 源码：https://github.com/MRXY001/Interactive-Windows-Buttons
+ *
+ * 本代码为本人编写方便自己使用，现在无私送给大家免费使用。
+ * 程序版权归作者所有，只可使用不能出售，违反者本人有权追究责任。
+ */
+
 class InteractiveButtonBase : public QPushButton
 {
     Q_OBJECT
@@ -195,7 +209,6 @@ protected:
     int max(int a, int b) const;
     int min(int a, int b) const;
     int quick_sqrt(long X) const;
-    int moveSuitable(int speed, int delta) const;
     qint64 getTimestamp() const;
     bool isLightColor(QColor color);
     int getSpringBackProgress(int x, int max);

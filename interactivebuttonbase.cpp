@@ -1,5 +1,9 @@
 #include "interactivebuttonbase.h"
 
+/**
+ * 所有内容的初始化
+ * 如果要自定义，可以在这里调整所有的默认值
+ */
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent), icon(nullptr), text(""), paint_addin(),
       icon_paddings(4,4,4,4),
@@ -38,24 +42,37 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     setFocusPolicy(Qt::NoFocus); // 避免一个按钮还获取Tab键焦点
 }
 
+/**
+ * 文字类型的按钮
+ */
 InteractiveButtonBase::InteractiveButtonBase(QString text, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
     setText(text);
 }
 
+/**
+ * 图标类型的按钮
+ */
 InteractiveButtonBase::InteractiveButtonBase(QIcon icon, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
     setIcon(icon);
 }
 
+/**
+ * 变色图标类型的按钮
+ */
 InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
     setPixmap(pixmap);
 }
 
+/**
+ * 设置按钮文字
+ * @param text 按钮文字
+ */
 void InteractiveButtonBase::setText(QString text)
 {
     this->text = text;
@@ -82,16 +99,28 @@ void InteractiveButtonBase::setText(QString text)
     update();
 }
 
+/**
+ * 设置 icon 图标
+ * @param path 图标路径文本
+ */
 void InteractiveButtonBase::setIconPath(QString path)
 {
     setIcon(QIcon(path));
 }
 
+/**
+ * 设置 pixmap 图标
+ * @param path 图标路径文本
+ */
 void InteractiveButtonBase::setPixmapPath(QString path)
 {
     setPixmap(QPixmap(path));
 }
 
+/**
+ * 设置 icon
+ * @param icon 图标
+ */
 void InteractiveButtonBase::setIcon(QIcon icon)
 {
     if (model == PaintModel::None)
@@ -102,6 +131,10 @@ void InteractiveButtonBase::setIcon(QIcon icon)
     update();
 }
 
+/**
+ * 设置 Pixmap
+ * @param pixmap [description]
+ */
 void InteractiveButtonBase::setPixmap(QPixmap pixmap)
 {
     if (model == PaintModel::None)
@@ -112,6 +145,12 @@ void InteractiveButtonBase::setPixmap(QPixmap pixmap)
     update();
 }
 
+/**
+ * 设置额外的图标，例如角标
+ * @param pixmap 图标
+ * @param align  对齐方式
+ * @param size   图标尺寸
+ */
 void InteractiveButtonBase::setPaintAddin(QPixmap pixmap, Qt::Alignment align, QSize size)
 {
     QBitmap mask = pixmap.mask();
@@ -121,11 +160,21 @@ void InteractiveButtonBase::setPaintAddin(QPixmap pixmap, Qt::Alignment align, Q
     update();
 }
 
+/**
+ * 设置子类功能是否开启
+ * 如果关闭，则相当于默认的 QPushButton
+ * @param e 开关
+ */
 void InteractiveButtonBase::setSelfEnabled(bool e)
 {
     self_enable = e;
 }
 
+/**
+ * 设置父类（QPushButton）功能是否开启
+ * 如果开启，则绘制父类背景、父类前景
+ * @param e 开关
+ */
 void InteractiveButtonBase::setParentEnabled(bool e)
 {
     parent_enabled = e;
@@ -139,27 +188,50 @@ void InteractiveButtonBase::setParentEnabled(bool e)
         QPushButton::setIcon(QIcon(pixmap));
 }
 
+/**
+ * 设置是否绘制前景图标/文字
+ * 关闭后则只绘制背景
+ * @param e 开启
+ */
 void InteractiveButtonBase::setForeEnabled(bool e)
 {
     fore_enabled = e;
 }
 
+/**
+ * 设置鼠标悬浮背景渐变的动画时长
+ * @param d 动画时长（毫秒）
+ */
 void InteractiveButtonBase::setHoverAniDuration(int d)
 {
     this->hover_bg_duration = d;
 //    hover_progress = 0; // 重置hover效果
 }
 
+/**
+ * 设置鼠标按下渐变效果的动画时长
+ * @param d 动画时长（毫秒）
+ */
 void InteractiveButtonBase::setPressAniDuration(int d)
 {
     this->press_bg_duration = d;
 }
 
+/**
+ * 设置单击效果的动画时长
+ * @param d 动画时长（毫秒）
+ */
 void InteractiveButtonBase::setClickAniDuration(int d)
 {
     this->click_ani_duration = d;
 }
 
+/**
+ * 设置水波纹动画时长
+ * @param press   按住时时长（时长毫秒）
+ * @param release 松开后速度（时长毫秒）
+ * @param finish  渐变消失速度（时长毫秒）
+ */
 void InteractiveButtonBase::setWaterAniDuration(int press, int release, int finish)
 {
     this->water_press_duration = press;
@@ -167,19 +239,23 @@ void InteractiveButtonBase::setWaterAniDuration(int press, int release, int fini
     this->water_finish_duration = finish;
 }
 
+/**
+ * 各种状态改变
+ * 主要是监控 可用 状态，不可用时设置为半透明
+ */
 void InteractiveButtonBase::changeEvent(QEvent *event)
 {
     QPushButton::changeEvent(event);
 
     if (event->type() == QEvent::EnabledChange && model == PixmapMask) // 可用状态改变了
     {
-        if (isEnabled())
+        if (isEnabled()) // 恢复可用：透明度变回去
         {
             QColor color = icon_color;
             color.setAlpha(color.alpha() * 2);
             setIconColor(color);
         }
-        else
+        else // 变成不可用：透明度减半
         {
             QColor color = icon_color;
             color.setAlpha(color.alpha() / 2);
@@ -188,29 +264,53 @@ void InteractiveButtonBase::changeEvent(QEvent *event)
     }
 }
 
+/**
+ * 设置水波纹动画是否开启
+ * 关闭时，将使用渐变动画
+ * @param enable 开关
+ */
 void InteractiveButtonBase::setWaterRipple(bool enable)
 {
     if (water_animation == enable) return ;
     water_animation = enable;
 }
 
+/**
+ * 设置抖动效果是否开启
+ * 鼠标拖拽移动的距离越长，抖动距离越长、次数越多
+ * @param enable 开关
+ */
 void InteractiveButtonBase::setJitterAni(bool enable)
 {
     jitter_animation = enable;
 }
 
+/**
+ * 设置是否使用统一图标绘制区域
+ * 监听图标尺寸大小变化、中心点偏移，计算新的中心坐标位置
+ * @param enable 开关
+ */
 void InteractiveButtonBase::setUnifyGeomerey(bool enable)
 {
     unified_geometry = enable;
     _l = _t = 0; _w = size().width(); _h = size().height();
 }
 
+/**
+ * 设置背景颜色
+ * @param bg 背景颜色
+ */
 void InteractiveButtonBase::setBgColor(QColor bg)
 {
     setNormalColor(bg);
     update();
 }
 
+/**
+ * 设置事件背景颜色
+ * @param hover 鼠标悬浮时的背景颜色
+ * @param press 鼠标按下时的背景颜色
+ */
 void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
 {
     if (hover != Qt::black)
@@ -220,35 +320,57 @@ void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
     update();
 }
 
+/**
+ * 设置按钮背景颜色
+ * @param color 背景颜色
+ */
 void InteractiveButtonBase::setNormalColor(QColor color)
 {
     normal_bg = color;
 }
 
+/**
+ * 设置边框线条颜色
+ * @param color 边框颜色
+ */
 void InteractiveButtonBase::setBorderColor(QColor color)
 {
     border_bg = color;
 }
 
+/**
+ * 设置鼠标悬浮时的背景颜色
+ * @param color 背景颜色
+ */
 void InteractiveButtonBase::setHoverColor(QColor color)
 {
     hover_bg = color;
 }
 
+/**
+ * 设置鼠标按住时的背景颜色
+ * @param color 背景颜色
+ */
 void InteractiveButtonBase::setPressColor(QColor color)
 {
     press_bg = color;
 }
 
+/**
+ * 设置图标颜色（仅针对可变色的 pixmap 图标）
+ * @param color 图标颜色
+ */
 void InteractiveButtonBase::setIconColor(QColor color)
 {
     icon_color = color;
 
+    // 绘制图标（如果有）
     if (model == PaintModel::PixmapMask || model == PaintModel::PixmapText)
     {
         pixmap = getMaskPixmap(pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
     }
 
+    // 绘制额外角标（如果有的话）
     if (paint_addin.enable)
     {
         paint_addin.pixmap = getMaskPixmap(paint_addin.pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
@@ -257,15 +379,23 @@ void InteractiveButtonBase::setIconColor(QColor color)
     update();
 }
 
+/**
+ * 设置前景文字颜色
+ * @param color 文字颜色
+ */
 void InteractiveButtonBase::setTextColor(QColor color)
 {
     text_color = color;
     update();
 }
 
+/**
+ * 设置文字大小（PointSize，覆盖 font() 字体大小）
+ * @param f 文字大小
+ */
 void InteractiveButtonBase::setFontSize(int f)
 {
-    if (!font_size)
+    if (!font_size) // 第一次设置字体大小，直接设置
     {
         font_size = f;
         QFont font(this->font());
@@ -273,7 +403,7 @@ void InteractiveButtonBase::setFontSize(int f)
         setFont(font);
         update();
     }
-    else
+    else // 改变字体大小，使用字体缩放动画
     {
         QPropertyAnimation* ani = new QPropertyAnimation(this, "font_size");
         ani->setStartValue(font_size);
@@ -284,6 +414,7 @@ void InteractiveButtonBase::setFontSize(int f)
         });
         ani->start();
     }
+    // 修改字体大小时调整按钮的最小尺寸，避免文字显示不全
     if (text_dynamic_size)
     {
         QFont font;
@@ -293,11 +424,21 @@ void InteractiveButtonBase::setFontSize(int f)
     }
 }
 
+/**
+ * 获取字体大小
+ * 用来作为字体动画的属性参数
+ * @return 临时字体大小
+ */
 int InteractiveButtonBase::getFontSizeT()
 {
     return font_size;
 }
 
+/**
+ * 设置动画中的临时字体大小
+ * 用来作为字体动画的属性参数
+ * @param f 临时字体大小
+ */
 void InteractiveButtonBase::setFontSizeT(int f)
 {
     this->font_size = f;
@@ -317,28 +458,50 @@ void InteractiveButtonBase::setHover()
         InteractiveButtonBase::enterEvent(new QEvent(QEvent::Type::None));
 }
 
+/**
+ * 设置对齐方式
+ * @param a 对齐方式
+ */
 void InteractiveButtonBase::setAlign(Qt::Alignment a)
 {
     align = a;
     update();
 }
 
+/**
+ * 设置四个角的半径
+ * @param r 半径
+ */
 void InteractiveButtonBase::setRadius(int r)
 {
     radius_x = radius_y = r;
 }
 
+/**
+ * 分开设置 X、Y 的半径
+ * @param rx X半径
+ * @param ry Y半径
+ */
 void InteractiveButtonBase::setRadius(int rx, int ry)
 {
     radius_x = rx;
     radius_y = ry;
 }
 
+/**
+ * 设置边框线条的粗细
+ * @param x 线条粗细
+ */
 void InteractiveButtonBase::setBorderWidth(int x)
 {
     border_width = x;
 }
 
+/**
+ * 设置不可用情况（默认为假）
+ * 区别于 setEnabled(bool)，两个相反的，并不是覆盖方法
+ * @param dis 不可用
+ */
 void InteractiveButtonBase::setDisabled(bool dis)
 {
     if (dis == !isEnabled()) // 相同的
@@ -359,6 +522,13 @@ void InteractiveButtonBase::setDisabled(bool dis)
     update(); // 修改透明度
 }
 
+/**
+ * 设置前景和四条边的 paddings
+ * @param l 左边空白
+ * @param r 右边空白
+ * @param t 顶边空白
+ * @param b 底边空白
+ */
 void InteractiveButtonBase::setPaddings(int l, int r, int t, int b)
 {
     icon_paddings.left = l;
@@ -367,6 +537,10 @@ void InteractiveButtonBase::setPaddings(int l, int r, int t, int b)
     icon_paddings.bottom = b;
 }
 
+/**
+ * 统一设置前景和四条边的 paddings
+ * @param x 一样大小的四边留白
+ */
 void InteractiveButtonBase::setPaddings(int x)
 {
     icon_paddings.left = x;
@@ -375,21 +549,41 @@ void InteractiveButtonBase::setPaddings(int x)
     icon_paddings.bottom = x;
 }
 
+/**
+ * 设置字体大小时是否同步修改按钮的最小尺寸（避免按钮显示不全）
+ * @param d 开关
+ */
 void InteractiveButtonBase::setTextDynamicSize(bool d)
 {
     text_dynamic_size = d;
 }
 
+/**
+ * 见 setFixedForePos(bool f)
+ */
 void InteractiveButtonBase::setFixedTextPos(bool f)
 {
     fixed_fore_pos = f;
 }
 
+/**
+ * 设置前景是否固定，而不移动
+ * 将去除鼠标移入靠近、抖动效果，统一图标区域大小不变
+ * 只包括：鼠标进入/点击，均表现为缩放效果（默认）
+ * 不影响任何其他功能
+ * @param f [description]
+ */
 void InteractiveButtonBase::setFixedForePos(bool f)
 {
     fixed_fore_pos = f;
 }
 
+/**
+ * 固定按钮为适当尺寸，并且固定四周留白
+ * 前景应为文字/图标对应尺寸的最小尺寸
+ * @param f     是否固定前景
+ * @param addin 留白的像素大小
+ */
 void InteractiveButtonBase::setFixedForeSize(bool f, int addin)
 {
     fixed_fore_size = f;
@@ -406,15 +600,25 @@ void InteractiveButtonBase::setFixedForeSize(bool f, int addin)
     else if (model == PaintModel::Icon || model == PaintModel::PixmapMask)
     {
         int size = height();
-        setMinimumSize(size, size);
+        setMinimumSize(size+addin, size+addin);
     }
 }
 
+/**
+ * 设置鼠标单击松开后是否当做移开
+ * 避免菜单、弹窗出现后，由于鼠标仍然留在按钮上面，导致依旧显示 hover 背景
+ * @param l 开关
+ */
 void InteractiveButtonBase::setLeaveAfterClick(bool l)
 {
     leave_after_clicked = l;
 }
 
+/**
+ * 是否开启出现动画
+ * 鼠标进入按钮区域，前景图标从对面方向缩放出现
+ * @param enable 开关
+ */
 void InteractiveButtonBase::setShowAni(bool enable)
 {
     show_animation = enable;
@@ -439,6 +643,10 @@ void InteractiveButtonBase::setShowAni(bool enable)
     }
 }
 
+/**
+ * 按钮前景出现动画
+ * 从中心点出现的缩放动画
+ */
 void InteractiveButtonBase::showForeground()
 {
     if (!show_animation) return ;
@@ -453,6 +661,11 @@ void InteractiveButtonBase::showForeground()
     show_ani_point = QPoint(0,0);
 }
 
+/**
+ * 按钮前景出现动画2
+ * 指定方向（笛卡尔坐标），从反方向至中心点
+ * @param point 最开始出现的方向（大小不影响，只按 x、y 比例来）
+ */
 void InteractiveButtonBase::showForeground2(QPoint point)
 {
     showForeground();
@@ -464,6 +677,10 @@ void InteractiveButtonBase::showForeground2(QPoint point)
         updateUnifiedGeometry();
 }
 
+/**
+ * 隐藏前景
+ * 为下一次的出现动画做准备
+ */
 void InteractiveButtonBase::hideForeground()
 {
     if (!show_animation) return ;
@@ -475,6 +692,12 @@ void InteractiveButtonBase::hideForeground()
     hide_timestamp = getTimestamp();
 }
 
+/**
+ * 延迟出现前景
+ * 适用于多个按钮连续出现的一套效果
+ * @param time  延迟时长（毫秒）
+ * @param point 出现方向
+ */
 void InteractiveButtonBase::delayShowed(int time, QPoint point)
 {
     setShowAni(true);
@@ -487,6 +710,11 @@ void InteractiveButtonBase::delayShowed(int time, QPoint point)
     });
 }
 
+/**
+ * 设置菜单
+ * 并解决菜单无法监听到 release 的问题
+ * @param menu 菜单对象
+ */
 void InteractiveButtonBase::setMenu(QMenu *menu)
 {
     // 默认设置了不获取焦点事件，所以如果设置了菜单的话，就不会有Release事件，水波纹动画会一直飘荡
@@ -496,19 +724,29 @@ void InteractiveButtonBase::setMenu(QMenu *menu)
     QPushButton::setMenu(menu);
 }
 
+/**
+ * 设置状态
+ * 一个用来作为开关效果的属性
+ * @param s 状态
+ */
 void InteractiveButtonBase::setState(bool s)
 {
     _state = s;
     update();
 }
 
+/**
+ * 获取状态
+ * @return 状态
+ */
 bool InteractiveButtonBase::getState()
 {
     return _state;
 }
 
 /**
- * 模拟按下开关的效果，并改变状态（如果不使用状态，则出现点击动画）
+ * 模拟按下开关的效果，并改变状态
+ * 如果不使用状态，则出现点击动画
  */
 void InteractiveButtonBase::simulateStatePress(bool s)
 {
@@ -526,6 +764,9 @@ void InteractiveButtonBase::simulateStatePress(bool s)
         hovering = false;
 }
 
+/**
+ * 鼠标移入事件，触发 hover 时间戳
+ */
 void InteractiveButtonBase::enterEvent(QEvent *event)
 {
     if (!anchor_timer->isActive())
@@ -539,6 +780,9 @@ void InteractiveButtonBase::enterEvent(QEvent *event)
     return QPushButton::enterEvent(event);
 }
 
+/**
+ * 鼠标移开事件，触发 leave 时间戳
+ */
 void InteractiveButtonBase::leaveEvent(QEvent *event)
 {
     hovering = false;
@@ -548,6 +792,10 @@ void InteractiveButtonBase::leaveEvent(QEvent *event)
     return QPushButton::leaveEvent(event);
 }
 
+/**
+ * 鼠标按下事件，触发 press 时间戳
+ * 添加水波纹动画 waters 队列
+ */
 void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
 {
     mouse_pos = event->pos();
@@ -574,6 +822,10 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
     return QPushButton::mousePressEvent(event);
 }
 
+/**
+ * 鼠标松开事件，触发 release 时间戳
+ * 添加抖动动画 jitters 队列
+ */
 void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
 {
     if (pressing && event->button() == Qt::LeftButton)
@@ -601,6 +853,9 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
     return QPushButton::mouseReleaseEvent(event);
 }
 
+/**
+ * 鼠标移动事件
+ */
 void InteractiveButtonBase::mouseMoveEvent(QMouseEvent *event)
 {
     if (hovering == false) // 失去焦点又回来了
@@ -612,6 +867,10 @@ void InteractiveButtonBase::mouseMoveEvent(QMouseEvent *event)
     return QPushButton::mouseMoveEvent(event);
 }
 
+/**
+ * 尺寸大小改变事件
+ * 同步调整和尺寸有关的所有属性
+ */
 void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
 {
     if (!pressing && !hovering)
@@ -629,6 +888,7 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
 }
 
 /**
+ * 获得焦点事件
  * 已经取消按钮获取焦点，focusIn和focusOut事件都不会触发
  */
 void InteractiveButtonBase::focusInEvent(QFocusEvent *event)
@@ -639,6 +899,10 @@ void InteractiveButtonBase::focusInEvent(QFocusEvent *event)
     return QPushButton::focusInEvent(event);
 }
 
+/**
+ * 失去焦点事件
+ * 兼容按住时突然失去焦点（例如弹出菜单、被其他窗口抢走了）
+ */
 void InteractiveButtonBase::focusOutEvent(QFocusEvent *event)
 {
     if (hovering)
@@ -660,6 +924,10 @@ void InteractiveButtonBase::focusOutEvent(QFocusEvent *event)
     return QPushButton::focusOutEvent(event);
 }
 
+/**
+ * 重绘事件
+ * 绘制所有内容：背景、动画、前景、角标
+ */
 void InteractiveButtonBase::paintEvent(QPaintEvent* event)
 {
     if (parent_enabled) // 绘制父类（以便使用父类的QSS和各项属性）
@@ -844,11 +1112,23 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
     //    return QPushButton::paintEvent(event); // 不绘制父类背景了
 }
 
+/**
+ * 判断坐标是否在按钮区域内
+ * 避免失去了焦点，但是依旧需要 hover 效果（非菜单和弹窗抢走焦点）
+ * 为子类异形按钮区域判断提供支持
+ * @param  point 当前鼠标
+ * @return       是否在区域内
+ */
 bool InteractiveButtonBase::inArea(QPoint point)
 {
     return !(point.x() < 0 || point.y() < 0 || point.x() > size().width() || point.y() > size().height());
 }
 
+/**
+ * 获取按钮背景的绘制区域
+ * 为子类异形按钮提供支持
+ * @return [description]
+ */
 QPainterPath InteractiveButtonBase::getBgPainterPath()
 {
     QPainterPath path;
@@ -859,6 +1139,12 @@ QPainterPath InteractiveButtonBase::getBgPainterPath()
     return path;
 }
 
+/**
+ * 获取水波纹绘制区域（圆形，但不规则区域）
+ * 圆形水面 & 按钮区域
+ * @param  water 一面水波纹动画对象
+ * @return       绘制路径
+ */
 QPainterPath InteractiveButtonBase::getWaterPainterPath(InteractiveButtonBase::Water water)
 {
     QRect circle(water.point.x() - water_radius*water.progress/100,
@@ -872,6 +1158,12 @@ QPainterPath InteractiveButtonBase::getWaterPainterPath(InteractiveButtonBase::W
     return path;
 }
 
+/**
+ * 获取统一的尺寸大小（已废弃）
+ * 兼容圆形按钮出现动画，半径使用水波纹（对角线）
+ * 可直接使用 protected 对象
+ * @return 前景绘制区域
+ */
 QRect InteractiveButtonBase::getUnifiedGeometry()
 {
     // 将动画进度转换为回弹动画进度
@@ -892,6 +1184,10 @@ QRect InteractiveButtonBase::getUnifiedGeometry()
     return QRect(ul, ut, uw, uh);
 }
 
+/**
+ * 更新统一绘制区域
+ * 内部的 _l, _t, _w, _h 可直接使用
+ */
 void InteractiveButtonBase::updateUnifiedGeometry()
 {
     _l = 0; _t = 0; _w = geometry().width(); _h = geometry().height();
@@ -913,6 +1209,10 @@ void InteractiveButtonBase::updateUnifiedGeometry()
     }
 }
 
+/**
+ * 绘制一个水波纹动画
+ * @param painter 绘制对象（即painter(this)对象）
+ */
 void InteractiveButtonBase::paintWaterRipple(QPainter& painter)
 {
     QColor water_finished_color(press_bg);
@@ -935,6 +1235,10 @@ void InteractiveButtonBase::paintWaterRipple(QPainter& painter)
     }
 }
 
+/**
+ * 鼠标松开的时候，计算所有抖动效果的路径和事件
+ * 在每次重绘界面的时候，依次遍历所有的路径
+ */
 void InteractiveButtonBase::setJitter()
 {
     jitters.clear();
@@ -960,6 +1264,11 @@ void InteractiveButtonBase::setJitter()
     }
 }
 
+/**
+ * 速度极快的开方算法，效率未知，原理未知
+ * @param  X 待开方的数字
+ * @return   平方根
+ */
 int InteractiveButtonBase::quick_sqrt(long X) const
 {
     bool fu = false;
@@ -998,31 +1307,42 @@ int InteractiveButtonBase::quick_sqrt(long X) const
     return (fu ? -1 : 1) * static_cast<int>(N); // 不知道为什么计算出来的结果是反过来的
 }
 
+/**
+ * 最大值
+ */
 int InteractiveButtonBase::max(int a, int b) const { return a > b ? a : b; }
 
+/**
+ * 最小值
+ */
 int InteractiveButtonBase::min(int a, int b) const { return a < b ? a : b; }
 
-int InteractiveButtonBase::moveSuitable(int speed, int delta) const
-{
-    if (speed >= delta)
-        return delta;
-
-    if ((speed<<3) < delta)
-        return delta >> 3;
-
-    return speed;
-}
-
+/**
+ * 获取现行时间戳，13位，精确到毫秒
+ * @return 时间戳
+ */
 qint64 InteractiveButtonBase::getTimestamp() const
 {
     return QDateTime::currentDateTime().toMSecsSinceEpoch();
 }
 
+/**
+ * 是否为亮色颜色
+ * @param  color 颜色
+ * @return       是否为亮色
+ */
 bool InteractiveButtonBase::isLightColor(QColor color)
 {
     return color.red()*0.299 + color.green()*0.578 + color.blue()*0.114 >= 192;
 }
 
+/**
+ * 获取非线性动画在某一时间比例的动画进度
+ * 仅适用于弹过头效果的动画
+ * @param  x   实际相对完整100%的动画进度
+ * @param  max 前半部分动画进度上限
+ * @return     应当显示的动画进度
+ */
 int InteractiveButtonBase::getSpringBackProgress(int x, int max)
 {
     if (x <= max)
@@ -1032,12 +1352,24 @@ int InteractiveButtonBase::getSpringBackProgress(int x, int max)
     return 100 + (100-x)/2;
 }
 
+/**
+ * 获取透明的颜色
+ * @param  color 颜色
+ * @param  level 比例
+ * @return       透明颜色
+ */
 QColor InteractiveButtonBase::getOpacityColor(QColor color, double level)
 {
     color.setAlpha(static_cast<int>(color.alpha() * level));
     return color;
 }
 
+/**
+ * 获取对应颜色的图标 pixmap
+ * @param  p 图标
+ * @param  c 颜色
+ * @return   对应颜色的图标
+ */
 QPixmap InteractiveButtonBase::getMaskPixmap(QPixmap p, QColor c)
 {
     QBitmap mask = p.mask();
@@ -1048,6 +1380,7 @@ QPixmap InteractiveButtonBase::getMaskPixmap(QPixmap p, QColor c)
 
 /**
  * 锚点变成到鼠标位置的定时时钟
+ * 同步计算所有和时间或者帧数有关的动画和属性
  */
 void InteractiveButtonBase::anchorTimeOut()
 {
@@ -1246,6 +1579,10 @@ void InteractiveButtonBase::anchorTimeOut()
     update();
 }
 
+/**
+ * 鼠标单击事件
+ * 实测按下后，在按钮区域弹起，不管移动多少距离都算是 clicked
+ */
 void InteractiveButtonBase::slotClicked()
 {
     click_ani_appearing = true;
@@ -1256,6 +1593,10 @@ void InteractiveButtonBase::slotClicked()
     jitters.clear(); // 清除抖动
 }
 
+/**
+ * 强行关闭状态
+ * 以槽的形式，便与利用
+ */
 void InteractiveButtonBase::slotCloseState()
 {
     setState(false);
