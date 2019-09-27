@@ -120,7 +120,7 @@ public:
     void setDisabled(bool dis = true);
     void setPaddings(int l, int r, int t, int b);
     void setPaddings(int x);
-    void setFixedTextPos(bool f = true);
+    void setFixedForePos(bool f = true);
     void setFixedForeSize(bool f = true, int addin = 0);
     void setTextDynamicSize(bool d = true);
     void setLeaveAfterClick(bool l = true);
@@ -135,6 +135,12 @@ public:
     void setState(bool s = true);
     bool getState();
     virtual void simulateStatePress(bool s = true);
+
+
+#if QT_DEPRECATED_SINCE(5, 11)
+    QT_DEPRECATED_X("Use InteractiveButtonBase::setFixedForePos")
+    void setFixedTextPos(bool f = true);
+#endif
 
 protected:
     void enterEvent(QEvent* event) override;
@@ -191,8 +197,10 @@ public:
     EdgeVal icon_paddings;
 
 protected:
-    bool self_enable, parent_enabled, fore_enabled;
+    // 总体开关
+    bool self_enable, parent_enabled, fore_enabled; // 是否启用子类、启动父类、绘制子类前景
 
+    // 出现前景的动画
     bool show_animation, show_foreground;
     bool show_ani_appearing, show_ani_disappearing;
     int show_duration;
@@ -200,15 +208,19 @@ protected:
     int show_ani_progress;
     QPoint show_ani_point;
 
+    // 鼠标开始悬浮、按下、松开、离开的坐标和时间戳
+    // 鼠标锚点、目标锚点、当前锚点的坐标；当前XY的偏移量
     QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos/*渐渐靠近鼠标*/;
     QPoint offset_pos, effect_pos, release_offset; // 相对中心、相对左上角、弹起时的平方根偏移
-    bool pressing, hovering; // 状态机
+    bool hovering, pressing; // 是否悬浮和按下的状态机
     qint64 hover_timestamp, press_timestamp, release_timestamp; // 各种事件的时间戳
     int hover_bg_duration, press_bg_duration, click_ani_duration; // 各种动画时长
 
+    // 定时刷新界面（保证动画持续）
     QTimer* anchor_timer;
     int move_speed;
 
+    // 背景与前景
     QColor icon_color, text_color; // 前景颜色
     QColor normal_bg, hover_bg, press_bg, border_bg; // 各种背景颜色
     int hover_speed, press_start, press_speed; // 颜色渐变速度
@@ -220,23 +232,28 @@ protected:
     bool fixed_fore_size;   // 鼠标进入/点击时是否固定前景大小
     bool text_dynamic_size; // 设置字体时自动调整最小宽高
 
+    // 鼠标单击动画
     bool click_ani_appearing, click_ani_disappearing; // 是否正在按下的动画效果中
     int click_ani_progress; // 按下的进度（使用时间差计算）
 
-    bool unified_geometry; // 统一图标绘制区域尺寸 // 上面用不到的话，这个也用不到……
+    // 统一绘制图标的区域（从整个按钮变为中心三分之二，并且根据偏移计算）
+    bool unified_geometry; // 上面用不到的话，这个也用不到……
     int _l, _t, _w, _h;
 
+    // 鼠标拖拽弹起来回抖动效果
     bool jitter_animation; // 是否开启鼠标松开时的抖动效果
     double elastic_coefficient; // 弹性系数
     QList<Jitter>jitters;
     int jitter_duration; // 抖动一次，多次效果叠加
 
+    // 鼠标按下水波纹动画效果
     bool water_animation; // 是否开启水波纹动画
     QList<Water>waters;
     int water_press_duration, water_release_duration, water_finish_duration;
     int water_radius;
 
-    Qt::Alignment align;
+    // 其他效果
+    Qt::Alignment align; // 文字/图标对其方向
     bool _state; // 一个记录状态的变量，比如是否持续
     bool leave_after_clicked; // 鼠标点击后是否取消聚焦（针对子类异形按钮）
 };

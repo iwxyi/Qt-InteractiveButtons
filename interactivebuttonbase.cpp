@@ -8,7 +8,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       show_duration(300), show_timestamp(0), hide_timestamp(0), show_ani_progress(0), show_ani_point(0,0),
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       offset_pos(0, 0), effect_pos(-1, -1), release_offset(0, 0),
-      pressing(false), hovering(false),
+      hovering(false), pressing(false),
       hover_timestamp(0), press_timestamp(0), release_timestamp(0),
       hover_bg_duration(100), press_bg_duration(100), click_ani_duration(300),
       move_speed(5),
@@ -41,14 +41,12 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
 InteractiveButtonBase::InteractiveButtonBase(QString text, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
-    model = PaintModel::Text;
     setText(text);
 }
 
 InteractiveButtonBase::InteractiveButtonBase(QIcon icon, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
-    model = PaintModel::Icon;
     setIcon(icon);
 }
 
@@ -56,13 +54,16 @@ InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
     setPixmap(pixmap);
-    model = PaintModel::PixmapMask;
 }
 
 void InteractiveButtonBase::setText(QString text)
 {
     this->text = text;
-    QPushButton::setText(text);
+    if (model == PaintModel::None) model = PaintModel::Text;
+    if (parent_enabled)
+        QPushButton::setText(text);
+
+    // 根据字体调整大小
     if (text_dynamic_size)
     {
         if (font_size <= 0)
@@ -83,15 +84,21 @@ void InteractiveButtonBase::setText(QString text)
 
 void InteractiveButtonBase::setIcon(QIcon icon)
 {
+    if (model == PaintModel::None)
+        model = PaintModel::Icon;
     this->icon = icon;
-    QPushButton::setIcon(icon);
+    if (parent_enabled)
+        QPushButton::setIcon(icon);
     update();
 }
 
 void InteractiveButtonBase::setPixmap(QPixmap pixmap)
 {
+    if (model == PaintModel::None)
+        model = PaintModel::PixmapMask;
     this->pixmap = getMaskPixmap(pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
-    QPushButton::setIcon(QIcon(pixmap));
+    if (parent_enabled)
+        QPushButton::setIcon(QIcon(pixmap));
     update();
 }
 
@@ -112,6 +119,14 @@ void InteractiveButtonBase::setSelfEnabled(bool e)
 void InteractiveButtonBase::setParentEnabled(bool e)
 {
     parent_enabled = e;
+
+    // 传递子类内容到父类去，避免子类关掉后不显示
+    if (model == PaintModel::Text || model == PaintModel::IconText || model == PaintModel::PixmapText)
+        QPushButton::setText(text);
+    if (model == PaintModel::Icon || model == PaintModel::IconText)
+        QPushButton::setIcon(icon);
+    if (model == PaintModel::PixmapMask || model == PaintModel::PixmapText)
+        QPushButton::setIcon(QIcon(pixmap));
 }
 
 void InteractiveButtonBase::setForeEnabled(bool e)
@@ -356,6 +371,11 @@ void InteractiveButtonBase::setTextDynamicSize(bool d)
 }
 
 void InteractiveButtonBase::setFixedTextPos(bool f)
+{
+    fixed_fore_pos = f;
+}
+
+void InteractiveButtonBase::setFixedForePos(bool f)
 {
     fixed_fore_pos = f;
 }
