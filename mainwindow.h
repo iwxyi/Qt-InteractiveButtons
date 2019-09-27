@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QMainWindow>
 #include <QDesktopWidget>
+#include <QScreen>
 #include "interactivebuttonbase.h"
 #include "winminbutton.h"
 #include "winmaxbutton.h"
