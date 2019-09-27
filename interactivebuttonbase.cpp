@@ -3,6 +3,7 @@
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent), icon(nullptr), text(""), paint_addin(),
       icon_paddings(4,4,4,4),
+      self_enable(true), parent_enabled(false),
       show_animation(false), show_foreground(true), show_ani_appearing(false), show_ani_disappearing(false),
       show_duration(300), show_timestamp(0), hide_timestamp(0), show_ani_progress(0), show_ani_point(0,0),
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
@@ -54,13 +55,14 @@ InteractiveButtonBase::InteractiveButtonBase(QIcon icon, QWidget *parent)
 InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
     : InteractiveButtonBase(parent)
 {
-    this->pixmap = getMaskPixmap(pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
+    setPixmap(pixmap);
     model = PaintModel::PixmapMask;
 }
 
 void InteractiveButtonBase::setText(QString text)
 {
     this->text = text;
+    QPushButton::setText(text);
     if (text_dynamic_size)
     {
         if (font_size <= 0)
@@ -82,12 +84,14 @@ void InteractiveButtonBase::setText(QString text)
 void InteractiveButtonBase::setIcon(QIcon icon)
 {
     this->icon = icon;
+    QPushButton::setIcon(icon);
     update();
 }
 
 void InteractiveButtonBase::setPixmap(QPixmap pixmap)
 {
     this->pixmap = getMaskPixmap(pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
+    QPushButton::setIcon(QIcon(pixmap));
     update();
 }
 
@@ -98,6 +102,16 @@ void InteractiveButtonBase::setPaintAddin(QPixmap pixmap, Qt::Alignment align, Q
     pixmap.setMask(mask);
     paint_addin = PaintAddin(pixmap, align, size);
     update();
+}
+
+void InteractiveButtonBase::setSelfEnabled(bool e)
+{
+    self_enable = e;
+}
+
+void InteractiveButtonBase::setParentEnabled(bool e)
+{
+    parent_enabled = e;
 }
 
 void InteractiveButtonBase::setHoverAniDuration(int d)
@@ -611,8 +625,12 @@ void InteractiveButtonBase::focusOutEvent(QFocusEvent *event)
     return QPushButton::focusOutEvent(event);
 }
 
-void InteractiveButtonBase::paintEvent(QPaintEvent */*event*/)
+void InteractiveButtonBase::paintEvent(QPaintEvent* event)
 {
+    if (parent_enabled) // 绘制父类（以便使用父类的QSS和各项属性）
+        QPushButton::paintEvent(event);
+    if (!self_enable) // 不绘制自己
+        return ;
     QPainter painter(this);
 
     // ==== 绘制背景 ====
