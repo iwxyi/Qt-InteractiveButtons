@@ -140,7 +140,7 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
     }
 
     // 画文字
-    if (!string.isEmpty())
+    if (fore_enabled && !string.isEmpty())
     {
         QRect rect = QRect(QPoint(0,0), size());
         QColor color;

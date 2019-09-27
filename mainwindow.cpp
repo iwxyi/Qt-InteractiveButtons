@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     icon_btn = new WaterCircleButton(QIcon(":/icons/point_menu"), this);
     icon_btn->setGeometry(100, 50, 32, 32);
     icon_btn->setShowAni(true);
+//    icon_btn->setStyleSheet("qproperty-fore_enabled: false; ");
 
     InteractiveButtonBase* pixmap_btn = new InteractiveButtonBase(QPixmap(":/icons/point_menu"), this);
     pixmap_btn->setGeometry(132, 50, 32, 32);
@@ -48,11 +49,12 @@ MainWindow::MainWindow(QWidget *parent) :
     float_btn->setGeometry(164, 50, 100, 32);
     float_btn->setBgColor(QColor(102,51,204,192), QColor(102,51,204,255));
     float_btn->setIconColor(QColor(102,51,204,192));
-    float_btn->setStyleSheet("qproperty-text: abcdefg; qproperty-water_animation: true; ");
+    float_btn->setStyleSheet("qproperty-text: abcdefg; qproperty-water_animation: true; qproperty-fore_enabled: false; ");
 
     InteractiveButtonBase* par_btn = new InteractiveButtonBase("parent", this);
     par_btn->setGeometry(270, 50, 100, 32);
     par_btn->setParentEnabled(true);
+    par_btn->setForeEnabled(false);
 
     PointMenuButton* pm_btn = new PointMenuButton(this);
     pm_btn->setGeometry(200, 200, 100, 100);

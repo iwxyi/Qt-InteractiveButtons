@@ -21,6 +21,7 @@ class InteractiveButtonBase : public QPushButton
     Q_OBJECT
     Q_PROPERTY(bool self_enabled WRITE setSelfEnabled)
     Q_PROPERTY(bool parent_enabled WRITE setParentEnabled)
+    Q_PROPERTY(bool fore_enabled WRITE setForeEnabled)
     Q_PROPERTY(int font_size READ getFontSizeT WRITE setFontSizeT)
     Q_PROPERTY(QString text WRITE setText)
     Q_PROPERTY(QColor icon_color WRITE setIconColor)
@@ -91,8 +92,9 @@ public:
     virtual void setPixmap(QPixmap pixmap);
     virtual void setPaintAddin(QPixmap pixmap, Qt::Alignment align = Qt::AlignRight, QSize size = QSize(0,0));
 
-    void setSelfEnabled(bool e);
-    void setParentEnabled(bool e);
+    void setSelfEnabled(bool e = true);
+    void setParentEnabled(bool e = false);
+    void setForeEnabled(bool e = true);
 
     void setHoverAniDuration(int d);
     void setPressAniDuration(int d);
@@ -189,7 +191,7 @@ public:
     EdgeVal icon_paddings;
 
 protected:
-    bool self_enable, parent_enabled;
+    bool self_enable, parent_enabled, fore_enabled;
 
     bool show_animation, show_foreground;
     bool show_ani_appearing, show_ani_disappearing;

@@ -3,7 +3,7 @@
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent), icon(nullptr), text(""), paint_addin(),
       icon_paddings(4,4,4,4),
-      self_enable(true), parent_enabled(false),
+      self_enable(true), parent_enabled(false), fore_enabled(true),
       show_animation(false), show_foreground(true), show_ani_appearing(false), show_ani_disappearing(false),
       show_duration(300), show_timestamp(0), hide_timestamp(0), show_ani_progress(0), show_ani_point(0,0),
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
@@ -18,9 +18,9 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       hover_progress(0), press_progress(0),
       border_width(1), radius_x(0), radius_y(0), font_size(0), fixed_fore_pos(false), fixed_fore_size(false), text_dynamic_size(false),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
+      unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
       water_animation(true), water_press_duration(800), water_release_duration(400), water_finish_duration(300),
-      unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
       align(Qt::AlignCenter), _state(false), leave_after_clicked(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
@@ -112,6 +112,11 @@ void InteractiveButtonBase::setSelfEnabled(bool e)
 void InteractiveButtonBase::setParentEnabled(bool e)
 {
     parent_enabled = e;
+}
+
+void InteractiveButtonBase::setForeEnabled(bool e)
+{
+    fore_enabled = e;
 }
 
 void InteractiveButtonBase::setHoverAniDuration(int d)
@@ -668,7 +673,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
     }
 
     // ==== 绘制前景 ====
-    if (show_foreground)
+    if (fore_enabled/*针对按钮设置*/ && show_foreground/*针对动画设置*/)
     {
         painter.setPen(isEnabled()?icon_color:getOpacityColor(icon_color));
 
