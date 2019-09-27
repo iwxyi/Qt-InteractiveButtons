@@ -69,14 +69,14 @@ void InteractiveButtonBase::setText(QString text)
         if (font_size <= 0)
         {
             QFontMetrics fm(font());
-            setMinimumSize(fm.width(text)+icon_paddings.left+icon_paddings.right, fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom);
+            setMinimumSize(fm.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right, fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom);
         }
         else
         {
             QFont font;
             font.setPointSize(font_size);
             QFontMetrics fm(font);
-            setMinimumSize(fm.width(text)+icon_paddings.left+icon_paddings.right, fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom);
+            setMinimumSize(fm.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right, fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom);
         }
     }
     update();
@@ -289,7 +289,7 @@ void InteractiveButtonBase::setFontSize(int f)
         QFont font;
         font.setPointSize(f);
         QFontMetrics fms(font);
-        setMinimumSize(fms.width(text)+icon_paddings.left+icon_paddings.right, fms.lineSpacing()+icon_paddings.top+icon_paddings.bottom);
+        setMinimumSize(fms.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right, fms.lineSpacing()+icon_paddings.top+icon_paddings.bottom);
     }
 }
 
@@ -401,7 +401,7 @@ void InteractiveButtonBase::setFixedForeSize(bool f, int addin)
         if (font_size > 0)
             font.setPointSize(font_size);
         QFontMetrics fm(font);
-        setMinimumSize(fm.width(text)+icon_paddings.left+icon_paddings.right+addin, fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom+addin);
+        setMinimumSize(fm.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right+addin, fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom+addin);
     }
     else if (model == PaintModel::Icon || model == PaintModel::PixmapMask)
     {
@@ -742,7 +742,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
         // 抖动出现动画
         if ((show_ani_appearing || show_ani_disappearing) && show_ani_point != QPoint( 0, 0 ) && ! fixed_fore_pos)
         {
-            int w = size().width(), h = size().height();
+            //int w = size().width(), h = size().height();
             int pro = getSpringBackProgress(show_ani_progress, 50);
 
             // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
@@ -820,7 +820,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
                 font.setPointSize(font_size);
                 painter.setFont(font);
             }
-            painter.drawText(rect, align, text);
+            painter.drawText(rect, static_cast<int>(align), text);
         }
         else if (model == Icon) // 绘制图标
         {
@@ -953,7 +953,7 @@ void InteractiveButtonBase::setJitter()
             jitter_pos = center_pos - (jitter_pos - center_pos) / elastic_coefficient;
             duration = jitter_duration * manh / full_manh;
             timestamp += duration;
-            manh /= elastic_coefficient;
+            manh = static_cast<int>(manh / elastic_coefficient);
         }
         jitters << Jitter(center_pos, timestamp);
         anchor_pos = mouse_pos = center_pos;
@@ -1099,7 +1099,7 @@ void InteractiveButtonBase::anchorTimeOut()
             Water& water = waters[i];
             if (water.finished)
             {
-                water.progress = 100 - 100 * (timestamp-water.finish_timestamp) / water_finish_duration;
+                water.progress = static_cast<int>(100 - 100 * (timestamp-water.finish_timestamp) / water_finish_duration);
                 if (water.progress <= 0)
                     waters.removeAt(i--);
             }
@@ -1118,12 +1118,12 @@ void InteractiveButtonBase::anchorTimeOut()
                 {
                     if (water.release_timestamp) // 鼠标已经松开了
                     {
-                        water.progress = 100 * (water.release_timestamp - water.press_timestamp) / water_press_duration
-                                + 100 * (timestamp - water.release_timestamp) / water_release_duration;
+                        water.progress = static_cast<int>(100 * (water.release_timestamp - water.press_timestamp) / water_press_duration
+                                + 100 * (timestamp - water.release_timestamp) / water_release_duration);
                     }
                     else // 鼠标一直按下
                     {
-                        water.progress = 100 * (timestamp - water.press_timestamp) / water_press_duration;
+                        water.progress = static_cast<int>(100 * (timestamp - water.press_timestamp) / water_press_duration);
                     }
                     if (water.progress > 100)
                         water.progress = 100;
@@ -1145,7 +1145,7 @@ void InteractiveButtonBase::anchorTimeOut()
             }
             else
             {
-                show_ani_progress = 100 * delta / show_duration;
+                show_ani_progress = static_cast<int>(100 * delta / show_duration);
                 if (show_ani_progress > 100)
                     show_ani_progress = 100;
             }
@@ -1162,7 +1162,7 @@ void InteractiveButtonBase::anchorTimeOut()
             }
             else
             {
-                show_ani_progress = 100 - 100 * delta / show_duration;
+                show_ani_progress = static_cast<int>(100 - 100 * delta / show_duration);
                 if (show_ani_progress < 0)
                     show_ani_progress = 0;
             }
@@ -1174,7 +1174,7 @@ void InteractiveButtonBase::anchorTimeOut()
     {
         qint64 delta = getTimestamp()-release_timestamp-click_ani_duration;
         if (delta <= 0) click_ani_progress = 100;
-        else click_ani_progress = 100 - delta*100 / click_ani_duration;
+        else click_ani_progress = static_cast<int>(100 - delta*100 / click_ani_duration);
         if (click_ani_progress < 0)
         {
             click_ani_progress = 0;
@@ -1186,7 +1186,7 @@ void InteractiveButtonBase::anchorTimeOut()
     {
         qint64 delta = getTimestamp()-release_timestamp;
         if (delta <= 0) click_ani_progress = 0;
-        else click_ani_progress = delta * 100 / click_ani_duration;
+        else click_ani_progress = static_cast<int>(delta * 100 / click_ani_duration);
         if (click_ani_progress > 100)
         {
             click_ani_progress = 100; // 保持100的状态，下次点击时回到0
@@ -1202,8 +1202,8 @@ void InteractiveButtonBase::anchorTimeOut()
         // 当前应该是处在最后一个点
         Jitter cur = jitters.first();
         Jitter aim = jitters.at(1);
-        int del = getTimestamp()-cur.timestamp;
-        int dur = aim.timestamp - cur.timestamp;
+        int del = static_cast<int>(getTimestamp()-cur.timestamp);
+        int dur = static_cast<int>(aim.timestamp - cur.timestamp);
         effect_pos = cur.point + (aim.point-cur.point)*del/dur;
         offset_pos = effect_pos- (geometry().center() - geometry().topLeft());
 

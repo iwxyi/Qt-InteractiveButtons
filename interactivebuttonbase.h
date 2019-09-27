@@ -24,7 +24,7 @@ class InteractiveButtonBase : public QPushButton
     Q_PROPERTY(bool fore_enabled WRITE setForeEnabled)             // 是否绘制自定义按钮前景色（true）
     Q_PROPERTY(QString text WRITE setText)                         // 前景文字
     Q_PROPERTY(QString icon_path WRITE setIconPath)                // 前景图标
-    Q_PROPERTY(QString pixmpa_path WRITE setPixmpaPath)            // 前景图标
+    Q_PROPERTY(QString pixmpa_path WRITE setPixmapPath)            // 前景图标
     Q_PROPERTY(QColor icon_color WRITE setIconColor)               // 前景图标帅色
     Q_PROPERTY(QColor text_color WRITE setTextColor)               // 前景文字颜色
     Q_PROPERTY(QColor background_color WRITE setNormalColor)       // 背景颜色
