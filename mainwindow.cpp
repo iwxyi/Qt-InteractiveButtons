@@ -54,9 +54,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     InteractiveButtonBase* par_btn = new InteractiveButtonBase("parent", this);
     par_btn->setGeometry(270, 50, 100, 32);
-//    par_btn->setParentEnabled(true);
-//    par_btn->setForeEnabled(false);
-    par_btn->setStyleSheet("qproperty-text: asdasd; color: red; background: rgba(0,0,0,0); ");
+    par_btn->setParentEnabled(true);
+    par_btn->setForeEnabled(false);
+    par_btn->setStyleSheet("qproperty-text: asdasd; color: red; background-color: transparent; ");
+
+    QPushButton* push_btn = new QPushButton("parent", this);
+    push_btn->setGeometry(370, 50, 100, 32);
+    push_btn->setStyleSheet("background-color:transparent;");
 
     PointMenuButton* pm_btn = new PointMenuButton(this);
     pm_btn->setGeometry(200, 200, 100, 100);

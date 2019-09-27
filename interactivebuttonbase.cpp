@@ -82,6 +82,16 @@ void InteractiveButtonBase::setText(QString text)
     update();
 }
 
+void InteractiveButtonBase::setIconPath(QString path)
+{
+    setIcon(QIcon(path));
+}
+
+void InteractiveButtonBase::setPixmapPath(QString path)
+{
+    setPixmap(QPixmap(path));
+}
+
 void InteractiveButtonBase::setIcon(QIcon icon)
 {
     if (model == PaintModel::None)
