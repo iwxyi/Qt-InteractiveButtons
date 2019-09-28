@@ -7,7 +7,7 @@
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent), icon(nullptr), text(""), paint_addin(),
       icon_paddings(4,4,4,4),
-      self_enable(true), parent_enabled(false), fore_enabled(true),
+      self_enabled(true), parent_enabled(false), fore_enabled(true),
       show_animation(false), show_foreground(true), show_ani_appearing(false), show_ani_disappearing(false),
       show_duration(300), show_timestamp(0), hide_timestamp(0), show_ani_progress(0), show_ani_point(0,0),
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
@@ -167,7 +167,7 @@ void InteractiveButtonBase::setPaintAddin(QPixmap pixmap, Qt::Alignment align, Q
  */
 void InteractiveButtonBase::setSelfEnabled(bool e)
 {
-    self_enable = e;
+    self_enabled = e;
 }
 
 /**
@@ -932,7 +932,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
 {
     if (parent_enabled) // 绘制父类（以便使用父类的QSS和各项属性）
         QPushButton::paintEvent(event);
-    if (!self_enable) // 不绘制自己
+    if (!self_enabled) // 不绘制自己
         return ;
     QPainter painter(this);
 
@@ -945,7 +945,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
         painter.fillPath(path_back, isEnabled()?normal_bg:getOpacityColor(normal_bg));
     }
 
-    if (border_bg.alpha() != 0)
+    if (border_bg.alpha() != 0 && border_width > 0)
     {
         painter.save();
         QPen pen;

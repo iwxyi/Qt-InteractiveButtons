@@ -18,14 +18,12 @@ protected:
     void resizeEvent(QResizeEvent* event) override;
     void paintEvent(QPaintEvent *event) override;
 
-    void setText(QString s) override;
     QPainterPath getBgPainterPath() override;
     QPainterPath getWaterPainterPath(Water water) override;
 
     bool inArea(QPoint point) override;
 
 protected:
-    QString string;
     QPoint center_pos;
     bool in_area;
     int mwidth;

@@ -237,7 +237,7 @@ public:
 
 protected:
     // 总体开关
-    bool self_enable, parent_enabled, fore_enabled; // 是否启用子类、启动父类、绘制子类前景
+    bool self_enabled, parent_enabled, fore_enabled; // 是否启用子类、启动父类、绘制子类前景
 
     // 出现前景的动画
     bool show_animation, show_foreground;
