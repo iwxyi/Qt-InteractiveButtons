@@ -5,7 +5,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     setFixedSize(560, 500);
     QScreen* desktop = QApplication::screenAt(QCursor::pos());
-    QRect rect = desktop->geometry();
+    QRect rect = desktop->availableGeometry();
     move(rect.left()+(rect.width() - width())/2, (rect.height() - height())/2);
 
     setMouseTracking(true);
