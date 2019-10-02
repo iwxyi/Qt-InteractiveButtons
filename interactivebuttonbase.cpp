@@ -13,7 +13,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       enter_pos(-1, -1), press_pos(-1, -1), release_pos(-1, -1), mouse_pos(-1, -1), anchor_pos(-1,  -1),
       offset_pos(0, 0), effect_pos(-1, -1), release_offset(0, 0),
       hovering(false), pressing(false),
-      hover_timestamp(0), press_timestamp(0), release_timestamp(0),
+      hover_timestamp(0), leave_timestamp(0), press_timestamp(0), release_timestamp(0),
       hover_bg_duration(100), press_bg_duration(100), click_ani_duration(300),
       move_speed(5),
       icon_color(0, 0, 0), text_color(0,0,0),
@@ -774,6 +774,8 @@ void InteractiveButtonBase::enterEvent(QEvent *event)
         anchor_timer->start();
     }
     hovering = true;
+    hover_timestamp = getTimestamp();
+    leave_timestamp = 0;
     if (mouse_pos == QPoint(-1,-1))
         mouse_pos = mapFromGlobal(QCursor::pos());
 
@@ -1384,19 +1386,36 @@ QPixmap InteractiveButtonBase::getMaskPixmap(QPixmap p, QColor c)
  */
 void InteractiveButtonBase::anchorTimeOut()
 {
+    qint64 timestamp = getTimestamp();
     // ==== 背景色 ====
     if (pressing) // 鼠标按下
     {
-        if (press_progress < 100) // 透明渐变，且没有完成
+        press_progress = min((timestamp - press_timestamp) * 100 / press_bg_duration, 100);
+        /*if (press_progress < 100) // 透明渐变，且没有完成
         {
             press_progress += press_speed;
             if (press_progress > 100)
                 press_progress = 100;
-        }
+        }*/
     }
     else // 鼠标悬浮
     {
-        if (press_progress>0) // 如果按下的效果还在，变浅
+        if (press_progress > 0) // 如果按下的效果还在，变浅
+        {
+            press_progress = max((timestamp - release_timestamp) * 100 / press_bg_duration, 0);
+        }
+
+        if (hovering) // 在框内：加深
+        {
+            if (hover_progress < 100)
+                hover_progress = min((timestamp - hover_timestamp) * 100 / press_bg_duration, 100);
+        }
+        else // 在框外：变浅
+        {
+            if (hover_progress > 0)
+                hover_progress = max((timestamp - leave_timestamp) * 100 / press_bg_duration, 0);
+        }
+        /*if (press_progress>0) // 如果按下的效果还在，变浅
         {
             press_progress -= press_speed;
             if (press_progress < 0)
@@ -1420,13 +1439,12 @@ void InteractiveButtonBase::anchorTimeOut()
                 if (hover_progress < 0)
                     hover_progress = 0;
             }
-        }
+        }*/
     }
 
     // ==== 按下背景水波纹动画 ====
     if (water_animation)
     {
-        qint64 timestamp = getTimestamp();
         for (int i = 0; i < waters.size(); i++)
         {
             Water& water = waters[i];

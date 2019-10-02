@@ -252,7 +252,7 @@ protected:
     QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos/*目标锚点渐渐靠近鼠标*/;
     QPoint offset_pos/*当前偏移量*/, effect_pos, release_offset; // 相对中心、相对左上角、弹起时的平方根偏移
     bool hovering, pressing; // 是否悬浮和按下的状态机
-    qint64 hover_timestamp, press_timestamp, release_timestamp;   // 各种事件的时间戳
+    qint64 hover_timestamp, leave_timestamp, press_timestamp, release_timestamp;   // 各种事件的时间戳
     int hover_bg_duration, press_bg_duration, click_ani_duration; // 各种动画时长
 
     // 定时刷新界面（保证动画持续）
