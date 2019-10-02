@@ -32,6 +32,7 @@ protected:
 private:
 	int cha_cheng(QPoint a, QPoint b);
 	int dian_cheng(QPoint a, QPoint b);
+	QPoint limitPointXY(QPoint v, int w, int h);
 
 private:
 	QGraphicsDropShadowEffect* shadow_effect;

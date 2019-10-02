@@ -105,45 +105,35 @@ QPainterPath ThreeDimenButton::getBgPainterPath()
 		 * 位置比例 = 悬浮比例 × 距离比例
 		 * 坐标位置 ≈ 鼠标方向偏移
 		 */
-		QPoint o(width()/2, height()/2);
-		QPoint m(mapFromGlobal(QCursor::pos()));
-		QPoint& f = offset_pos;
 		double hp = hover_progress / 100.0;
+		QPoint o(width()/2, height()/2);         // 中心点
+		QPoint m = limitPointXY(mapFromGlobal(QCursor::pos())-o, width()/2, height()/2); // 当前鼠标的点
+        QPoint f = limitPointXY(offset_pos, aop_w, aop_h);  // 偏移点（压力中心）
 
 		QPoint lt, lb, rb, rt;
-		QList<double> list;
 		// 左上角
 		{
-			QPoint p(aop_w, aop_h);
-			double prob = dian_cheng(m-o, p-o) / (double)dian_cheng(p-o, p-o);
-			prob *= hp;
-			// qDebug() << m-o << p-o << dian_cheng(m-o, p-o) << dian_cheng(p-o, p-o) << prob;
-			lt = o + (p-o) * (1-prob/AOPER);
-			list << prob;
+			QPoint p = QPoint(aop_w, aop_h) - o;
+			double prob = dian_cheng(m, p) / (double)dian_cheng(p, p);
+			lt = o + (p) * (1-prob*hp/AOPER);
 		}
 		// 右上角
 		{
-			QPoint p(width() - aop_w, aop_h);
-			double prob = dian_cheng(m-o, p-o) / (double)dian_cheng(p-o, p-o);
-			prob *= hp;
-			rt = o + (p-o) * (1-prob/AOPER);
-			list << prob;
+			QPoint p = QPoint(width() - aop_w, aop_h) - o;
+			double prob = dian_cheng(m, p) / (double)dian_cheng(p, p);
+			rt = o + (p) * (1-prob*hp/AOPER);
 		}
 		// 左下角
 		{
-			QPoint p(aop_w, height() - aop_h);
-			double prob = dian_cheng(m-o, p-o) / (double)dian_cheng(p-o, p-o);
-			prob *= hp;
-			lb = o + (p-o) * (1-prob/AOPER);
-			list << prob;
+			QPoint p = QPoint(aop_w, height() - aop_h) - o;
+			double prob = dian_cheng(m, p) / (double)dian_cheng(p, p);
+			lb = o + (p) * (1-prob*hp/AOPER);
 		}
 		// 右下角
 		{
-			QPoint p(width() - aop_w, height() - aop_h);
-			double prob = dian_cheng(m-o, p-o) / (double)dian_cheng(p-o, p-o);
-			prob *= hp;
-			rb = o + (p-o) * (1-prob/AOPER);
-			list << prob;
+			QPoint p = QPoint(width() - aop_w, height() - aop_h) - o;
+			double prob = dian_cheng(m, p) / (double)dian_cheng(p, p);
+			rb = o + (p) * (1-prob*hp/AOPER);
 		}
 
 		path.moveTo(lt);
@@ -151,19 +141,6 @@ QPainterPath ThreeDimenButton::getBgPainterPath()
 		path.lineTo(rb);
 		path.lineTo(rt);
 		path.lineTo(lt);
-
-		// qDebug() << list << f;
-		
-		/*// 直接使用偏移量（无法不规则）
-		QPoint 	lt(-offset_pos.x(), -offset_pos.y()),
-				lb(-offset_pos.x(), height()-offset_pos.y()),
-				rt(width()-offset_pos.x(), -offset_pos.y()),
-				rb(width()-offset_pos.x(), height()-offset_pos.y());
-		path.moveTo(lt);
-		path.lineTo(lb);
-		path.lineTo(rb);
-		path.lineTo(rt);
-		path.lineTo(lt);*/
 	}
 	else
 	{
@@ -212,4 +189,34 @@ int ThreeDimenButton::cha_cheng(QPoint a, QPoint b)
 int ThreeDimenButton::dian_cheng(QPoint a, QPoint b)
 {
 	return a.x() * b.x() + a.y() * b.y();
+}
+
+QPoint ThreeDimenButton::limitPointXY(QPoint v, int w, int h)
+{
+	// 注意：成立时，v.x != 0，否则除零错误
+	if (v.x() < -w)
+	{
+		v.setY(v.y()*-w/v.x());
+		v.setX(-w);
+	}
+
+	if (v.x() > w)
+	{
+		v.setY(v.y()*w/v.x());
+		v.setX(w);
+	}
+
+	if (v.y() < -h)
+	{
+		v.setX(v.x()*-h/v.y());
+		v.setY(-h);
+	}
+
+	if (v.y() > h)
+	{
+		v.setX(v.x()*h/v.y());
+		v.setY(h);
+	}
+
+	return v;
 }
