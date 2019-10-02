@@ -11,7 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     setMouseTracking(true);
 
     InteractiveButtonBase* btn = new InteractiveButtonBase(this);
-    btn->setGeometry(300, 300, 100, 100);
+    btn->setGeometry(110, 100, 100, 100);
     btn->setBgColor(QColor(128, 0, 0, 100));
     btn->setRadius(5);
 
@@ -57,16 +57,19 @@ MainWindow::MainWindow(QWidget *parent) :
     par_btn->setGeometry(270, 50, 100, 32);
     par_btn->setParentEnabled(true);
     par_btn->setForeEnabled(false);
-    par_btn->setStyleSheet("qproperty-text: asdasd; color: red; background-color: transparent; ");
+    par_btn->setStyleSheet("qproperty-text: asdasd; color: red; ");
 
     QPushButton* push_btn = new QPushButton("parent", this);
     push_btn->setGeometry(370, 50, 100, 32);
-    push_btn->setStyleSheet("background-color:transparent;");
 
     PointMenuButton* pm_btn = new PointMenuButton(this);
-    pm_btn->setGeometry(200, 200, 100, 100);
+    pm_btn->setGeometry(0, 100, 100, 100);
     pm_btn->setStyleSheet("qproperty-background_color: red; qproperty-radius: 20; qproperty-border_color: green; qproperty-border_width:3;"
                           "qproperty-icon_color: blue; ");
+
+    ThreeDimenButton* tdb = new ThreeDimenButton(this);
+    tdb->setGeometry(220, 100, 200, 100);
+    tdb->setBgColor(Qt::gray);
 }
 
 void MainWindow::enterEvent(QEvent *event)
