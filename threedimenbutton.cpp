@@ -87,11 +87,11 @@ void ThreeDimenButton::anchorTimeOut()
 		{
 			double sx = -SHADE * offset_pos.x() / offset_pos.manhattanLength();
 			double sy = -SHADE * offset_pos.y() / offset_pos.manhattanLength();
-			shadow_effect->setOffset(sx, sy);
+			shadow_effect->setOffset(sx*hover_progress/100, sy*hover_progress/100);
 		}
 	    else
 	    {
-	    	shadow_effect->setOffset(-offset_pos.x(), -offset_pos.y());
+	    	shadow_effect->setOffset(-offset_pos.x()*hover_progress/100, -offset_pos.y()*hover_progress/100);
 	    }
 	}
 }
