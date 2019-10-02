@@ -100,6 +100,5 @@ void WaterCircleButton::simulateStatePress(bool s)
 
 bool WaterCircleButton::inArea(QPoint point)
 {
-    int manh = (point - center_pos).manhattanLength();
-    return manh <= radius;
+    return (point - center_pos).manhattanLength() <= radius;
 }

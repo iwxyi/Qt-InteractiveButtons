@@ -14,10 +14,18 @@ public:
     ThreeDimenButton(QWidget* parent = nullptr);
 
 protected:
-	void mouseMoveEvent(QMouseEvent * event) override;
+    void enterEvent(QEvent* event) override;
+    void leaveEvent(QEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
+    void mouseReleaseEvent(QMouseEvent* event) override;
+    void mouseMoveEvent(QMouseEvent* event) override;
+    void resizeEvent(QResizeEvent* event) override;
 
 	QPainterPath getBgPainterPath() override;
 	QPainterPath getWaterPainterPath(InteractiveButtonBase::Water water) override;
+
+    void simulateStatePress(bool s = true);
+    bool inArea(QPoint point) override;
 
 private:
 	int cha_cheng(QPoint a, QPoint b);
@@ -25,6 +33,8 @@ private:
 
 private:
 	QGraphicsDropShadowEffect* shadow_effect;
+    bool in_circle;
+    int aop_w, aop_h;
 };
 
 #endif // THREEDIMENBUTTON_H

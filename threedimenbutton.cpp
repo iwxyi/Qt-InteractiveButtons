@@ -2,6 +2,9 @@
 
 ThreeDimenButton::ThreeDimenButton(QWidget* parent) : InteractiveButtonBase (parent)
 {
+	aop_w = width() / AOPER;
+	aop_h = height() / AOPER;
+
     shadow_effect = new QGraphicsDropShadowEffect(this);
 	shadow_effect->setOffset(0, SHADE);
 	shadow_effect->setColor(QColor(0x88, 0x88, 0x88, 0x88));
@@ -9,10 +12,59 @@ ThreeDimenButton::ThreeDimenButton(QWidget* parent) : InteractiveButtonBase (par
 	setGraphicsEffect(shadow_effect);
 }
 
+void ThreeDimenButton::enterEvent(QEvent *event)
+{
+
+}
+
+void ThreeDimenButton::leaveEvent(QEvent *event)
+{
+    if (in_circle && !pressing && !inArea(mapFromGlobal(QCursor::pos())))
+    {
+        in_circle = false;
+        InteractiveButtonBase::leaveEvent(event);
+    }
+}
+
+void ThreeDimenButton::mousePressEvent(QMouseEvent *event)
+{
+    if (in_circle)
+        return InteractiveButtonBase::mousePressEvent(event);
+}
+
+void ThreeDimenButton::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (pressing)
+    {
+        InteractiveButtonBase::mouseReleaseEvent(event);
+
+        if (leave_after_clicked || (!inArea(event->pos()) && !pressing)) // 鼠标移出
+        {
+            in_circle = false;
+            InteractiveButtonBase::leaveEvent(nullptr);
+        }
+    }
+}
+
 void ThreeDimenButton::mouseMoveEvent(QMouseEvent *event)
 {
-	InteractiveButtonBase::mouseMoveEvent(event);
+    bool is_in = inArea(event->pos());
 
+    if (is_in && !in_circle)// 鼠标移入
+    {
+        in_circle = true;
+        InteractiveButtonBase::enterEvent(nullptr);
+    }
+    else if (!is_in && in_circle && !pressing) // 鼠标移出
+    {
+        in_circle = false;
+        InteractiveButtonBase::leaveEvent(nullptr);
+    }
+
+    if (in_circle)
+        InteractiveButtonBase::mouseMoveEvent(event);
+
+    // 修改阴影的位置
     if (offset_pos == QPoint(0,0))
         shadow_effect->setOffset(0, 0);
     else
@@ -23,10 +75,16 @@ void ThreeDimenButton::mouseMoveEvent(QMouseEvent *event)
     }
 }
 
+void ThreeDimenButton::resizeEvent(QResizeEvent *event)
+{
+	aop_w = width() / AOPER;
+	aop_h = height() / AOPER;
+    return InteractiveButtonBase::resizeEvent(event);
+}
+
 QPainterPath ThreeDimenButton::getBgPainterPath()
 {
 	QPainterPath path;
-	int aop_w = width()/AOPER, aop_h = height()/AOPER;
 	if (hover_progress) // 鼠标悬浮效果
 	{
 		/**
@@ -95,6 +153,7 @@ QPainterPath ThreeDimenButton::getBgPainterPath()
 	}
 	else
 	{
+		// 简单的path，提升性能用
 		path.addRect(aop_w, aop_h, width()-aop_w*2, height()-aop_h*2);
 	}
 
@@ -110,6 +169,21 @@ QPainterPath ThreeDimenButton::getWaterPainterPath(InteractiveButtonBase::Water 
     QPainterPath path;
     path.addEllipse(circle);
     return path & getBgPainterPath();
+}
+
+void ThreeDimenButton::simulateStatePress(bool s)
+{
+    in_circle = true;
+    InteractiveButtonBase::simulateStatePress(s);
+    in_circle = false;
+}
+
+bool ThreeDimenButton::inArea(QPoint point)
+{
+	return !(point.x() < aop_w
+		|| point.x() > width()-aop_w
+		|| point.y() < aop_h
+		|| point.y() > height()-aop_h);
 }
 
 /**
