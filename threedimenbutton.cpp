@@ -37,7 +37,7 @@ QPainterPath ThreeDimenButton::getBgPainterPath()
 		QPoint m(mapFromGlobal(QCursor::pos()));
 		QPoint& f = offset_pos;
 		double hp = hover_progress / 100.0;
-// qDebug() << hp;
+
 		QPoint lt, lb, rb, rt;
 		QList<double> list;
 		// 左上角
@@ -51,7 +51,7 @@ QPainterPath ThreeDimenButton::getBgPainterPath()
 		}
 		// 右上角
 		{
-			QPoint p(width() - aop_w*2, aop_h);
+			QPoint p(width() - aop_w, aop_h);
 			double prob = dian_cheng(m-o, p-o) / (double)dian_cheng(p-o, p-o);
 			prob *= hp;
 			rt = o + (p-o) * (1-prob/AOPER);
@@ -59,7 +59,7 @@ QPainterPath ThreeDimenButton::getBgPainterPath()
 		}
 		// 左下角
 		{
-			QPoint p(aop_w, height() - aop_h*2);
+			QPoint p(aop_w, height() - aop_h);
 			double prob = dian_cheng(m-o, p-o) / (double)dian_cheng(p-o, p-o);
 			prob *= hp;
 			lb = o + (p-o) * (1-prob/AOPER);
@@ -67,7 +67,7 @@ QPainterPath ThreeDimenButton::getBgPainterPath()
 		}
 		// 右下角
 		{
-			QPoint p(width() - aop_w*2, height() - aop_h*2);
+			QPoint p(width() - aop_w, height() - aop_h);
 			double prob = dian_cheng(m-o, p-o) / (double)dian_cheng(p-o, p-o);
 			prob *= hp;
 			rb = o + (p-o) * (1-prob/AOPER);
