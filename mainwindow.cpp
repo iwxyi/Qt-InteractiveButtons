@@ -36,6 +36,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     InteractiveButtonBase* text_btn = new InteractiveButtonBase("text", this);
     text_btn->setGeometry(0, 50, 100, 32);
+    text_btn->setHoverAniDuration(5000);
 
     icon_btn = new WaterCircleButton(QIcon(":/icons/point_menu"), this);
     icon_btn->setGeometry(100, 50, 32, 32);

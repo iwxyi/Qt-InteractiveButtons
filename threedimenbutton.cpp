@@ -7,8 +7,6 @@ ThreeDimenButton::ThreeDimenButton(QWidget* parent) : InteractiveButtonBase (par
 	shadow_effect->setColor(QColor(0x88, 0x88, 0x88, 0x88));
 	shadow_effect->setBlurRadius(10);
 	setGraphicsEffect(shadow_effect);
-
-	setHoverAniDuration(5000);
 }
 
 void ThreeDimenButton::mouseMoveEvent(QMouseEvent *event)
@@ -39,7 +37,7 @@ QPainterPath ThreeDimenButton::getBgPainterPath()
 		QPoint m(mapFromGlobal(QCursor::pos()));
 		QPoint& f = offset_pos;
 		double hp = hover_progress / 100.0;
-qDebug() << hp;
+// qDebug() << hp;
 		QPoint lt, lb, rb, rt;
 		QList<double> list;
 		// 左上角
