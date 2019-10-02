@@ -10,6 +10,8 @@ ThreeDimenButton::ThreeDimenButton(QWidget* parent) : InteractiveButtonBase (par
 	shadow_effect->setColor(QColor(0x88, 0x88, 0x88, 0x88));
 	shadow_effect->setBlurRadius(10);
 	setGraphicsEffect(shadow_effect);
+
+	setJitterAni(false);
 }
 
 void ThreeDimenButton::enterEvent(QEvent *event)
@@ -63,16 +65,6 @@ void ThreeDimenButton::mouseMoveEvent(QMouseEvent *event)
 
     if (in_circle)
         InteractiveButtonBase::mouseMoveEvent(event);
-
-    // 修改阴影的位置
-    if (offset_pos == QPoint(0,0))
-        shadow_effect->setOffset(0, 0);
-    else
-    {
-        double sx = -SHADE * offset_pos.x() / offset_pos.manhattanLength();
-        double sy = -SHADE * offset_pos.y() / offset_pos.manhattanLength();
-        shadow_effect->setOffset(sx, sy);
-    }
 }
 
 void ThreeDimenButton::resizeEvent(QResizeEvent *event)
@@ -80,6 +72,28 @@ void ThreeDimenButton::resizeEvent(QResizeEvent *event)
 	aop_w = width() / AOPER;
 	aop_h = height() / AOPER;
     return InteractiveButtonBase::resizeEvent(event);
+}
+
+void ThreeDimenButton::anchorTimeOut()
+{
+	InteractiveButtonBase::anchorTimeOut();
+
+	// 修改阴影的位置
+	if (offset_pos == QPoint(0,0))
+	    shadow_effect->setOffset(0, 0);
+	else
+	{
+		if (offset_pos.manhattanLength() > SHADE)
+		{
+			double sx = -SHADE * offset_pos.x() / offset_pos.manhattanLength();
+			double sy = -SHADE * offset_pos.y() / offset_pos.manhattanLength();
+			shadow_effect->setOffset(sx, sy);
+		}
+	    else
+	    {
+	    	shadow_effect->setOffset(-offset_pos.x(), -offset_pos.y());
+	    }
+	}
 }
 
 QPainterPath ThreeDimenButton::getBgPainterPath()

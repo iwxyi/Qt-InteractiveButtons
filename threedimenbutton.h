@@ -21,6 +21,8 @@ protected:
     void mouseMoveEvent(QMouseEvent* event) override;
     void resizeEvent(QResizeEvent* event) override;
 
+    void anchorTimeOut() override;
+
 	QPainterPath getBgPainterPath() override;
 	QPainterPath getWaterPainterPath(InteractiveButtonBase::Water water) override;
 

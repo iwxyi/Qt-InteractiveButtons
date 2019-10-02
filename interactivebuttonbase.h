@@ -223,7 +223,7 @@ signals:
     void jitterAniFinished();
 
 public slots:
-    void anchorTimeOut();
+    virtual void anchorTimeOut();
     virtual void slotClicked();
     void slotCloseState();
 
