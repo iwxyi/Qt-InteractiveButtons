@@ -71,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ThreeDimenButton* tdb = new ThreeDimenButton(this);
     tdb->setGeometry(220, 100, 200, 100);
     tdb->setBgColor(Qt::gray);
+    connect(tdb, &ThreeDimenButton::clicked, [=]{ qDebug() << "3D按钮clicked"; });
 }
 
 void MainWindow::enterEvent(QEvent *event)

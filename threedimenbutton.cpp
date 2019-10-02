@@ -6,8 +6,8 @@ ThreeDimenButton::ThreeDimenButton(QWidget* parent) : InteractiveButtonBase (par
 	aop_h = height() / AOPER;
 
     shadow_effect = new QGraphicsDropShadowEffect(this);
-	shadow_effect->setOffset(0, SHADE);
-	shadow_effect->setColor(QColor(0x88, 0x88, 0x88, 0x88));
+	shadow_effect->setOffset(0, 0);
+	shadow_effect->setColor(QColor(0x88, 0x88, 0x88, 0x64));
 	shadow_effect->setBlurRadius(10);
 	setGraphicsEffect(shadow_effect);
 
