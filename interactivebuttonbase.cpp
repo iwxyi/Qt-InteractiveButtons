@@ -1388,7 +1388,7 @@ void InteractiveButtonBase::anchorTimeOut()
 {
     qint64 timestamp = getTimestamp();
     // ==== 背景色 ====
-    if (hovering) // 在框内：加深
+    /*if (hovering) // 在框内：加深
     {
         if (hover_progress < 100) // 先判断，再计算，可节约运算资源
             hover_progress = min((timestamp - hover_timestamp) * 100 / press_bg_duration, 100);
@@ -1408,9 +1408,9 @@ void InteractiveButtonBase::anchorTimeOut()
     {
         if (press_progress > 0) // 如果按下的效果还在，变浅
             press_progress = max((timestamp - release_timestamp) * 100 / press_bg_duration, 0);
-    }
+    }*/
 
-    /*if (pressing) // 鼠标按下
+    if (pressing) // 鼠标按下
     {
         if (press_progress < 100) // 透明渐变，且没有完成
         {
@@ -1446,7 +1446,7 @@ void InteractiveButtonBase::anchorTimeOut()
                     hover_progress = 0;
             }
         }
-    }*/
+    }
 
     // ==== 按下背景水波纹动画 ====
     if (water_animation)
