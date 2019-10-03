@@ -117,7 +117,7 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
         path = getBgPainterPath(); // 整体背景
 
         // 出现动画
-        if (show_ani_appearing && show_ani_progress != 100 && icon_color.alpha() != 0)
+        if (show_ani_appearing && show_ani_progress != 100 && border_bg.alpha() != 0)
         {
             int pw = size().width() * show_ani_progress / 100;
             QRect rect(0, 0, pw, size().height());
@@ -130,9 +130,9 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
             x = - water_radius * x / gen; // 动画起始中心点横坐标 反向
             y = - water_radius * y / gen; // 动画起始中心点纵坐标 反向
         }
-        if (icon_color.alpha() != 0) // 如果有背景，则不进行画背景线条
+        if (border_bg.alpha() != 0) // 如果有背景，则不进行画背景线条
         {
-            painter.setPen(icon_color);
+            painter.setPen(border_bg);
             painter.drawPath(path);
         }
     }
