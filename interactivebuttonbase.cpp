@@ -1418,6 +1418,12 @@ void InteractiveButtonBase::anchorTimeOut()
             if (press_progress > 100)
                 press_progress = 100;
         }
+        if (hovering && hover_progress < 100)
+        {
+            hover_progress += hover_speed;
+            if (hover_progress > 100)
+                hover_progress = 100;
+        }
     }
     else // 鼠标悬浮
     {
@@ -1574,7 +1580,7 @@ void InteractiveButtonBase::anchorTimeOut()
             emit jitterAniFinished();
         }
     }
-    else if (anchor_pos != mouse_pos)
+    else if (anchor_pos != mouse_pos) // 移动效果
     {
         int delta_x = anchor_pos.x() - mouse_pos.x(),
             delta_y = anchor_pos.y() - mouse_pos.y();
@@ -1589,7 +1595,7 @@ void InteractiveButtonBase::anchorTimeOut()
     }
     else if (!pressing && !hovering && !hover_progress && !press_progress
              && !click_ani_appearing && !click_ani_disappearing && !jitters.size() && !waters.size()
-             && !show_ani_appearing && !show_ani_disappearing)
+             && !show_ani_appearing && !show_ani_disappearing) // 没有需要加载的项，暂停（节约资源）
     {
         anchor_timer->stop();
     }

@@ -2,6 +2,7 @@
 
 ThreeDimenButton::ThreeDimenButton(QWidget* parent) : InteractiveButtonBase (parent)
 {
+    setMouseTracking(true);
 	aop_w = width() / AOPER;
 	aop_h = height() / AOPER;
 
@@ -21,16 +22,25 @@ void ThreeDimenButton::enterEvent(QEvent *event)
 
 void ThreeDimenButton::leaveEvent(QEvent *event)
 {
-    if (in_circle && !pressing && !inArea(mapFromGlobal(QCursor::pos())))
+    if (in_rect && !pressing && !inArea(mapFromGlobal(QCursor::pos())))
     {
-        in_circle = false;
-        InteractiveButtonBase::leaveEvent(event);
+        in_rect = false;
+        InteractiveButtonBase::leaveEvent(nullptr);
     }
+
+    // 不return，因为区域不一样
 }
 
 void ThreeDimenButton::mousePressEvent(QMouseEvent *event)
 {
-    if (in_circle)
+    // 因为上面可能有控件，所以可能无法监听到 enter 事件
+    if (!in_rect && inArea(event->pos())) // 鼠标移入
+    {
+        in_rect = true;
+        InteractiveButtonBase::enterEvent(nullptr);
+    }
+
+    if (in_rect)
         return InteractiveButtonBase::mousePressEvent(event);
 }
 
@@ -42,7 +52,7 @@ void ThreeDimenButton::mouseReleaseEvent(QMouseEvent *event)
 
         if (leave_after_clicked || (!inArea(event->pos()) && !pressing)) // 鼠标移出
         {
-            in_circle = false;
+            in_rect = false;
             InteractiveButtonBase::leaveEvent(nullptr);
         }
     }
@@ -52,18 +62,18 @@ void ThreeDimenButton::mouseMoveEvent(QMouseEvent *event)
 {
     bool is_in = inArea(event->pos());
 
-    if (is_in && !in_circle)// 鼠标移入
+    if (is_in && !in_rect)// 鼠标移入
     {
-        in_circle = true;
+        in_rect = true;
         InteractiveButtonBase::enterEvent(nullptr);
     }
-    else if (!is_in && in_circle && !pressing) // 鼠标移出
+    else if (!is_in && in_rect && !pressing) // 鼠标移出
     {
-        in_circle = false;
+        in_rect = false;
         InteractiveButtonBase::leaveEvent(nullptr);
     }
 
-    if (in_circle)
+    if (in_rect)
         InteractiveButtonBase::mouseMoveEvent(event);
 }
 
@@ -76,24 +86,31 @@ void ThreeDimenButton::resizeEvent(QResizeEvent *event)
 
 void ThreeDimenButton::anchorTimeOut()
 {
-	InteractiveButtonBase::anchorTimeOut();
+    // 因为上面有控件挡住了，所以需要定时监控move情况
+    mouse_pos = mapFromGlobal(QCursor::pos());
+    if (!pressing && !inArea(mouse_pos)) // 鼠标移出
+    {
+        InteractiveButtonBase::leaveEvent(nullptr);
+    }
 
-	// 修改阴影的位置
-	if (offset_pos == QPoint(0,0))
-	    shadow_effect->setOffset(0, 0);
-	else
-	{
-		if (offset_pos.manhattanLength() > SHADE)
-		{
-			double sx = -SHADE * offset_pos.x() / offset_pos.manhattanLength();
-			double sy = -SHADE * offset_pos.y() / offset_pos.manhattanLength();
-			shadow_effect->setOffset(sx*hover_progress/100, sy*hover_progress/100);
-		}
-	    else
-	    {
-	    	shadow_effect->setOffset(-offset_pos.x()*hover_progress/100, -offset_pos.y()*hover_progress/100);
-	    }
-	}
+    InteractiveButtonBase::anchorTimeOut();
+
+    // 修改阴影的位置
+    if (offset_pos == QPoint(0,0))
+        shadow_effect->setOffset(0, 0);
+    else
+    {
+        if (offset_pos.manhattanLength() > SHADE)
+        {
+            double sx = -SHADE * offset_pos.x() / offset_pos.manhattanLength();
+            double sy = -SHADE * offset_pos.y() / offset_pos.manhattanLength();
+            shadow_effect->setOffset(sx*hover_progress/100, sy*hover_progress/100);
+        }
+        else
+        {
+            shadow_effect->setOffset(-offset_pos.x()*hover_progress/100, -offset_pos.y()*hover_progress/100);
+        }
+    }
 }
 
 QPainterPath ThreeDimenButton::getBgPainterPath()
@@ -164,9 +181,9 @@ QPainterPath ThreeDimenButton::getWaterPainterPath(InteractiveButtonBase::Water 
 
 void ThreeDimenButton::simulateStatePress(bool s)
 {
-    in_circle = true;
+    in_rect = true;
     InteractiveButtonBase::simulateStatePress(s);
-    in_circle = false;
+    in_rect = false;
 }
 
 bool ThreeDimenButton::inArea(QPoint point)
