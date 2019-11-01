@@ -25,7 +25,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
       water_animation(true), water_press_duration(800), water_release_duration(400), water_finish_duration(300),
-      align(Qt::AlignCenter), _state(false), leave_after_clicked(false)
+      align(Qt::AlignCenter), _state(false), leave_after_clicked(false), double_clicked(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
 
@@ -649,6 +649,17 @@ void InteractiveButtonBase::setLeaveAfterClick(bool l)
 }
 
 /**
+ * 响应双击事件
+ * 注意：会先触发单击事件、再触发双击事件(其实就是懒得做)
+ * 建议在 QListWidget 等地方使用！
+ * @param e 开关
+ */
+void InteractiveButtonBase::setDoubleClicked(bool e)
+{
+    double_clicked = e;
+}
+
+/**
  * 是否开启出现动画
  * 鼠标进入按钮区域，前景图标从对面方向缩放出现
  * @param enable 开关
@@ -844,6 +855,12 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
         pressing = true;
         press_pos = mouse_pos;
         press_timestamp = getTimestamp();
+        // 判断双击事件
+        if (double_clicked && release_timestamp+300>press_timestamp)
+        {
+            emit doubleClicked();
+            return ;
+        }
         if (water_animation)
         {
             waters << Water(press_pos, press_timestamp);
@@ -915,10 +932,13 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
         anchor_pos = mouse_pos;
     }
     water_radius = static_cast<int>(max(geometry().width(), geometry().height()) * 1.42); // 长边
-    int short_side = min(geometry().width(), geometry().height()); // 短边
     // 非固定的情况，尺寸大小变了之后所有 padding 都要变
-    int padding = short_side*icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
-    icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
+    if (model == PaintModel::Icon || model == PaintModel::PixmapMask)
+    {
+        int short_side = min(geometry().width(), geometry().height()); // 短边
+        int padding = short_side*icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
+        icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
+    }
     _l = _t = 0; _w = size().width(); _h = size().height();
 
     return QPushButton::resizeEvent(event);
