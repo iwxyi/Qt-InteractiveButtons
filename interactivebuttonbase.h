@@ -135,7 +135,9 @@ public:
         Linear,
         SlowFaster,
         FastSlower,
-        SlowFastSlower
+        SlowFastSlower,
+        SpringBack20,
+        SpringBack50
     };
 
     virtual void setText(QString text);

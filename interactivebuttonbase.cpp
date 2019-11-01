@@ -1074,7 +1074,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
             }
             else if (show_ani_appearing)
             {
-                int pro; // 将动画进度转换为回弹动画进度
+                /*int pro; // 将动画进度转换为回弹动画进度
                 if (show_ani_progress <= 50)
                     pro = show_ani_progress * 2;
                 else if (show_ani_progress <= 75)
@@ -1083,12 +1083,17 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
                     pro = 100 + (100-show_ani_progress)/2;
 
                 delta_x = rect.width() * (100-pro) / 100;
-                delta_y = rect.height() * (100-pro) / 100;
+                delta_y = rect.height() * (100-pro) / 100;*/
+
+                double pro = getNolinearProg(show_ani_progress, SpringBack50);
+                delta_x = static_cast<int>(rect.width() * (1-pro));
+                delta_y = static_cast<int>(rect.height() * (1-pro));
             }
             else if (show_ani_disappearing)
             {
-                delta_x = rect.width() * (100-show_ani_progress) / 100;
-                delta_y = rect.height() * (100-show_ani_progress) / 100;
+                double pro = 1 - getNolinearProg(show_ani_progress, SlowFaster);
+                delta_x = rect.width() * pro; // (100-show_ani_progress) / 100;
+                delta_y = rect.height() * pro; // (100-show_ani_progress) / 100;
             }
             if (delta_x || delta_y)
                 rect = QRect(rect.left()+delta_x, rect.top()+delta_y,
@@ -1441,6 +1446,14 @@ double InteractiveButtonBase::getNolinearProg(int p, InteractiveButtonBase::Noli
             return p * p / 50.0;
         else
             return 0.5 + quick_sqrt(50*(p-50))/100.0;
+    case SpringBack20:
+    case SpringBack50:
+        if (p <= 50)
+            return p / 50.0;
+        else if (p < 75)
+            return 1.0 + (p-50) / 200.0;
+        else
+            return 1.0 + (100-p) / 200.0;
     }
 }
 
