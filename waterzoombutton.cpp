@@ -4,6 +4,7 @@ WaterZoomButton::WaterZoomButton(QString text, QWidget *parent) : InteractiveBut
 {
     choking = 10;
     radius_zoom = -1;
+    choking_prop = 0;
 }
 
 void WaterZoomButton::setChoking(int c)
@@ -31,9 +32,6 @@ void WaterZoomButton::setRadius(int x, int x2)
 
 QPainterPath WaterZoomButton::getBgPainterPath()
 {
-//    if (!hover_progress)
-//        return InteractiveButtonBase::getBgPainterPath();
-
     QPainterPath path;
     int c;
     int r;
