@@ -19,7 +19,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       icon_color(0, 0, 0), text_color(0,0,0),
       normal_bg(0xF2, 0xF2, 0xF2, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64), border_bg(0,0,0,0),
       hover_speed(5), press_start(40), press_speed(5),
-      hover_progress(0), press_progress(0),
+      hover_progress(0), press_progress(0), icon_padding_proper(0.25),
       border_width(1), radius_x(0), radius_y(0), font_size(0), fixed_fore_pos(false), fixed_fore_size(false), text_dynamic_size(false),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
       unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
@@ -535,6 +535,19 @@ void InteractiveButtonBase::setPaddings(int l, int r, int t, int b)
     icon_paddings.right = r;
     icon_paddings.top = t;
     icon_paddings.bottom = b;
+    setFixedForeSize();
+}
+
+/**
+ * 统一设置方向的 paddings
+ * @param h 横向
+ * @param v 纵向
+ */
+void InteractiveButtonBase::setPaddings(int h, int v)
+{
+    icon_paddings.left = icon_paddings.right = (h+1) / 2;
+    icon_paddings.top = icon_paddings.bottom = (v+1) / 2;
+    setFixedForeSize();
 }
 
 /**
@@ -547,6 +560,17 @@ void InteractiveButtonBase::setPaddings(int x)
     icon_paddings.right = x;
     icon_paddings.top = x;
     icon_paddings.bottom = x;
+    setFixedForeSize();
+}
+
+void InteractiveButtonBase::setIconPaddingProper(double x)
+{
+    icon_padding_proper = x;
+    int short_side = min(geometry().width(), geometry().height()); // 短边
+    // 非固定的情况，尺寸大小变了之后所有 padding 都要变
+    int padding = short_side*icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
+    icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
+    update();
 }
 
 /**
@@ -595,13 +619,23 @@ void InteractiveButtonBase::setFixedForeSize(bool f, int addin)
         if (font_size > 0)
             font.setPointSize(font_size);
         QFontMetrics fm(font);
-        setMinimumSize(fm.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right+addin, fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom+addin);
+        setMinimumSize(
+            fm.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right+addin,
+            fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom+addin
+        );
     }
     else if (model == PaintModel::Icon || model == PaintModel::PixmapMask)
     {
         int size = height();
         setMinimumSize(size+addin, size+addin);
     }
+}
+
+void InteractiveButtonBase::setSquareSize()
+{
+    setFixedWidth(height());
+    setMinimumWidth(height());
+    setMaximumWidth(height());
 }
 
 /**
@@ -882,7 +916,8 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
     }
     water_radius = static_cast<int>(max(geometry().width(), geometry().height()) * 1.42); // 长边
     int short_side = min(geometry().width(), geometry().height()); // 短边
-    int padding = short_side/4;//static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
+    // 非固定的情况，尺寸大小变了之后所有 padding 都要变
+    int padding = short_side*icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
     icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
     _l = _t = 0; _w = size().width(); _h = size().height();
 

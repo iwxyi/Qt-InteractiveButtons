@@ -33,39 +33,41 @@
 class InteractiveButtonBase : public QPushButton
 {
     Q_OBJECT
-    Q_PROPERTY(bool self_enabled WRITE setSelfEnabled)             // 是否启用自定义的按钮（true）
-    Q_PROPERTY(bool parent_enabled WRITE setParentEnabled)         // 是否启用父类按钮（false）
-    Q_PROPERTY(bool fore_enabled WRITE setForeEnabled)             // 是否绘制自定义按钮前景色（true）
-    Q_PROPERTY(QString text WRITE setText)                         // 前景文字
-    Q_PROPERTY(QString icon_path WRITE setIconPath)                // 前景图标
-    Q_PROPERTY(QString pixmpa_path WRITE setPixmapPath)            // 前景图标
-    Q_PROPERTY(QColor icon_color WRITE setIconColor)               // 前景图标帅色
-    Q_PROPERTY(QColor text_color WRITE setTextColor)               // 前景文字颜色
-    Q_PROPERTY(QColor background_color WRITE setNormalColor)       // 背景颜色
-    Q_PROPERTY(QColor border_color WRITE setBorderColor)           // 边界颜色
-    Q_PROPERTY(QColor hover_color WRITE setHoverColor)             // 鼠标悬浮背景颜色
-    Q_PROPERTY(QColor press_color WRITE setPressColor)             // 鼠标按下背景颜色
-    Q_PROPERTY(int hover_duration WRITE setHoverAniDuration)       // 鼠标悬浮动画周期
-    Q_PROPERTY(int press_duration WRITE setPressAniDuration)       // 鼠标按下动画周期
-    Q_PROPERTY(int click_duration WRITE setClickAniDuration)       // 鼠标点击动画周期
-    Q_PROPERTY(int radius WRITE setRadius)                         // 边框圆角半径
-    Q_PROPERTY(int border_width WRITE setBorderWidth)              // 边框线条粗细
-    Q_PROPERTY(bool fixed_fore_pos WRITE setFixedTextPos)          // 是否固定前景位置（false）
-    Q_PROPERTY(bool text_dynamic_size WRITE setTextDynamicSize)    // 修改字体大小时调整按钮最小尺寸（false）
-    Q_PROPERTY(bool leave_after_clicked WRITE setLeaveAfterClick)  // 鼠标单击松开后取消悬浮效果（针对菜单、弹窗）
-    Q_PROPERTY(bool show_animation WRITE setShowAni)               // 是否启用出现动画（鼠标移开则消失）（false）
-    Q_PROPERTY(bool water_animation WRITE setWaterRipple)          // 是否启用点击水波纹动画（否则使用渐变）（true）
-    Q_PROPERTY(int font_size READ getFontSizeT WRITE setFontSizeT) // 动：按钮字体动画效果（自动，不应该设置）
+    Q_PROPERTY(bool self_enabled WRITE setSelfEnabled)                // 是否启用自定义的按钮（true）
+    Q_PROPERTY(bool parent_enabled WRITE setParentEnabled)            // 是否启用父类按钮（false）
+    Q_PROPERTY(bool fore_enabled WRITE setForeEnabled)                // 是否绘制自定义按钮前景色（true）
+    Q_PROPERTY(QString text WRITE setText)                            // 前景文字
+    Q_PROPERTY(QString icon_path WRITE setIconPath)                   // 前景图标
+    Q_PROPERTY(QString pixmpa_path WRITE setPixmapPath)               // 前景图标
+    Q_PROPERTY(QColor icon_color WRITE setIconColor)                  // 前景图标帅色
+    Q_PROPERTY(QColor text_color WRITE setTextColor)                  // 前景文字颜色
+    Q_PROPERTY(QColor background_color WRITE setNormalColor)          // 背景颜色
+    Q_PROPERTY(QColor border_color WRITE setBorderColor)              // 边界颜色
+    Q_PROPERTY(QColor hover_color WRITE setHoverColor)                // 鼠标悬浮背景颜色
+    Q_PROPERTY(QColor press_color WRITE setPressColor)                // 鼠标按下背景颜色
+    Q_PROPERTY(int hover_duration WRITE setHoverAniDuration)          // 鼠标悬浮动画周期
+    Q_PROPERTY(int press_duration WRITE setPressAniDuration)          // 鼠标按下动画周期
+    Q_PROPERTY(int click_duration WRITE setClickAniDuration)          // 鼠标点击动画周期
+    Q_PROPERTY(double icon_padding_proper WRITE setIconPaddingProper) // 图标四边空白处大小比例
+    Q_PROPERTY(int radius WRITE setRadius)                            // 边框圆角半径
+    Q_PROPERTY(int border_width WRITE setBorderWidth)                 // 边框线条粗细
+    Q_PROPERTY(bool fixed_fore_pos WRITE setFixedTextPos)             // 是否固定前景位置（false）
+    Q_PROPERTY(bool text_dynamic_size WRITE setTextDynamicSize)       // 修改字体大小时调整按钮最小尺寸（false）
+    Q_PROPERTY(bool leave_after_clicked WRITE setLeaveAfterClick)     // 鼠标单击松开后取消悬浮效果（针对菜单、弹窗）
+    Q_PROPERTY(bool show_animation WRITE setShowAni)                  // 是否启用出现动画（鼠标移开则消失）（false）
+    Q_PROPERTY(bool water_animation WRITE setWaterRipple)             // 是否启用点击水波纹动画（否则使用渐变）（true）
+    Q_PROPERTY(int font_size READ getFontSizeT WRITE setFontSizeT)    // 动：按钮字体动画效果（自动，不应该设置）
 public:
-    InteractiveButtonBase(QWidget* parent = nullptr);
-    InteractiveButtonBase(QString text, QWidget* parent = nullptr);
-    InteractiveButtonBase(QIcon icon, QWidget* parent = nullptr);
-    InteractiveButtonBase(QPixmap pixmap, QWidget* parent = nullptr);
+    InteractiveButtonBase(QWidget *parent = nullptr);
+    InteractiveButtonBase(QString text, QWidget *parent = nullptr);
+    InteractiveButtonBase(QIcon icon, QWidget *parent = nullptr);
+    InteractiveButtonBase(QPixmap pixmap, QWidget *parent = nullptr);
 
     /**
      * 前景实体
      */
-    enum PaintModel {
+    enum PaintModel
+    {
         None,       // 无前景，仅使用背景
         Text,       // 纯文字（替代父类）
         Icon,       // 纯图标
@@ -79,7 +81,8 @@ public:
      * 可能是角标（比如展开箭头）
      * 可能时前缀（图例）
      */
-    struct PaintAddin {
+    struct PaintAddin
+    {
         PaintAddin() : enable(false) {}
         PaintAddin(QPixmap p, Qt::Alignment a, QSize s) : enable(true), pixmap(p), align(a), size(s) {}
         bool enable;         // 是否启用
@@ -93,7 +96,8 @@ public:
      * 松开的时候计算每一次抖动距离+时间，放入队列中
      * 定时调整抖动的队列实体索引
      */
-    struct Jitter {
+    struct Jitter
+    {
         Jitter(QPoint p, qint64 t) : point(p), timestamp(t) {}
         QPoint point;     // 要运动到的目标坐标
         qint64 timestamp; // 运动到目标坐标应该的时间戳，结束后删除本次抖动路径对象
@@ -104,9 +108,10 @@ public:
      * 鼠标按下时动画速度慢（压住），松开后动画速度骤然加快
      * 同样用队列记录所有的水波纹动画实体
      */
-    struct Water {
+    struct Water
+    {
         Water(QPoint p, qint64 t) : point(p), progress(0), press_timestamp(t),
-            release_timestamp(0), finish_timestamp(0), finished(false) {}
+                                    release_timestamp(0), finish_timestamp(0), finished(false) {}
         QPoint point;
         int progress;             // 水波纹进度100%（已弃用，当前使用时间戳）
         qint64 press_timestamp;   // 鼠标按下时间戳
@@ -119,10 +124,11 @@ public:
      * 四周边界的padding
      * 调整按钮大小时：宽度+左右、高度+上下
      */
-    struct EdgeVal {
+    struct EdgeVal
+    {
         EdgeVal() {}
         EdgeVal(int l, int t, int r, int b) : left(l), top(t), right(r), bottom(b) {}
-        int left, top, right, bottom;  // 四个边界的空白距离
+        int left, top, right, bottom; // 四个边界的空白距离
     };
 
     virtual void setText(QString text);
@@ -130,7 +136,7 @@ public:
     virtual void setIcon(QIcon icon);
     virtual void setPixmapPath(QString path);
     virtual void setPixmap(QPixmap pixmap);
-    virtual void setPaintAddin(QPixmap pixmap, Qt::Alignment align = Qt::AlignRight, QSize size = QSize(0,0));
+    virtual void setPaintAddin(QPixmap pixmap, Qt::Alignment align = Qt::AlignRight, QSize size = QSize(0, 0));
 
     void setSelfEnabled(bool e = true);
     void setParentEnabled(bool e = false);
@@ -149,8 +155,8 @@ public:
     void setBorderColor(QColor color);
     void setHoverColor(QColor color);
     void setPressColor(QColor color);
-    void setIconColor(QColor color = QColor(0,0,0));
-    void setTextColor(QColor color = QColor(0,0,0));
+    void setIconColor(QColor color = QColor(0, 0, 0));
+    void setTextColor(QColor color = QColor(0, 0, 0));
     void setFontSize(int f);
     void setHover();
     void setAlign(Qt::Alignment a);
@@ -159,23 +165,25 @@ public:
     void setBorderWidth(int x);
     void setDisabled(bool dis = true);
     void setPaddings(int l, int r, int t, int b);
+    void setPaddings(int h, int v);
     void setPaddings(int x);
+    void setIconPaddingProper(double x);
     void setFixedForePos(bool f = true);
     void setFixedForeSize(bool f = true, int addin = 0);
+    void setSquareSize();
     void setTextDynamicSize(bool d = true);
     void setLeaveAfterClick(bool l = true);
 
     void setShowAni(bool enable = true);
     void showForeground();
-    void showForeground2(QPoint point = QPoint(0,0));
+    void showForeground2(QPoint point = QPoint(0, 0));
     void hideForeground();
-    void delayShowed(int time, QPoint point = QPoint(0,0));
+    void delayShowed(int time, QPoint point = QPoint(0, 0));
 
-    void setMenu(QMenu* menu);
+    void setMenu(QMenu *menu);
     void setState(bool s = true);
     bool getState();
     virtual void simulateStatePress(bool s = true);
-
 
 #if QT_DEPRECATED_SINCE(5, 11)
     QT_DEPRECATED_X("Use InteractiveButtonBase::setFixedForePos(bool fixed = true)")
@@ -183,16 +191,16 @@ public:
 #endif
 
 protected:
-    void enterEvent(QEvent* event) override;
-    void leaveEvent(QEvent* event) override;
-    void mousePressEvent(QMouseEvent* event) override;
-    void mouseReleaseEvent(QMouseEvent* event) override;
-    void mouseMoveEvent(QMouseEvent* event) override;
-    void resizeEvent(QResizeEvent* event) override;
+    void enterEvent(QEvent *event) override;
+    void leaveEvent(QEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void resizeEvent(QResizeEvent *event) override;
     void focusInEvent(QFocusEvent *event) override;
     void focusOutEvent(QFocusEvent *event) override;
-    void changeEvent(QEvent* event) override;
-    void paintEvent(QPaintEvent* event) override;
+    void changeEvent(QEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
 
     virtual bool inArea(QPoint point);
     virtual QPainterPath getBgPainterPath();
@@ -249,14 +257,14 @@ protected:
 
     // 鼠标开始悬浮、按下、松开、离开的坐标和时间戳
     // 鼠标锚点、目标锚点、当前锚点的坐标；当前XY的偏移量
-    QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos/*目标锚点渐渐靠近鼠标*/;
-    QPoint offset_pos/*当前偏移量*/, effect_pos, release_offset; // 相对中心、相对左上角、弹起时的平方根偏移
-    bool hovering, pressing; // 是否悬浮和按下的状态机
-    qint64 hover_timestamp, leave_timestamp, press_timestamp, release_timestamp;   // 各种事件的时间戳
-    int hover_bg_duration, press_bg_duration, click_ani_duration; // 各种动画时长
+    QPoint enter_pos, press_pos, release_pos, mouse_pos, anchor_pos /*目标锚点渐渐靠近鼠标*/;
+    QPoint offset_pos /*当前偏移量*/, effect_pos, release_offset;                // 相对中心、相对左上角、弹起时的平方根偏移
+    bool hovering, pressing;                                                     // 是否悬浮和按下的状态机
+    qint64 hover_timestamp, leave_timestamp, press_timestamp, release_timestamp; // 各种事件的时间戳
+    int hover_bg_duration, press_bg_duration, click_ani_duration;                // 各种动画时长
 
     // 定时刷新界面（保证动画持续）
-    QTimer* anchor_timer;
+    QTimer *anchor_timer;
     int move_speed;
 
     // 背景与前景
@@ -264,6 +272,7 @@ protected:
     QColor normal_bg, hover_bg, press_bg, border_bg; // 各种背景颜色
     int hover_speed, press_start, press_speed;       // 颜色渐变速度
     int hover_progress, press_progress;              // 颜色渐变进度
+    double icon_padding_proper;                      // 图标的大小比例
     int border_width;
     int radius_x, radius_y;
     int font_size;
@@ -273,21 +282,21 @@ protected:
 
     // 鼠标单击动画
     bool click_ani_appearing, click_ani_disappearing; // 是否正在按下的动画效果中
-    int click_ani_progress; // 按下的进度（使用时间差计算）
+    int click_ani_progress;                           // 按下的进度（使用时间差计算）
 
     // 统一绘制图标的区域（从整个按钮变为中心三分之二，并且根据偏移计算）
-    bool unified_geometry;  // 上面用不到的话，这个也用不到……
+    bool unified_geometry; // 上面用不到的话，这个也用不到……
     int _l, _t, _w, _h;
 
     // 鼠标拖拽弹起来回抖动效果
     bool jitter_animation;      // 是否开启鼠标松开时的抖动效果
     double elastic_coefficient; // 弹性系数
-    QList<Jitter>jitters;
-    int jitter_duration;        // 抖动一次，多次效果叠加
+    QList<Jitter> jitters;
+    int jitter_duration; // 抖动一次，多次效果叠加
 
     // 鼠标按下水波纹动画效果
-    bool water_animation;       // 是否开启水波纹动画
-    QList<Water>waters;
+    bool water_animation; // 是否开启水波纹动画
+    QList<Water> waters;
     int water_press_duration, water_release_duration, water_finish_duration;
     int water_radius;
 
@@ -296,6 +305,5 @@ protected:
     bool _state;              // 一个记录状态的变量，比如是否持续
     bool leave_after_clicked; // 鼠标单击松开后取消悬浮效果（针对菜单、弹窗），按钮必定失去焦点
 };
-
 
 #endif // INTERACTIVEBUTTONBASE_H

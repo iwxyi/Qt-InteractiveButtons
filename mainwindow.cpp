@@ -72,6 +72,13 @@ MainWindow::MainWindow(QWidget *parent) :
     tdb->setGeometry(220, 100, 200, 100);
     tdb->setBgColor(Qt::gray);
     connect(tdb, &ThreeDimenButton::clicked, [=]{ qDebug() << "3D按钮clicked"; });
+
+    WaterZoomButton* zoom_btn1 = new WaterZoomButton("tttttttttt", this);
+    zoom_btn1->setGeometry(300, 200, 200, 50);
+    zoom_btn1->setBgColor(QColor(240,128,128));
+    zoom_btn1->setBgColor(Qt::transparent, QColor(0x88, 0x88, 0x88, 0x64));
+    zoom_btn1->setRadius(5);
+    zoom_btn1->setChokingProp(0.08);
 }
 
 void MainWindow::enterEvent(QEvent *event)

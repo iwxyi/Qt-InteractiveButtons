@@ -15,6 +15,7 @@
 #include "waterfloatbutton.h"
 #include "pointmenubutton.h"
 #include "threedimenbutton.h"
+#include "waterzoombutton.h"
 
 class MainWindow : public QMainWindow
 {

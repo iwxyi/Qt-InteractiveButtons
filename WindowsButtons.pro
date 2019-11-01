@@ -30,6 +30,7 @@ SOURCES += \
     interactivebuttonbase.cpp \
     pointmenubutton.cpp \
     threedimenbutton.cpp \
+    waterzoombutton.cpp \
     winminbutton.cpp \
     generalbuttoninterface.cpp \
     winmaxbutton.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     interactivebuttonbase.h \
     pointmenubutton.h \
     threedimenbutton.h \
+    waterzoombutton.h \
     winminbutton.h \
     generalbuttoninterface.h \
     winmaxbutton.h \
