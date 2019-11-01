@@ -11,6 +11,8 @@ public:
 
     void setChoking(int c);
     void setChokingProp(double p);
+    void setRadiusZoom(int radius);
+    void setRadius(int x, int x2);
 
 protected:
     QPainterPath getBgPainterPath() override;
@@ -19,6 +21,7 @@ protected:
 private:
     int choking;
     double choking_prop;
+    int radius_zoom;
 };
 
 #endif // WATERZOOMBUTTON_H

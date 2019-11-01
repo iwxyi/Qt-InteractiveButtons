@@ -3,6 +3,7 @@
 WaterZoomButton::WaterZoomButton(QString text, QWidget *parent) : InteractiveButtonBase(text, parent)
 {
     choking = 10;
+    radius_zoom = -1;
 }
 
 void WaterZoomButton::setChoking(int c)
@@ -16,12 +17,40 @@ void WaterZoomButton::setChokingProp(double p)
     choking_prop = p;
 }
 
+void WaterZoomButton::setRadiusZoom(int radius)
+{
+    radius_zoom = radius;
+}
+
+void WaterZoomButton::setRadius(int x, int x2)
+{
+    // 注意：最终绘制中只计算 x 的半径，无视 y 的半径
+    InteractiveButtonBase::setRadius(x);
+    radius_zoom = x2;
+}
+
 QPainterPath WaterZoomButton::getBgPainterPath()
 {
+//    if (!hover_progress)
+//        return InteractiveButtonBase::getBgPainterPath();
+
     QPainterPath path;
-    int c = choking * (100 - hover_progress) / 100;
-    if (radius_x || radius_y)
-        path.addRoundedRect(QRect(c,c,size().width()-c*2,size().height()-c*2), radius_x, radius_y);
+    int c;
+    int r;
+    if (!hover_progress)
+    {
+        c = choking;
+        r = radius_x;
+    }
+    else
+    {
+        c = choking * (100 - hover_progress) / 100;
+        r = radius_zoom < 0 ? radius_x :
+                              radius_x + (radius_zoom-radius_x) * hover_progress / 100;
+    }
+
+    if (r)
+        path.addRoundedRect(QRect(c,c,size().width()-c*2,size().height()-c*2), r, r);
     else
         path.addRect(QRect(c,c,size().width()-c*2,size().height()-c*2));
     return path;
