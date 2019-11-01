@@ -1184,10 +1184,16 @@ QPainterPath InteractiveButtonBase::getBgPainterPath()
  */
 QPainterPath InteractiveButtonBase::getWaterPainterPath(InteractiveButtonBase::Water water)
 {
-    QRect circle(water.point.x() - water_radius*water.progress/100,
+    double prog = getNolinearProg(water.progress, FastSlower);
+    int ra = water_radius*prog;
+    QRect circle(water.point.x() - ra,
+                water.point.y() - ra,
+                ra*2,
+                ra*2);
+    /*QRect circle(water.point.x() - water_radius*water.progress/100,
                 water.point.y() - water_radius*water.progress/100,
                 water_radius*water.progress/50,
-                water_radius*water.progress/50);
+                water_radius*water.progress/50);*/
     QPainterPath path;
     path.addEllipse(circle);
     if (radius_x || radius_y)
@@ -1429,12 +1435,12 @@ double InteractiveButtonBase::getNolinearProg(int p, InteractiveButtonBase::Noli
     case SlowFaster:
         return p * p / 10000.0;
     case FastSlower :
-        return quick_sqrt(p) / 10.0;
+        return quick_sqrt(p*100) / 100.0;
     case SlowFastSlower:
         if (p <= 50)
             return p * p / 50.0;
         else
-            return 0.5 + quick_sqrt(2*(p-50))/20.0;
+            return 0.5 + quick_sqrt(50*(p-50))/100.0;
     }
 }
 
