@@ -44,7 +44,7 @@ QPainterPath WaterZoomButton::getBgPainterPath()
     }
     else
     {
-        c = choking * (100 - hover_progress) / 100;
+        c = choking * (1 - getNolinearProg(hover_progress, hovering?FastSlower:SlowFaster));
         r = radius_zoom < 0 ? radius_x :
                               radius_x + (radius_zoom-radius_x) * hover_progress / 100;
     }

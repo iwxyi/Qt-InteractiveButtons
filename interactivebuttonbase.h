@@ -21,7 +21,7 @@
  ×
  * 邮箱：iwxyiii@gmail.com
  * QQ号：482582886
- * 时间：2019.9.27
+ * 时间：2019.11.1
  *
  * 说明：灵性的自定义按钮，简单又又去
  * 源码：https://github.com/MRXY001/Interactive-Windows-Buttons
@@ -131,6 +131,13 @@ public:
         int left, top, right, bottom; // 四个边界的空白距离
     };
 
+    enum NolinearType {
+        Linear,
+        SlowFaster,
+        FastSlower,
+        SlowFastSlower
+    };
+
     virtual void setText(QString text);
     virtual void setIconPath(QString path);
     virtual void setIcon(QIcon icon);
@@ -222,6 +229,8 @@ protected:
     int getSpringBackProgress(int x, int max);
     QColor getOpacityColor(QColor color, double level = 0.5);
     QPixmap getMaskPixmap(QPixmap p, QColor c);
+
+    double getNolinearProg(int p, NolinearType type);
 
 signals:
     void showAniFinished();

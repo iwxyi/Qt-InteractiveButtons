@@ -78,7 +78,7 @@ MainWindow::MainWindow(QWidget *parent) :
     zoom_btn1->setBgColor(QColor(240,128,128));
     zoom_btn1->setBgColor(Qt::transparent, QColor(0x88, 0x88, 0x88, 0x64));
     zoom_btn1->setRadius(10, 5);
-    zoom_btn1->setChokingProp(0.08);
+    zoom_btn1->setChokingProp(0.18);
 }
 
 void MainWindow::enterEvent(QEvent *event)

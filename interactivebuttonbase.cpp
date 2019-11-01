@@ -1415,6 +1415,29 @@ QPixmap InteractiveButtonBase::getMaskPixmap(QPixmap p, QColor c)
     return p;
 }
 
+double InteractiveButtonBase::getNolinearProg(int p, InteractiveButtonBase::NolinearType type)
+{
+    if (p <= 0)
+        return 0.0;
+    if (p >= 100)
+        return 1.0;
+
+    switch (type)
+    {
+    case Linear:
+        return p / 100.0;
+    case SlowFaster:
+        return p * p / 10000.0;
+    case FastSlower :
+        return quick_sqrt(p) / 10.0;
+    case SlowFastSlower:
+        if (p <= 50)
+            return p * p / 50.0;
+        else
+            return 0.5 + quick_sqrt(2*(p-50))/20.0;
+    }
+}
+
 /**
  * 锚点变成到鼠标位置的定时时钟
  * 同步计算所有和时间或者帧数有关的动画和属性
