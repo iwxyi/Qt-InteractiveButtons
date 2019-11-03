@@ -662,7 +662,7 @@ void InteractiveButtonBase::setDoubleClicked(bool e)
     if (double_timer == nullptr)
     {
         double_timer = new QTimer(this);
-        double_timer->setInterval(300);
+        double_timer->setInterval(DOUBLE_PRESS_INTERVAL);
         connect(double_timer, &QTimer::timeout, [=]{
             double_timer->stop();
             emit clicked(); // 手动触发单击事件
@@ -866,11 +866,12 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
         pressing = true;
         press_pos = mouse_pos;
         // 判断双击事件
+        press_timestamp = getTimestamp();
         if (double_clicked)
         {
-            qint64 last_press_timestamp = press_timestamp;
-            press_timestamp = getTimestamp();
-            if (last_press_timestamp+300>press_timestamp) // 是双击(判断两次单击的间隔)
+//            qint64 last_press_timestamp = press_timestamp;
+//            press_timestamp = getTimestamp();
+            if (release_timestamp+DOUBLE_PRESS_INTERVAL>press_timestamp && release_pos==press_pos) // 是双击(判断两次单击的间隔)
             {
                 double_timer->stop();
                 emit doubleClicked();
@@ -882,10 +883,7 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
                 double_prevent = false; // 避免有额外的 bug
             }
         }
-        else
-        {
-            press_timestamp = getTimestamp();
-        }
+
         if (water_animation)
         {
             waters << Water(press_pos, press_timestamp);
@@ -929,13 +927,22 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
 
         if (double_clicked)
         {
-            if (double_prevent)
+            if (double_prevent) // 双击的当次release，不参与单击计算
             {
                 double_prevent = false;
                 return ;
             }
-            double_timer->start();
-            return ; // 禁止单击事件
+
+            // 应该不是双击的操作
+            if (release_pos != press_pos || release_timestamp - press_timestamp > SINGLE_PRESS_INTERVAL)
+            {
+
+            }
+            else // 可能是双击，准备
+            {
+                double_timer->start();
+                return ; // 禁止单击事件
+            }
         }
     }
 

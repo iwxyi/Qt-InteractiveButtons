@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget *parent) :
     InteractiveButtonBase* double_btn = new InteractiveButtonBase(this);
     double_btn->setGeometry(510, 200, 50, 50);
     double_btn->setDoubleClicked(true);
+    double_btn->setBgColor(QColor(102,51,204,192));
     connect(double_btn, &InteractiveButtonBase::clicked, [=]{
         qDebug() << "单击";
     });
