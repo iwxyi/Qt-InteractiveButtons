@@ -25,7 +25,8 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
       water_animation(true), water_press_duration(800), water_release_duration(400), water_finish_duration(300),
-      align(Qt::AlignCenter), _state(false), leave_after_clicked(false), double_timer(nullptr), double_clicked(false)
+      align(Qt::AlignCenter), _state(false), leave_after_clicked(false),
+      double_clicked(false), double_timer(nullptr), double_prevent(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
 
@@ -664,7 +665,7 @@ void InteractiveButtonBase::setDoubleClicked(bool e)
         double_timer->setInterval(300);
         connect(double_timer, &QTimer::timeout, [=]{
             double_timer->stop();
-            slotClicked();
+            emit clicked(); // 手动触发单击事件
         });
     }
 }
@@ -864,13 +865,26 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
 
         pressing = true;
         press_pos = mouse_pos;
-        press_timestamp = getTimestamp();
         // 判断双击事件
-        if (double_clicked && release_timestamp+300>press_timestamp)
+        if (double_clicked)
         {
-            double_timer->stop();
-            emit doubleClicked();
-            return ;
+            qint64 last_press_timestamp = press_timestamp;
+            press_timestamp = getTimestamp();
+            if (last_press_timestamp+300>press_timestamp) // 是双击(判断两次单击的间隔)
+            {
+                double_timer->stop();
+                emit doubleClicked();
+                double_prevent = true; // 阻止本次的release识别为双击
+                return ;
+            }
+            else
+            {
+                double_prevent = false; // 避免有额外的 bug
+            }
+        }
+        else
+        {
+            press_timestamp = getTimestamp();
         }
         if (water_animation)
         {
@@ -915,6 +929,11 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
 
         if (double_clicked)
         {
+            if (double_prevent)
+            {
+                double_prevent = false;
+                return ;
+            }
             double_timer->start();
             return ; // 禁止单击事件
         }

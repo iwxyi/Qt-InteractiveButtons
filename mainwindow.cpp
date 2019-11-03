@@ -79,6 +79,16 @@ MainWindow::MainWindow(QWidget *parent) :
     zoom_btn1->setBgColor(Qt::transparent, QColor(0x88, 0x88, 0x88, 0x64));
     zoom_btn1->setRadius(10, 5);
     zoom_btn1->setChokingProp(0.18);
+
+    InteractiveButtonBase* double_btn = new InteractiveButtonBase(this);
+    double_btn->setGeometry(510, 200, 50, 50);
+    double_btn->setDoubleClicked(true);
+    connect(double_btn, &InteractiveButtonBase::clicked, [=]{
+        qDebug() << "单击";
+    });
+    connect(double_btn, &InteractiveButtonBase::doubleClicked, [=]{
+        qDebug() << "双击";
+    });
 }
 
 void MainWindow::enterEvent(QEvent *event)
