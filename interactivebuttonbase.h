@@ -317,6 +317,7 @@ protected:
     Qt::Alignment align;      // 文字/图标对其方向
     bool _state;              // 一个记录状态的变量，比如是否持续
     bool leave_after_clicked; // 鼠标单击松开后取消悬浮效果（针对菜单、弹窗），按钮必定失去焦点
+    QTimer* double_timer;
     bool double_clicked;
 };
 

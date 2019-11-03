@@ -25,7 +25,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
       water_animation(true), water_press_duration(800), water_release_duration(400), water_finish_duration(300),
-      align(Qt::AlignCenter), _state(false), leave_after_clicked(false), double_clicked(false)
+      align(Qt::AlignCenter), _state(false), leave_after_clicked(false), double_timer(nullptr), double_clicked(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
 
@@ -657,6 +657,16 @@ void InteractiveButtonBase::setLeaveAfterClick(bool l)
 void InteractiveButtonBase::setDoubleClicked(bool e)
 {
     double_clicked = e;
+
+    if (double_timer == nullptr)
+    {
+        double_timer = new QTimer(this);
+        double_timer->setInterval(300);
+        connect(double_timer, &QTimer::timeout, [=]{
+            double_timer->stop();
+            slotClicked();
+        });
+    }
 }
 
 /**
@@ -858,6 +868,7 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
         // 判断双击事件
         if (double_clicked && release_timestamp+300>press_timestamp)
         {
+            double_timer->stop();
             emit doubleClicked();
             return ;
         }
@@ -900,6 +911,12 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
         if (water_animation && waters.size())
         {
             waters.last().release_timestamp = release_timestamp;
+        }
+
+        if (double_clicked)
+        {
+            double_timer->start();
+            return ; // 禁止单击事件
         }
     }
 
