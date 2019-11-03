@@ -16,8 +16,8 @@
 #define PI 3.1415926
 #define GOLDEN_RATIO 0.618
 
-#define DOUBLE_PRESS_INTERVAL 200 // 松开和按下的间隔
-#define SINGLE_PRESS_INTERVAL 150 // 按下时间超过这个数就是单击
+#define DOUBLE_PRESS_INTERVAL 200 // 松开和按下的间隔。相等为双击
+#define SINGLE_PRESS_INTERVAL 150 // 按下时间超过这个数就是单击。相等为单击
 
 /**
  * Copyright (c) 2019 命燃芯乂 All rights reserved.

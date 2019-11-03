@@ -866,12 +866,13 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
         pressing = true;
         press_pos = mouse_pos;
         // 判断双击事件
-        press_timestamp = getTimestamp();
         if (double_clicked)
         {
-//            qint64 last_press_timestamp = press_timestamp;
-//            press_timestamp = getTimestamp();
-            if (release_timestamp+DOUBLE_PRESS_INTERVAL>press_timestamp && release_pos==press_pos) // 是双击(判断两次单击的间隔)
+            qint64 last_press_timestamp = press_timestamp;
+            press_timestamp = getTimestamp();
+            if (release_timestamp+DOUBLE_PRESS_INTERVAL>=press_timestamp
+                    && last_press_timestamp+SINGLE_PRESS_INTERVAL>release_timestamp
+                    && release_pos==press_pos) // 是双击(判断两次单击的间隔)
             {
                 double_timer->stop();
                 emit doubleClicked();
@@ -882,6 +883,10 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
             {
                 double_prevent = false; // 避免有额外的 bug
             }
+        }
+        else
+        {
+            press_timestamp = getTimestamp();
         }
 
         if (water_animation)
@@ -934,7 +939,7 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
             }
 
             // 应该不是双击的操作
-            if (release_pos != press_pos || release_timestamp - press_timestamp > SINGLE_PRESS_INTERVAL)
+            if (release_pos != press_pos || release_timestamp - press_timestamp >= SINGLE_PRESS_INTERVAL)
             {
 
             }
