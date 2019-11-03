@@ -31,7 +31,7 @@ void WaterCircleButton::leaveEvent(QEvent *event)
 
 void WaterCircleButton::mousePressEvent(QMouseEvent *event)
 {
-    if (in_circle)
+    if (in_circle || (!hovering && inArea(event->pos())))
         return InteractiveButtonBase::mousePressEvent(event);
 }
 
