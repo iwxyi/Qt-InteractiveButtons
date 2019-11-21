@@ -58,7 +58,7 @@ void WaterZoomButton::resizeEvent(QResizeEvent *event)
 {
     InteractiveButtonBase::resizeEvent(event);
 
-    if (abs(choking_prop)>0.0001)
+    if (qAbs(choking_prop)>0.0001)
     {
         choking = min(width(), height()) * choking_prop;
     }

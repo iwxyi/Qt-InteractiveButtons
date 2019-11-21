@@ -12,6 +12,7 @@
 #include <QDateTime>
 #include <QList>
 #include <QBitmap>
+#include <QtMath>
 
 #define PI 3.1415926
 #define GOLDEN_RATIO 0.618

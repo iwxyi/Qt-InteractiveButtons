@@ -1387,6 +1387,9 @@ void InteractiveButtonBase::setJitter()
  */
 int InteractiveButtonBase::quick_sqrt(long X) const
 {
+#if !defined(Q_OS_WIN)
+    return qSqrt(X);
+#endif
     bool fu = false;
     if (X < 0)
     {
