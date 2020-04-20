@@ -3,6 +3,12 @@
 
 #include "interactivebuttonbase.h"
 
+/**
+ * 瀑布流按钮控件组
+ * 可动态添加多个按钮，并设置/获取选中情况（开关）
+ * 实时调整内部按钮的位置，使之可见
+ */
+
 class WaterFloatButton : public InteractiveButtonBase
 {
 public:

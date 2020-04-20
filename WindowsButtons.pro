@@ -24,36 +24,36 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
+INCLUDEPATH += interactive_buttons\
+
 SOURCES += \
         main.cpp \
         mainwindow.cpp \
-    interactivebuttonbase.cpp \
-    pointmenubutton.cpp \
-    threedimenbutton.cpp \
-    waterzoombutton.cpp \
-    winminbutton.cpp \
-    generalbuttoninterface.cpp \
-    winmaxbutton.cpp \
-    winrestorebutton.cpp \
-    winclosebutton.cpp \
-    winmenubutton.cpp \
-    watercirclebutton.cpp \
-    waterfloatbutton.cpp
+    interactive_buttons/interactivebuttonbase.cpp \
+    interactive_buttons/pointmenubutton.cpp \
+    interactive_buttons/threedimenbutton.cpp \
+    interactive_buttons/waterzoombutton.cpp \
+    interactive_buttons/winminbutton.cpp \
+    interactive_buttons/winmaxbutton.cpp \
+    interactive_buttons/winrestorebutton.cpp \
+    interactive_buttons/winclosebutton.cpp \
+    interactive_buttons/winmenubutton.cpp \
+    interactive_buttons/watercirclebutton.cpp \
+    interactive_buttons/waterfloatbutton.cpp
 
 HEADERS += \
         mainwindow.h \
-    interactivebuttonbase.h \
-    pointmenubutton.h \
-    threedimenbutton.h \
-    waterzoombutton.h \
-    winminbutton.h \
-    generalbuttoninterface.h \
-    winmaxbutton.h \
-    winrestorebutton.h \
-    winclosebutton.h \
-    winmenubutton.h \
-    watercirclebutton.h \
-    waterfloatbutton.h
+    interactive_buttons/interactivebuttonbase.h \
+    interactive_buttons/pointmenubutton.h \
+    interactive_buttons/threedimenbutton.h \
+    interactive_buttons/waterzoombutton.h \
+    interactive_buttons/winminbutton.h \
+    interactive_buttons/winmaxbutton.h \
+    interactive_buttons/winrestorebutton.h \
+    interactive_buttons/winclosebutton.h \
+    interactive_buttons/winmenubutton.h \
+    interactive_buttons/watercirclebutton.h \
+    interactive_buttons/waterfloatbutton.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
