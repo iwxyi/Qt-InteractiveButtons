@@ -25,7 +25,7 @@
  ×
  * 邮箱：iwxyiii@gmail.com
  * QQ号：482582886
- * 时间：2019.11.1
+ * 时间：2020.04.20
  *
  * 说明：灵性的自定义按钮，简单又又去
  * 源码：https://github.com/MRXY001/Interactive-Windows-Buttons
@@ -37,30 +37,30 @@
 class InteractiveButtonBase : public QPushButton
 {
     Q_OBJECT
-    Q_PROPERTY(bool self_enabled WRITE setSelfEnabled)                // 是否启用自定义的按钮（true）
-    Q_PROPERTY(bool parent_enabled WRITE setParentEnabled)            // 是否启用父类按钮（false）
-    Q_PROPERTY(bool fore_enabled WRITE setForeEnabled)                // 是否绘制自定义按钮前景色（true）
-    Q_PROPERTY(QString text WRITE setText)                            // 前景文字
-    Q_PROPERTY(QString icon_path WRITE setIconPath)                   // 前景图标
-    Q_PROPERTY(QString pixmpa_path WRITE setPixmapPath)               // 前景图标
-    Q_PROPERTY(QColor icon_color WRITE setIconColor)                  // 前景图标帅色
-    Q_PROPERTY(QColor text_color WRITE setTextColor)                  // 前景文字颜色
-    Q_PROPERTY(QColor background_color WRITE setNormalColor)          // 背景颜色
-    Q_PROPERTY(QColor border_color WRITE setBorderColor)              // 边界颜色
-    Q_PROPERTY(QColor hover_color WRITE setHoverColor)                // 鼠标悬浮背景颜色
-    Q_PROPERTY(QColor press_color WRITE setPressColor)                // 鼠标按下背景颜色
-    Q_PROPERTY(int hover_duration WRITE setHoverAniDuration)          // 鼠标悬浮动画周期
-    Q_PROPERTY(int press_duration WRITE setPressAniDuration)          // 鼠标按下动画周期
-    Q_PROPERTY(int click_duration WRITE setClickAniDuration)          // 鼠标点击动画周期
-    Q_PROPERTY(double icon_padding_proper WRITE setIconPaddingProper) // 图标四边空白处大小比例
-    Q_PROPERTY(int radius WRITE setRadius)                            // 边框圆角半径
-    Q_PROPERTY(int border_width WRITE setBorderWidth)                 // 边框线条粗细
-    Q_PROPERTY(bool fixed_fore_pos WRITE setFixedTextPos)             // 是否固定前景位置（false）
-    Q_PROPERTY(bool text_dynamic_size WRITE setTextDynamicSize)       // 修改字体大小时调整按钮最小尺寸（false）
-    Q_PROPERTY(bool leave_after_clicked WRITE setLeaveAfterClick)     // 鼠标单击松开后取消悬浮效果（针对菜单、弹窗）
-    Q_PROPERTY(bool show_animation WRITE setShowAni)                  // 是否启用出现动画（鼠标移开则消失）（false）
-    Q_PROPERTY(bool water_animation WRITE setWaterRipple)             // 是否启用点击水波纹动画（否则使用渐变）（true）
-    Q_PROPERTY(int font_size READ getFontSizeT WRITE setFontSizeT)    // 动：按钮字体动画效果（自动，不应该设置）
+    Q_PROPERTY(bool self_enabled READ getSelfEnabled WRITE setSelfEnabled)                      // 是否启用自定义的按钮（true）
+    Q_PROPERTY(bool parent_enabled READ getParentEnabled WRITE setParentEnabled)                // 是否启用父类按钮（false）
+    Q_PROPERTY(bool fore_enabled READ getForeEnabled WRITE setForeEnabled)                      // 是否绘制自定义按钮前景色（true）
+    Q_PROPERTY(QString text READ getText WRITE setText)                                         // 前景文字
+    Q_PROPERTY(QString icon_path READ getIconPath WRITE setIconPath)                            // 前景图标
+    Q_PROPERTY(QString pixmap_path READ getPixmapPath WRITE setPixmapPath)                      // 前景图标
+    Q_PROPERTY(QColor icon_color READ getIconColor WRITE setIconColor)                          // 前景图标帅色
+    Q_PROPERTY(QColor text_color READ getTextColor WRITE setTextColor)                          // 前景文字颜色
+    Q_PROPERTY(QColor background_color READ getNormalColor WRITE setNormalColor)                // 背景颜色
+    Q_PROPERTY(QColor border_color READ getBorderColor WRITE setBorderColor)                    // 边界颜色
+    Q_PROPERTY(QColor hover_color READ getHoverColor WRITE setHoverColor)                       // 鼠标悬浮背景颜色
+    Q_PROPERTY(QColor press_color READ getPressColor WRITE setPressColor)                       // 鼠标按下背景颜色
+    Q_PROPERTY(int hover_duration READ getHoverAniDuration WRITE setHoverAniDuration)           // 鼠标悬浮动画周期
+    Q_PROPERTY(int press_duration READ getPressAniDuration WRITE setPressAniDuration)           // 鼠标按下动画周期
+    Q_PROPERTY(int click_duration READ getClickAniDuration WRITE setClickAniDuration)           // 鼠标点击动画周期
+    Q_PROPERTY(double icon_padding_proper READ getIconPaddingProper WRITE setIconPaddingProper) // 图标四边空白处大小比例
+    Q_PROPERTY(int radius READ getRadius WRITE setRadius)                                       // 边框圆角半径
+    Q_PROPERTY(int border_width READ getBorderWidth WRITE setBorderWidth)                       // 边框线条粗细
+    Q_PROPERTY(bool fixed_fore_pos READ getFixedTextPos WRITE setFixedTextPos)                  // 是否固定前景位置（false）
+    Q_PROPERTY(bool text_dynamic_size READ getTextDynamicSize WRITE setTextDynamicSize)         // 修改字体大小时调整按钮最小尺寸（false）
+    Q_PROPERTY(bool leave_after_clicked READ getLeaveAfterClick WRITE setLeaveAfterClick)       // 鼠标单击松开后取消悬浮效果（针对菜单、弹窗）
+    Q_PROPERTY(bool show_animation READ getShowAni WRITE setShowAni)                            // 是否启用出现动画（鼠标移开则消失）（false）
+    Q_PROPERTY(bool water_animation READ getWaterRipple WRITE setWaterRipple)                   // 是否启用点击水波纹动画（否则使用渐变）（true）
+    Q_PROPERTY(int font_size READ getFontSizeT WRITE setFontSizeT)                              // 动：按钮字体动画效果（自动，不应该设置）
 public:
     InteractiveButtonBase(QWidget *parent = nullptr);
     InteractiveButtonBase(QString text, QWidget *parent = nullptr);
@@ -135,7 +135,8 @@ public:
         int left, top, right, bottom; // 四个边界的空白距离
     };
 
-    enum NolinearType {
+    enum NolinearType
+    {
         Linear,
         SlowFaster,
         FastSlower,
@@ -203,6 +204,29 @@ public:
     void setState(bool s = true);
     bool getState();
     virtual void simulateStatePress(bool s = true, bool a = false);
+
+    bool getSelfEnabled() { return self_enabled; }
+    bool getParentEnabled() { return parent_enabled; }
+    bool getForeEnabled() { return fore_enabled; }
+    QColor getIconColor() { return icon_color; }
+    QColor getTextColor() { return text_color; }
+    QColor getNormalColor() { return normal_bg; }
+    QColor getBorderColor() { return border_bg; }
+    QColor getHoverColor() { return hover_bg; }
+    QColor getPressColor() { return press_bg; }
+    QString getIconPath() { return ""; }
+    QString getPixmapPath() { return ""; }
+    int getHoverAniDuration() { return hover_bg_duration; }
+    int getPressAniDuration() { return press_bg_duration; }
+    int getClickAniDuration() { return click_ani_duration; }
+    double getIconPaddingProper() { return icon_padding_proper; }
+    int getRadius() { return qMax(radius_x, radius_y); }
+    int getBorderWidth() { return border_width; }
+    bool getFixedTextPos() { return fixed_fore_pos; }
+    bool getTextDynamicSize() { return text_dynamic_size; }
+    bool getLeaveAfterClick() { return leave_after_clicked; }
+    bool getShowAni() { return show_animation; }
+    bool getWaterRipple() { return water_animation; }
 
 #if QT_DEPRECATED_SINCE(5, 11)
     QT_DEPRECATED_X("Use InteractiveButtonBase::setFixedForePos(bool fixed = true)")
@@ -333,9 +357,9 @@ protected:
     bool leave_after_clicked; // 鼠标单击松开后取消悬浮效果（针对菜单、弹窗），按钮必定失去焦点
 
     // 双击
-    bool double_clicked;      // 开启双击
-    QTimer* double_timer;     // 双击时钟
-    bool double_prevent;      // 双击阻止单击release的flag
+    bool double_clicked;  // 开启双击
+    QTimer *double_timer; // 双击时钟
+    bool double_prevent;  // 双击阻止单击release的flag
 };
 
 #endif // INTERACTIVEBUTTONBASE_H
