@@ -98,6 +98,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(double_btn, &InteractiveButtonBase::doubleClicked, [=]{
         qDebug() << "双击";
     });
+
+    InteractiveButtonBase* icon_text_btn = new InteractiveButtonBase(QIcon(":/icons/point_menu"), "菜单", this);
+    icon_text_btn->setGeometry(100, 300, 100, 40);
 }
 
 void MainWindow::enterEvent(QEvent *event)

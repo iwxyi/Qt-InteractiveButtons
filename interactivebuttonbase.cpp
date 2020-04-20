@@ -6,7 +6,7 @@
  */
 InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
     : QPushButton(parent), icon(nullptr), text(""), paint_addin(),
-      icon_paddings(4,4,4,4),
+      fore_paddings(4,4,4,4),
       self_enabled(true), parent_enabled(false), fore_enabled(true),
       show_animation(false), show_foreground(true), show_ani_appearing(false), show_ani_disappearing(false),
       show_duration(300), show_timestamp(0), hide_timestamp(0), show_ani_progress(0), show_ani_point(0,0),
@@ -20,7 +20,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       normal_bg(0xF2, 0xF2, 0xF2, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64), border_bg(0,0,0,0),
       focus_bg(0,0,0,0), focus_border(0,0,0,0),
       hover_speed(5), press_start(40), press_speed(5),
-      hover_progress(0), press_progress(0), icon_padding_proper(0.25),
+      hover_progress(0), press_progress(0), icon_padding_proper(0.25), icon_text_padding(4), icon_text_size(16),
       border_width(1), radius_x(0), radius_y(0),
       font_size(0), fixed_fore_pos(false), fixed_fore_size(false), text_dynamic_size(false), auto_text_color(true), focusing(false),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
@@ -73,6 +73,20 @@ InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
     setPixmap(pixmap);
 }
 
+InteractiveButtonBase::InteractiveButtonBase(QIcon icon, QString text, QWidget *parent)
+    : InteractiveButtonBase(parent)
+{
+    setIcon(icon);
+    setText(text);
+}
+
+InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QString text, QWidget *parent)
+    : InteractiveButtonBase(parent)
+{
+    setPixmap(pixmap);
+    setText(text);
+}
+
 /**
  * 设置按钮文字
  * @param text 按钮文字
@@ -80,7 +94,29 @@ InteractiveButtonBase::InteractiveButtonBase(QPixmap pixmap, QWidget *parent)
 void InteractiveButtonBase::setText(QString text)
 {
     this->text = text;
-    if (model == PaintModel::None) model = PaintModel::Text;
+    if (model == PaintModel::None)
+        model = PaintModel::Text;
+    else if (model == PaintModel::PixmapMask)
+    {
+        if (pixmap.isNull())
+            model = PaintModel::Text;
+        else
+            model = PaintModel::PixmapText;
+        setAlign(Qt::AlignLeft | Qt::AlignVCenter);
+        QFontMetrics fm(this->font());
+        icon_text_size = fm.lineSpacing();
+    }
+    else if (model == PaintModel::Icon)
+    {
+        if (icon.isNull())
+            model = PaintModel::Text;
+        else
+            model = PaintModel::IconText;
+        setAlign(Qt::AlignLeft | Qt::AlignVCenter);
+        QFontMetrics fm(this->font());
+        icon_text_size = fm.lineSpacing();
+    }
+
     if (parent_enabled)
         QPushButton::setText(text);
 
@@ -90,14 +126,14 @@ void InteractiveButtonBase::setText(QString text)
         if (font_size <= 0)
         {
             QFontMetrics fm(font());
-            setMinimumSize(fm.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right, fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom);
+            setMinimumSize(fm.horizontalAdvance(text)+fore_paddings.left+fore_paddings.right, fm.lineSpacing()+fore_paddings.top+fore_paddings.bottom);
         }
         else
         {
             QFont font;
             font.setPointSize(font_size);
             QFontMetrics fm(font);
-            setMinimumSize(fm.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right, fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom);
+            setMinimumSize(fm.horizontalAdvance(text)+fore_paddings.left+fore_paddings.right, fm.lineSpacing()+fore_paddings.top+fore_paddings.bottom);
         }
     }
     update();
@@ -129,6 +165,32 @@ void InteractiveButtonBase::setIcon(QIcon icon)
 {
     if (model == PaintModel::None)
         model = PaintModel::Icon;
+    else if (model == PaintModel::Text)
+    {
+        if (text.isEmpty())
+            model = PaintModel::Icon;
+        else
+            model = PaintModel::IconText;
+        setAlign(Qt::AlignLeft | Qt::AlignVCenter);
+        QFontMetrics fm(this->font());
+        icon_text_size = fm.lineSpacing();
+    }
+    else if (model == PaintModel::PixmapMask)
+    {
+        pixmap = QPixmap();
+        model = PaintModel::Icon;
+    }
+    else if (model == PaintModel::PixmapText)
+    {
+        pixmap = QPixmap();
+        if (text.isEmpty())
+            model = PaintModel::Icon;
+        else
+            model = PaintModel::IconText;
+        setAlign(Qt::AlignLeft | Qt::AlignVCenter);
+        QFontMetrics fm(this->font());
+        icon_text_size = fm.lineSpacing();
+    }
     this->icon = icon;
     if (parent_enabled)
         QPushButton::setIcon(icon);
@@ -143,6 +205,32 @@ void InteractiveButtonBase::setPixmap(QPixmap pixmap)
 {
     if (model == PaintModel::None)
         model = PaintModel::PixmapMask;
+    else if (model == PaintModel::Text)
+    {
+        if (text.isEmpty())
+            model = PaintModel::PixmapMask;
+        else
+            model = PaintModel::PixmapText;
+        setAlign(Qt::AlignLeft | Qt::AlignVCenter);
+        QFontMetrics fm(this->font());
+        icon_text_size = fm.lineSpacing();
+    }
+    else if (model == PaintModel::Icon)
+    {
+        icon = QIcon();
+        model = PaintModel::PixmapMask;
+    }
+    else if (model == PaintModel::IconText)
+    {
+        icon = QIcon();
+        if (text.isEmpty())
+            model = PaintModel::PixmapMask;
+        else
+            model = PaintModel::PixmapText;
+        setAlign(Qt::AlignLeft | Qt::AlignVCenter);
+        QFontMetrics fm(this->font());
+        icon_text_size = fm.lineSpacing();
+    }
     this->pixmap = getMaskPixmap(pixmap, isEnabled()?icon_color:getOpacityColor(icon_color));
     if (parent_enabled)
         QPushButton::setIcon(QIcon(pixmap));
@@ -434,6 +522,8 @@ void InteractiveButtonBase::setFontSize(int f)
         ani->setEndValue(f);
         ani->setDuration(click_ani_duration);
         connect(ani, &QPropertyAnimation::finished, [=]{
+            QFontMetrics fm(this->font());
+            icon_text_size = fm.lineSpacing();
             ani->deleteLater();
         });
         ani->start();
@@ -444,7 +534,12 @@ void InteractiveButtonBase::setFontSize(int f)
         QFont font;
         font.setPointSize(f);
         QFontMetrics fms(font);
-        setMinimumSize(fms.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right, fms.lineSpacing()+icon_paddings.top+icon_paddings.bottom);
+        setMinimumSize(fms.horizontalAdvance(text)+fore_paddings.left+fore_paddings.right, fms.lineSpacing()+fore_paddings.top+fore_paddings.bottom);
+    }
+    if (model != PaintModel::Text)
+    {
+        QFontMetrics fm(this->font());
+        icon_text_size = fm.lineSpacing();
     }
 }
 
@@ -555,10 +650,10 @@ void InteractiveButtonBase::setDisabled(bool dis)
  */
 void InteractiveButtonBase::setPaddings(int l, int r, int t, int b)
 {
-    icon_paddings.left = l;
-    icon_paddings.right = r;
-    icon_paddings.top = t;
-    icon_paddings.bottom = b;
+    fore_paddings.left = l;
+    fore_paddings.right = r;
+    fore_paddings.top = t;
+    fore_paddings.bottom = b;
     setFixedForeSize();
 }
 
@@ -569,8 +664,8 @@ void InteractiveButtonBase::setPaddings(int l, int r, int t, int b)
  */
 void InteractiveButtonBase::setPaddings(int h, int v)
 {
-    icon_paddings.left = icon_paddings.right = (h+1) / 2;
-    icon_paddings.top = icon_paddings.bottom = (v+1) / 2;
+    fore_paddings.left = fore_paddings.right = (h+1) / 2;
+    fore_paddings.top = fore_paddings.bottom = (v+1) / 2;
     setFixedForeSize();
 }
 
@@ -580,10 +675,10 @@ void InteractiveButtonBase::setPaddings(int h, int v)
  */
 void InteractiveButtonBase::setPaddings(int x)
 {
-    icon_paddings.left = x;
-    icon_paddings.right = x;
-    icon_paddings.top = x;
-    icon_paddings.bottom = x;
+    fore_paddings.left = x;
+    fore_paddings.right = x;
+    fore_paddings.top = x;
+    fore_paddings.bottom = x;
     setFixedForeSize();
 }
 
@@ -593,7 +688,7 @@ void InteractiveButtonBase::setIconPaddingProper(double x)
     int short_side = min(geometry().width(), geometry().height()); // 短边
     // 非固定的情况，尺寸大小变了之后所有 padding 都要变
     int padding = short_side*icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
-    icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
+    fore_paddings.left = fore_paddings.top = fore_paddings.right = fore_paddings.bottom = padding;
     update();
 }
 
@@ -644,8 +739,8 @@ void InteractiveButtonBase::setFixedForeSize(bool f, int addin)
             font.setPointSize(font_size);
         QFontMetrics fm(font);
         setMinimumSize(
-            fm.horizontalAdvance(text)+icon_paddings.left+icon_paddings.right+addin,
-            fm.lineSpacing()+icon_paddings.top+icon_paddings.bottom+addin
+            fm.horizontalAdvance(text)+fore_paddings.left+fore_paddings.right+addin,
+            fm.lineSpacing()+fore_paddings.top+fore_paddings.bottom+addin
         );
     }
     else if (model == PaintModel::Icon || model == PaintModel::PixmapMask)
@@ -1052,7 +1147,7 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
     {
         int short_side = min(geometry().width(), geometry().height()); // 短边
         int padding = short_side*icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
-        icon_paddings.left = icon_paddings.top = icon_paddings.right = icon_paddings.bottom = padding;
+        fore_paddings.left = fore_paddings.top = fore_paddings.right = fore_paddings.bottom = padding;
     }
     _l = _t = 0; _w = size().width(); _h = size().height();
 
@@ -1160,10 +1255,10 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
         // 绘制额外内容（可能被前景覆盖）
         if (paint_addin.enable)
         {
-            int l = icon_paddings.left, t = icon_paddings.top, r = size().width()-icon_paddings.right, b = size().height()-icon_paddings.bottom;
+            int l = fore_paddings.left, t = fore_paddings.top, r = size().width()-fore_paddings.right, b = size().height()-fore_paddings.bottom;
             int small_edge = min(size().height(), size().width());
-            int pw = paint_addin.size.width() ? paint_addin.size.width() : small_edge-icon_paddings.left-icon_paddings.right;
-            int ph = paint_addin.size.height() ? paint_addin.size.height() : small_edge-icon_paddings.top-icon_paddings.bottom;
+            int pw = paint_addin.size.width() ? paint_addin.size.width() : small_edge-fore_paddings.left-fore_paddings.right;
+            int ph = paint_addin.size.height() ? paint_addin.size.height() : small_edge-fore_paddings.top-fore_paddings.bottom;
             if (paint_addin.align & Qt::AlignLeft)
                 r = l + pw;
             else if (paint_addin.align & Qt::AlignRight)
@@ -1185,9 +1280,9 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
             painter.drawPixmap(QRect(l,t,r-l,b-t), paint_addin.pixmap);
         }
 
-        QRect rect(icon_paddings.left+(fixed_fore_pos?0:offset_pos.x()), icon_paddings.top+(fixed_fore_pos?0:offset_pos.y()), // 原来的位置，不包含点击、出现效果
-                   (size().width()-icon_paddings.left-icon_paddings.right),
-                   size().height()-icon_paddings.top-icon_paddings.bottom);
+        QRect rect(fore_paddings.left+(fixed_fore_pos?0:offset_pos.x()), fore_paddings.top+(fixed_fore_pos?0:offset_pos.y()), // 原来的位置，不包含点击、出现效果
+                   (size().width()-fore_paddings.left-fore_paddings.right),
+                   size().height()-fore_paddings.top-fore_paddings.bottom);
 
         // 抖动出现动画
         if ((show_ani_appearing || show_ani_disappearing) && show_ani_point != QPoint( 0, 0 ) && ! fixed_fore_pos)
@@ -1285,6 +1380,24 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
         {
             painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
             painter.drawPixmap(rect, pixmap);
+        }
+        else if (model == IconText) // 强制左对齐；左图标中文字
+        {
+            // 绘制图标
+            int& sz = icon_text_size;
+            QRect icon_rect(rect.left(), rect.top() + rect.height()/2 - sz / 2, sz, sz);
+            icon.paint(&painter, icon_rect, align);
+            rect.setLeft(rect.left() + sz + icon_text_padding);
+
+            // 绘制文字
+            painter.setPen(isEnabled()?text_color:getOpacityColor(text_color));
+            if (font_size > 0)
+            {
+                QFont font = painter.font();
+                font.setPointSize(font_size);
+                painter.setFont(font);
+            }
+            painter.drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, text);
         }
         else if (model == PixmapText)
         {

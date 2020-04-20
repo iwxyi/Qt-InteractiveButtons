@@ -66,6 +66,8 @@ public:
     InteractiveButtonBase(QString text, QWidget *parent = nullptr);
     InteractiveButtonBase(QIcon icon, QWidget *parent = nullptr);
     InteractiveButtonBase(QPixmap pixmap, QWidget *parent = nullptr);
+    InteractiveButtonBase(QIcon icon, QString text, QWidget *parent = nullptr);
+    InteractiveButtonBase(QPixmap pixmap, QString text, QWidget *parent = nullptr);
 
     /**
      * 前景实体
@@ -76,8 +78,8 @@ public:
         Text,       // 纯文字（替代父类）
         Icon,       // 纯图标
         PixmapMask, // 可变色图标（通过pixmap+遮罩实现），锯齿化明显
-        IconText,   // 图标+文字（暂不支持）
-        PixmapText  // 变色图标+文字（暂不支持）
+        IconText,   // 图标+文字（强制左对齐）
+        PixmapText  // 变色图标+文字（强制左对齐）
     };
 
     /**
@@ -300,7 +302,7 @@ public:
     QString text;
     QPixmap pixmap;
     PaintAddin paint_addin;
-    EdgeVal icon_paddings;
+    EdgeVal fore_paddings;
 
 protected:
     // 总体开关
@@ -333,6 +335,7 @@ protected:
     int hover_speed, press_start, press_speed;       // 颜色渐变速度
     int hover_progress, press_progress;              // 颜色渐变进度
     double icon_padding_proper;                      // 图标的大小比例
+    int icon_text_padding, icon_text_size;           // 图标+文字模式共存时，两者间隔、图标大小
     int border_width;
     int radius_x, radius_y;
     int font_size;
