@@ -24,6 +24,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       border_width(1), radius_x(0), radius_y(0),
       font_size(0), fixed_fore_pos(false), fixed_fore_size(false), text_dynamic_size(false), auto_text_color(true), focusing(false),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
+      mouse_press_event(nullptr), mouse_release_event(nullptr),
       unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
       water_animation(true), water_press_duration(800), water_release_duration(400), water_finish_duration(300),
@@ -888,6 +889,7 @@ void InteractiveButtonBase::enterEvent(QEvent *event)
     leave_timestamp = 0;
     if (mouse_pos == QPoint(-1,-1))
         mouse_pos = mapFromGlobal(QCursor::pos());
+    emit signalMouseEnter();
 
     return QPushButton::enterEvent(event);
 }
@@ -900,6 +902,7 @@ void InteractiveButtonBase::leaveEvent(QEvent *event)
     hovering = false;
     if (!pressing)
         mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
+    emit signalMouseLeave();
 
     return QPushButton::leaveEvent(event);
 }
@@ -955,6 +958,8 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
                 press_progress = press_start; // 直接设置为按下效果初始值（避免按下反应慢）
         }
     }
+    mouse_press_event = event;
+    emit signalMousePress(event);
 
     return QPushButton::mousePressEvent(event);
 }
@@ -1010,6 +1015,8 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
     {
         return ;
     }
+    mouse_release_event = event;
+    emit signalMouseRelease(event);
 
     return QPushButton::mouseReleaseEvent(event);
 }
@@ -1640,14 +1647,24 @@ void InteractiveButtonBase::anchorTimeOut()
         if (press_progress < 100) // 透明渐变，且没有完成
         {
             press_progress += press_speed;
-            if (press_progress > 100)
+            if (press_progress >= 100)
+            {
                 press_progress = 100;
+                if (mouse_press_event)
+                {
+                    emit signalMousePressLater(mouse_press_event);
+                    mouse_press_event = nullptr;
+                }
+            }
         }
         if (hovering && hover_progress < 100)
         {
             hover_progress += hover_speed;
-            if (hover_progress > 100)
+            if (hover_progress >= 100)
+            {
                 hover_progress = 100;
+                emit signalMouseEnterLater();
+            }
         }
     }
     else // 鼠标悬浮
@@ -1655,8 +1672,15 @@ void InteractiveButtonBase::anchorTimeOut()
         if (press_progress>0) // 如果按下的效果还在，变浅
         {
             press_progress -= press_speed;
-            if (press_progress < 0)
+            if (press_progress <= 0)
+            {
                 press_progress = 0;
+                if (mouse_press_event)
+                {
+                    emit signalMousePressLater(mouse_press_event);
+                    mouse_press_event = nullptr;
+                }
+            }
         }
 
         if (hovering) // 在框内：加深
@@ -1664,8 +1688,15 @@ void InteractiveButtonBase::anchorTimeOut()
             if (hover_progress < 100)
             {
                 hover_progress += hover_speed;
-                if (hover_progress > 100)
+                if (hover_progress >= 100)
+                {
                     hover_progress = 100;
+                    if (mouse_release_event)
+                    {
+                        emit signalMouseReleaseLater(mouse_release_event);
+                        mouse_release_event = nullptr;
+                    }
+                }
             }
         }
         else // 在框外：变浅
@@ -1673,8 +1704,11 @@ void InteractiveButtonBase::anchorTimeOut()
             if (hover_progress > 0)
             {
                 hover_progress -= hover_speed;
-                if (hover_progress < 0)
+                if (hover_progress <= 0)
+                {
                     hover_progress = 0;
+                    emit signalMouseLeaveLater();
+                }
             }
         }
     }
@@ -1685,15 +1719,22 @@ void InteractiveButtonBase::anchorTimeOut()
         for (int i = 0; i < waters.size(); i++)
         {
             Water& water = waters[i];
-            if (water.finished)
+            if (water.finished) // 结束状态
             {
                 water.progress = static_cast<int>(100 - 100 * (timestamp-water.finish_timestamp) / water_finish_duration);
                 if (water.progress <= 0)
+                {
                     waters.removeAt(i--);
+                    if (mouse_release_event) // 还没有发送按下延迟信号
+                    {
+                        emit signalMouseReleaseLater(mouse_release_event);
+                        mouse_release_event = nullptr;
+                    }
+                }
             }
             else // 正在出现状态
             {
-                if (water.progress >= 100)
+                if (water.progress >= 100) // 满了
                 {
                     water.progress = 100;
                     if (water.release_timestamp) // 鼠标已经松开了
@@ -1713,8 +1754,15 @@ void InteractiveButtonBase::anchorTimeOut()
                     {
                         water.progress = static_cast<int>(100 * (timestamp - water.press_timestamp) / water_press_duration);
                     }
-                    if (water.progress > 100)
+                    if (water.progress >= 100)
+                    {
                         water.progress = 100;
+                        if (mouse_press_event) // 还没有发送按下延迟信号
+                        {
+                            emit signalMousePressLater(mouse_press_event);
+                            mouse_press_event = nullptr;
+                        }
+                    }
                 }
             }
         }

@@ -204,6 +204,8 @@ public:
     void setState(bool s = true);
     bool getState();
     virtual void simulateStatePress(bool s = true, bool a = false);
+    bool isHovering() { return hovering; }
+    bool isPressing() { return pressing; }
 
     bool getSelfEnabled() { return self_enabled; }
     bool getParentEnabled() { return parent_enabled; }
@@ -278,6 +280,15 @@ signals:
     void signalFocusIn();
     void signalFocusOut();
 
+    void signalMouseEnter();
+    void signalMouseEnterLater(); // 进入后延迟信号（以渐变动画完成为准，相当于可手动设置）
+    void signalMouseLeave();
+    void signalMouseLeaveLater(); // 离开后延迟的信号（直至渐变动画完成（要是划过一下子离开，这个也会变快））
+    void signalMousePress(QMouseEvent* event);
+    void signalMousePressLater(QMouseEvent* event);
+    void signalMouseRelease(QMouseEvent* event);
+    void signalMouseReleaseLater(QMouseEvent* event);
+
 public slots:
     virtual void anchorTimeOut();
     virtual void slotClicked();
@@ -334,6 +345,7 @@ protected:
     // 鼠标单击动画
     bool click_ani_appearing, click_ani_disappearing; // 是否正在按下的动画效果中
     int click_ani_progress;                           // 按下的进度（使用时间差计算）
+    QMouseEvent *mouse_press_event, *mouse_release_event;
 
     // 统一绘制图标的区域（从整个按钮变为中心三分之二，并且根据偏移计算）
     bool unified_geometry; // 上面用不到的话，这个也用不到……

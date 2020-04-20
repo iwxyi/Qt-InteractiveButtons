@@ -72,6 +72,14 @@ MainWindow::MainWindow(QWidget *parent) :
     tdb->setGeometry(220, 100, 200, 100);
     tdb->setBgColor(Qt::gray);
     connect(tdb, &ThreeDimenButton::clicked, [=]{ qDebug() << "3D按钮clicked"; });
+    connect(tdb, &ThreeDimenButton::signalMouseEnter, [=]{ qDebug() << "mouseEnter"; });
+    connect(tdb, &ThreeDimenButton::signalMouseLeave, [=]{ qDebug() << "mouseLeave"; });
+    connect(tdb, &ThreeDimenButton::signalMouseEnterLater, [=]{ qDebug() << "mouseEnterLater"; });
+    connect(tdb, &ThreeDimenButton::signalMouseLeaveLater, [=]{ qDebug() << "mouseLeaveLater"; });
+    connect(tdb, &ThreeDimenButton::signalMousePress, [=](QMouseEvent*){ qDebug() << "mousePress"; });
+    connect(tdb, &ThreeDimenButton::signalMouseRelease, [=](QMouseEvent*){ qDebug() << "mouseRelease"; });
+    connect(tdb, &ThreeDimenButton::signalMousePressLater, [=](QMouseEvent*){ qDebug() << "mousePressLater"; });
+    connect(tdb, &ThreeDimenButton::signalMouseReleaseLater, [=](QMouseEvent*){ qDebug() << "mouseReleaseLater"; });
 
     WaterZoomButton* zoom_btn1 = new WaterZoomButton("tttttttttt", this);
     zoom_btn1->setGeometry(300, 200, 200, 50);

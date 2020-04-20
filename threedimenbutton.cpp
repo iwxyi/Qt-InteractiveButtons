@@ -67,7 +67,7 @@ void ThreeDimenButton::mouseMoveEvent(QMouseEvent *event)
         in_rect = true;
         InteractiveButtonBase::enterEvent(nullptr);
     }
-    else if (!is_in && in_rect && !pressing) // 鼠标移出
+    else if (!is_in && in_rect && !pressing && hovering) // 鼠标移出
     {
         in_rect = false;
         InteractiveButtonBase::leaveEvent(nullptr);
@@ -88,7 +88,7 @@ void ThreeDimenButton::anchorTimeOut()
 {
     // 因为上面有控件挡住了，所以需要定时监控move情况
     mouse_pos = mapFromGlobal(QCursor::pos());
-    if (!pressing && !inArea(mouse_pos)) // 鼠标移出
+    if (!pressing && !inArea(mouse_pos) && hovering) // 鼠标移出
     {
         InteractiveButtonBase::leaveEvent(nullptr);
     }
