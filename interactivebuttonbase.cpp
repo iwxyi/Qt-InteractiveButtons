@@ -1430,6 +1430,7 @@ void InteractiveButtonBase::setJitter()
     jitters.clear();
     QPoint center_pos = geometry().center()-geometry().topLeft();
     int full_manh = (anchor_pos-center_pos).manhattanLength(); // 距离
+    // 是否达到需要抖动的距离
     if (full_manh > (geometry().topLeft() - geometry().bottomRight()).manhattanLength()) // 距离超过外接圆半径，开启抖动
     {
         QPoint jitter_pos(effect_pos);
@@ -1447,6 +1448,11 @@ void InteractiveButtonBase::setJitter()
         }
         jitters << Jitter(center_pos, timestamp);
         anchor_pos = mouse_pos = center_pos;
+    }
+    else
+    {
+        // 未达到抖动距离，直接恢复
+        mouse_pos = center_pos;
     }
 }
 
