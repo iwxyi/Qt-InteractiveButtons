@@ -17,7 +17,7 @@
 #define PI 3.1415926
 #define GOLDEN_RATIO 0.618
 
-#define DOUBLE_PRESS_INTERVAL 200 // 松开和按下的间隔。相等为双击
+#define DOUBLE_PRESS_INTERVAL 300 // 松开和按下的间隔。相等为双击
 #define SINGLE_PRESS_INTERVAL 150 // 按下时间超过这个数就是单击。相等为单击
 
 /**
@@ -170,6 +170,8 @@ public:
     void setPressColor(QColor color);
     void setIconColor(QColor color = QColor(0, 0, 0));
     void setTextColor(QColor color = QColor(0, 0, 0));
+    void setFocusBg(QColor color);
+    void setFocusBorder(QColor color);
     void setFontSize(int f);
     void setHover();
     void setAlign(Qt::Alignment a);
@@ -187,6 +189,8 @@ public:
     void setTextDynamicSize(bool d = true);
     void setLeaveAfterClick(bool l = true);
     void setDoubleClicked(bool e = true);
+    void setAutoTextColor(bool a = true);
+    void setPretendFocus(bool f = true);
 
     void setShowAni(bool enable = true);
     void showForeground();
@@ -194,10 +198,11 @@ public:
     void hideForeground();
     void delayShowed(int time, QPoint point = QPoint(0, 0));
 
+    QString getText();
     void setMenu(QMenu *menu);
     void setState(bool s = true);
     bool getState();
-    virtual void simulateStatePress(bool s = true);
+    virtual void simulateStatePress(bool s = true, bool a = false);
 
 #if QT_DEPRECATED_SINCE(5, 11)
     QT_DEPRECATED_X("Use InteractiveButtonBase::setFixedForePos(bool fixed = true)")
@@ -246,6 +251,8 @@ signals:
     void pressDisappearAniFinished();
     void jitterAniFinished();
     void doubleClicked();
+    void signalFocusIn();
+    void signalFocusOut();
 
 public slots:
     virtual void anchorTimeOut();
@@ -287,6 +294,7 @@ protected:
     // 背景与前景
     QColor icon_color, text_color;                   // 前景颜色
     QColor normal_bg, hover_bg, press_bg, border_bg; // 各种背景颜色
+    QColor focus_bg, focus_border;                   // 有焦点的颜色
     int hover_speed, press_start, press_speed;       // 颜色渐变速度
     int hover_progress, press_progress;              // 颜色渐变进度
     double icon_padding_proper;                      // 图标的大小比例
@@ -296,6 +304,8 @@ protected:
     bool fixed_fore_pos;    // 鼠标进入时是否固定文字位置
     bool fixed_fore_size;   // 鼠标进入/点击时是否固定前景大小
     bool text_dynamic_size; // 设置字体时自动调整最小宽高
+    bool auto_text_color;   // 动画时是否自动调整文字颜色
+    bool focusing;          // 是否获得了焦点
 
     // 鼠标单击动画
     bool click_ani_appearing, click_ani_disappearing; // 是否正在按下的动画效果中

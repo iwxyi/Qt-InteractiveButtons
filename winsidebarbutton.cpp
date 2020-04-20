@@ -1,7 +1,7 @@
 #include "winsidebarbutton.h"
 
 WinSidebarButton::WinSidebarButton(QWidget* parent)
-    : InteractiveButtonBase (parent)
+    : InteractiveButtonBase (parent), tl_radius(0)
 {
     setUnifyGeomerey(true);
 }
@@ -64,4 +64,32 @@ void WinSidebarButton::slotClicked()
     else
         setState(true);
     return InteractiveButtonBase::slotClicked();
+}
+
+/**
+ * 针对圆角的设置
+ */
+void WinSidebarButton::setTopLeftRadius(int r)
+{
+    tl_radius = r;
+}
+
+QPainterPath WinSidebarButton::getBgPainterPath()
+{
+    if (!tl_radius)
+        return InteractiveButtonBase::getBgPainterPath();
+
+    QPainterPath path = InteractiveButtonBase::getBgPainterPath();
+    QPainterPath round_path;
+    round_path.addEllipse(0, 0, tl_radius * 2, tl_radius * 2);
+    QPainterPath corner_path;
+    corner_path.addRect(0, 0, tl_radius, tl_radius);
+    corner_path -= round_path;
+    path -= corner_path;
+    return path;
+}
+
+QPainterPath WinSidebarButton::getWaterPainterPath(Water water)
+{
+    return InteractiveButtonBase::getWaterPainterPath(water) & WinSidebarButton::getBgPainterPath();
 }

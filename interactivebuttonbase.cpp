@@ -18,9 +18,11 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       move_speed(5),
       icon_color(0, 0, 0), text_color(0,0,0),
       normal_bg(0xF2, 0xF2, 0xF2, 0), hover_bg(128, 128, 128, 32), press_bg(128, 128, 128, 64), border_bg(0,0,0,0),
+      focus_bg(0,0,0,0), focus_border(0,0,0,0),
       hover_speed(5), press_start(40), press_speed(5),
       hover_progress(0), press_progress(0), icon_padding_proper(0.25),
-      border_width(1), radius_x(0), radius_y(0), font_size(0), fixed_fore_pos(false), fixed_fore_size(false), text_dynamic_size(false),
+      border_width(1), radius_x(0), radius_y(0),
+      font_size(0), fixed_fore_pos(false), fixed_fore_size(false), text_dynamic_size(false), auto_text_color(true), focusing(false),
       click_ani_appearing(false), click_ani_disappearing(false), click_ani_progress(0),
       unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
@@ -391,6 +393,26 @@ void InteractiveButtonBase::setTextColor(QColor color)
 }
 
 /**
+ * 设置获取焦点时的背景颜色（默认关闭）
+ * @param color 背景颜色
+ */
+void InteractiveButtonBase::setFocusBg(QColor color)
+{
+    setFocusPolicy(Qt::StrongFocus);
+    focus_bg = color;
+}
+
+/**
+ * 设置获取焦点时的边框颜色（默认关闭）
+ * @param color 边框颜色
+ */
+void InteractiveButtonBase::setFocusBorder(QColor color)
+{
+    setFocusPolicy(Qt::StrongFocus);
+    focus_border = color;
+}
+
+/**
  * 设置文字大小（PointSize，覆盖 font() 字体大小）
  * @param f 文字大小
  */
@@ -671,6 +693,25 @@ void InteractiveButtonBase::setDoubleClicked(bool e)
 }
 
 /**
+ * 动画时是否自动设置文字的颜色
+ */
+void InteractiveButtonBase::setAutoTextColor(bool a)
+{
+    this->auto_text_color = a;
+}
+
+/**
+ * 一开始没有聚焦时，假装获取焦点
+ * 通过信号槽使其他控件（例如QLineEdit）按下enter键触发此按钮事件
+ * 直到触发了焦点改变事件，此控件失去焦点（需要手动改变）
+ */
+void InteractiveButtonBase::setPretendFocus(bool f)
+{
+    focusing = f;
+    update();
+}
+
+/**
  * 是否开启出现动画
  * 鼠标进入按钮区域，前景图标从对面方向缩放出现
  * @param enable 开关
@@ -767,6 +808,14 @@ void InteractiveButtonBase::delayShowed(int time, QPoint point)
 }
 
 /**
+ * 获取文字
+ */
+QString InteractiveButtonBase::getText()
+{
+    return text;
+}
+
+/**
  * 设置菜单
  * 并解决菜单无法监听到 release 的问题
  * @param menu 菜单对象
@@ -803,13 +852,18 @@ bool InteractiveButtonBase::getState()
 /**
  * 模拟按下开关的效果，并改变状态
  * 如果不使用状态，则出现点击动画
+ * @param s 目标状态（默认为false）
+ * @param a 鼠标在区域内则点击无效（恐怕再次点击）
  */
-void InteractiveButtonBase::simulateStatePress(bool s)
+void InteractiveButtonBase::simulateStatePress(bool s, bool a)
 {
     if (getState() == s)
         return ;
 
-    if (inArea(mapFromGlobal(QCursor::pos()))) // 点击当前按钮，不需要再模拟了
+    // 鼠标悬浮在上方，有两种情况：
+    // 1、点击按钮后触发，重复了
+    // 2、需要假装触发，例如 Popup 类型，尽管悬浮在上面，但是无法点击到
+    if (a && inArea(mapFromGlobal(QCursor::pos()))) // 点击当前按钮，不需要再模拟了
         return ;
 
     mousePressEvent(new QMouseEvent(QMouseEvent::Type::None, QPoint(size().width()/2,size().height()/2), Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
@@ -817,7 +871,7 @@ void InteractiveButtonBase::simulateStatePress(bool s)
     mouseReleaseEvent(new QMouseEvent(QMouseEvent::Type::None, QPoint(size().width()/2,size().height()/2), Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
 
     // if (!inArea(mapFromGlobal(QCursor::pos()))) // 针对模拟release 后面 // 必定成立
-        hovering = false;
+    hovering = false;
 }
 
 /**
@@ -874,9 +928,9 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
                     && last_press_timestamp+SINGLE_PRESS_INTERVAL>release_timestamp
                     && release_pos==press_pos) // 是双击(判断两次单击的间隔)
             {
+                double_prevent = true; // 阻止本次的release识别为双击
                 double_timer->stop();
                 emit doubleClicked();
-                double_prevent = true; // 阻止本次的release识别为双击
                 return ;
             }
             else
@@ -891,6 +945,8 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
 
         if (water_animation)
         {
+            if (waters.size() && waters.last().release_timestamp == 0) // 避免两个按键同时按下
+                waters.last().release_timestamp = getTimestamp();
             waters << Water(press_pos, press_timestamp);
         }
         else // 透明渐变
@@ -911,7 +967,7 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
 {
     if (pressing && event->button() == Qt::LeftButton)
     {
-        if (!inArea(event->pos()))
+        if (!inArea(event->pos()) || leave_after_clicked)
         {
             hovering = false;
         }
@@ -949,6 +1005,10 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
                 return ; // 禁止单击事件
             }
         }
+    }
+    else if (leave_after_clicked && !pressing && double_clicked && double_prevent) // 双击，失去焦点了，pressing 丢失
+    {
+        return ;
     }
 
     return QPushButton::mouseReleaseEvent(event);
@@ -1001,6 +1061,9 @@ void InteractiveButtonBase::focusInEvent(QFocusEvent *event)
     if (!hovering && inArea(mapFromGlobal(QCursor::pos())))
         InteractiveButtonBase::enterEvent(new QEvent(QEvent::Type::None));
 
+    focusing = true;
+    emit signalFocusIn();
+
     return QPushButton::focusInEvent(event);
 }
 
@@ -1026,6 +1089,9 @@ void InteractiveButtonBase::focusOutEvent(QFocusEvent *event)
         }
     }
 
+    focusing = false;
+    emit signalFocusOut();
+
     return QPushButton::focusOutEvent(event);
 }
 
@@ -1049,12 +1115,16 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
     {
         painter.fillPath(path_back, isEnabled()?normal_bg:getOpacityColor(normal_bg));
     }
+    if (focusing && focus_bg.alpha() != 0) // 焦点背景
+    {
+        painter.fillPath(path_back, focus_bg);
+    }
 
-    if (border_bg.alpha() != 0 && border_width > 0)
+    if ((border_bg.alpha() != 0 || (focusing && focus_border.alpha() != 0)) && border_width > 0)
     {
         painter.save();
         QPen pen;
-        pen.setColor(border_bg);
+        pen.setColor((focusing && focus_border.alpha()) ? focus_border : border_bg);
         pen.setWidth(border_width);
         painter.setPen(pen);
         painter.drawPath(path_back);
@@ -1387,15 +1457,16 @@ void InteractiveButtonBase::setJitter()
  */
 int InteractiveButtonBase::quick_sqrt(long X) const
 {
-#if !defined(Q_OS_WIN)
-    return qSqrt(X);
-#endif
     bool fu = false;
     if (X < 0)
     {
         fu = true;
         X = -X;
     }
+#if !defined(Q_OS_WIN)
+    X = qSqrt(X);
+    return fu ? -X : X;
+#endif
     unsigned long M = static_cast<unsigned long>(X);
     unsigned int N, i;
     unsigned long tmp, ttp; // 结果、循环计数

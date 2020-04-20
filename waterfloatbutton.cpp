@@ -144,13 +144,15 @@ void WaterFloatButton::paintEvent(QPaintEvent *event)
         QColor color;
         if (pro)
         {
-            QColor aim_color = isLightColor(hover_bg) ? QColor(0,0,0) : QColor(255,255,255);
-            color = QColor(
-                        text_color.red() + (aim_color.red()-text_color.red()) * pro / 100,
-                        text_color.green() + (aim_color.green()-text_color.green()) * pro / 100,
-                        text_color.blue() + (aim_color.blue()-text_color.blue()) * pro / 100,
-                        255
-                        );
+            if (auto_text_color)
+            {
+                QColor aim_color = isLightColor(hover_bg) ? QColor(0, 0, 0) : QColor(255, 255, 255);
+                color = QColor(
+                    text_color.red() + (aim_color.red() - text_color.red()) * pro / 100,
+                    text_color.green() + (aim_color.green() - text_color.green()) * pro / 100,
+                    text_color.blue() + (aim_color.blue() - text_color.blue()) * pro / 100,
+                    255);
+            }
             painter.setPen(color);
         }
         else

@@ -179,10 +179,10 @@ QPainterPath ThreeDimenButton::getWaterPainterPath(InteractiveButtonBase::Water 
     return path & getBgPainterPath();
 }
 
-void ThreeDimenButton::simulateStatePress(bool s)
+void ThreeDimenButton::simulateStatePress(bool s, bool a)
 {
     in_rect = true;
-    InteractiveButtonBase::simulateStatePress(s);
+    InteractiveButtonBase::simulateStatePress(s, a);
     in_rect = false;
 }
 

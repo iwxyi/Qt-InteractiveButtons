@@ -8,11 +8,19 @@
 class WinSidebarButton : public InteractiveButtonBase
 {
 public:
-    WinSidebarButton(QWidget* parent = nullptr);
+    WinSidebarButton(QWidget *parent = nullptr);
+
+    void setTopLeftRadius(int r);
 
 protected:
     void paintEvent(QPaintEvent*event);
     void slotClicked();
+
+    QPainterPath getBgPainterPath();
+    QPainterPath getWaterPainterPath(Water water);
+
+private:
+    int tl_radius;
 };
 
 #endif // WINSIDEBARBUTTON_H

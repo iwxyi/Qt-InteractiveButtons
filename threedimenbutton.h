@@ -26,7 +26,7 @@ protected:
 	QPainterPath getBgPainterPath() override;
 	QPainterPath getWaterPainterPath(InteractiveButtonBase::Water water) override;
 
-    void simulateStatePress(bool s = true) override;
+    void simulateStatePress(bool s = true, bool a = false) override;
     bool inArea(QPoint point) override;
 
 private:

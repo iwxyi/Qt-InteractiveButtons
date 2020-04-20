@@ -2,7 +2,14 @@
 
 WaterZoomButton::WaterZoomButton(QString text, QWidget *parent) : InteractiveButtonBase(text, parent)
 {
-    choking = 10;
+    choking = DEFAULT_CHOKING;
+    radius_zoom = -1;
+    choking_prop = 0;
+}
+
+WaterZoomButton::WaterZoomButton(QWidget *parent) : InteractiveButtonBase(parent)
+{
+    choking = DEFAULT_CHOKING;
     radius_zoom = -1;
     choking_prop = 0;
 }
@@ -10,6 +17,16 @@ WaterZoomButton::WaterZoomButton(QString text, QWidget *parent) : InteractiveBut
 void WaterZoomButton::setChoking(int c)
 {
     choking = c;
+}
+
+int WaterZoomButton::getChokingSpacing()
+{
+    return choking * 2;
+}
+
+int WaterZoomButton::getDefaultSpacing()
+{
+    return DEFAULT_CHOKING * 2;
 }
 
 void WaterZoomButton::setChokingProp(double p)
