@@ -1381,12 +1381,16 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
             painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
             painter.drawPixmap(rect, pixmap);
         }
-        else if (model == IconText) // 强制左对齐；左图标中文字
+        else if (model == IconText || model == PixmapText) // 强制左对齐；左图标中文字
         {
             // 绘制图标
             int& sz = icon_text_size;
             QRect icon_rect(rect.left(), rect.top() + rect.height()/2 - sz / 2, sz, sz);
-            icon.paint(&painter, icon_rect, align);
+            icon_rect.moveTo(icon_rect.left() - quick_sqrt(offset_pos.x()), icon_rect.top() - quick_sqrt(offset_pos.y()));
+            if (model == IconText)
+                icon.paint(&painter, icon_rect, align);
+            else if (model == PixmapText)
+                painter.drawPixmap(icon_rect, pixmap);
             rect.setLeft(rect.left() + sz + icon_text_padding);
 
             // 绘制文字
@@ -1398,10 +1402,6 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
                 painter.setFont(font);
             }
             painter.drawText(rect, Qt::AlignLeft | Qt::AlignVCenter, text);
-        }
-        else if (model == PixmapText)
-        {
-
         }
     }
 
@@ -1569,7 +1569,7 @@ void InteractiveButtonBase::setJitter()
         jitters << Jitter(center_pos, timestamp);
         anchor_pos = mouse_pos = center_pos;
     }
-    else
+    else if (!hovering) // 悬浮的时候依旧有效
     {
         // 未达到抖动距离，直接恢复
         mouse_pos = center_pos;
