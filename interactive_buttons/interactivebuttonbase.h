@@ -194,6 +194,7 @@ public:
     void setDoubleClicked(bool e = true);
     void setAutoTextColor(bool a = true);
     void setPretendFocus(bool f = true);
+    void setBlockHover(bool b = true);
 
     void setShowAni(bool enable = true);
     void showForeground();
@@ -208,6 +209,7 @@ public:
     virtual void simulateStatePress(bool s = true, bool a = false);
     bool isHovering() { return hovering; }
     bool isPressing() { return pressing; }
+    void discardHoverPress(bool force = false);
 
     bool getSelfEnabled() { return self_enabled; }
     bool getParentEnabled() { return parent_enabled; }
@@ -298,7 +300,7 @@ public slots:
     virtual void slotClicked();
     void slotCloseState();
 
-public:
+protected:
     PaintModel model;
     QIcon icon;
     QString text;
@@ -372,6 +374,7 @@ protected:
     Qt::Alignment align;      // 文字/图标对其方向
     bool _state;              // 一个记录状态的变量，比如是否持续
     bool leave_after_clicked; // 鼠标单击松开后取消悬浮效果（针对菜单、弹窗），按钮必定失去焦点
+    bool _block_hover;        // 如果有出现动画，临时屏蔽hovering效果
 
     // 双击
     bool double_clicked;  // 开启双击
