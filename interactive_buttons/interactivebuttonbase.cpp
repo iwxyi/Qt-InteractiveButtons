@@ -732,7 +732,7 @@ void InteractiveButtonBase::setFixedForeSize(bool f, int addin)
     fixed_fore_size = f;
 
     if (!f) return ;
-    if (model == PaintModel::Text)
+    if (model == PaintModel::Text || model == PaintModel::IconText || model == PaintModel::PixmapText)
     {
         QFont font = this->font();
         if (font_size > 0)
@@ -1374,7 +1374,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
         }
         else if (model == Icon) // 绘制图标
         {
-            icon.paint(&painter, rect, align);
+            icon.paint(&painter, rect, align, getIconMode());
         }
         else if (model == PixmapMask)
         {
@@ -1387,14 +1387,13 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
             int& sz = icon_text_size;
             QRect icon_rect(rect.left(), rect.top() + rect.height()/2 - sz / 2, sz, sz);
             icon_rect.moveTo(icon_rect.left() - quick_sqrt(offset_pos.x()), icon_rect.top() - quick_sqrt(offset_pos.y()));
-            if (model == IconText)
-                icon.paint(&painter, icon_rect, align);
-            else if (model == PixmapText)
-                painter.drawPixmap(icon_rect, pixmap);
+            drawIconBeforeText(painter, icon_rect);
             rect.setLeft(rect.left() + sz + icon_text_padding);
 
             // 绘制文字
+            // 扩展文字范围，确保文字可见
             painter.setPen(isEnabled()?text_color:getOpacityColor(text_color));
+            rect.setWidth(rect.width() + sz + icon_text_padding);
             if (font_size > 0)
             {
                 QFont font = painter.font();
@@ -1410,6 +1409,18 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
 //    painter.drawEllipse(QRect(effect_pos.x()-2, effect_pos.y()-2, 4, 4)); // 影响位置锚点
 
     //    return QPushButton::paintEvent(event); // 不绘制父类背景了
+}
+
+/**
+ * IconText/PixmapText模式下，绘制图标
+ * 可扩展到绘制图标背景色（模仿menu选中、禁用情况）等
+ */
+void InteractiveButtonBase::drawIconBeforeText(QPainter& painter, QRect icon_rect)
+{
+    if (model == IconText)
+        icon.paint(&painter, icon_rect, align, getIconMode());
+    else if (model == PixmapText)
+        painter.drawPixmap(icon_rect, pixmap);
 }
 
 /**
@@ -1723,6 +1734,11 @@ double InteractiveButtonBase::getNolinearProg(int p, InteractiveButtonBase::Noli
         else
             return 1.0 + (100-p) / 200.0;
     }
+}
+
+QIcon::Mode InteractiveButtonBase::getIconMode()
+{
+    return isEnabled() ? (getState() ? QIcon::Selected : (hovering||pressing ? QIcon::Active : QIcon::Normal)) : QIcon::Disabled;
 }
 
 /**
