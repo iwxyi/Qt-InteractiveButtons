@@ -23,7 +23,7 @@
 /**
  * Copyright (c) 2019 命燃芯乂 All rights reserved.
  ×
- * 邮箱：iwxyiii@gmail.com
+ * 邮箱：wxy@iwxyi.com
  * QQ号：482582886
  * 时间：2020.04.20
  *
