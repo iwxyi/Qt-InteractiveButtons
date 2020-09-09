@@ -24,7 +24,7 @@ void WaterFallButtonGroup::setSelects(QStringList list)
 {
     foreach (InteractiveButtonBase *btn, btns)
     {
-        if (btn->text.isEmpty())
+        if (btn->getText().isEmpty())
             continue;
         if (list.contains(btn->getText()) && !btn->getState())
             selectBtn(btn);

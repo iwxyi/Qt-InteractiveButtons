@@ -28,7 +28,7 @@ InteractiveButtonBase::InteractiveButtonBase(QWidget *parent)
       unified_geometry(false), _l(0), _t(0), _w(32), _h(32),
       jitter_animation(true), elastic_coefficient(1.2), jitter_duration(300),
       water_animation(true), water_press_duration(800), water_release_duration(400), water_finish_duration(300),
-      align(Qt::AlignCenter), _state(false), leave_after_clicked(false),
+      align(Qt::AlignCenter), _state(false), leave_after_clicked(false), _block_hover(false),
       double_clicked(false), double_timer(nullptr), double_prevent(false)
 {
     setMouseTracking(true); // 鼠标没有按下时也能捕获移动事件
@@ -682,6 +682,10 @@ void InteractiveButtonBase::setPaddings(int x)
     setFixedForeSize();
 }
 
+/**
+ * 设置Icon模式旁边空多少
+ * @param x 0~1.0，越大越空
+ */
 void InteractiveButtonBase::setIconPaddingProper(double x)
 {
     icon_padding_proper = x;
@@ -805,6 +809,18 @@ void InteractiveButtonBase::setPretendFocus(bool f)
 {
     focusing = f;
     update();
+}
+
+/**
+ * 如果按钮被做成一个组合，在显示的时候开启动画
+ * 一开始鼠标下的按钮一直在hover状态，移开也不会变
+ * 开启后临时屏蔽，记得在动画结束后关闭
+ */
+void InteractiveButtonBase::setBlockHover(bool b)
+{
+    _block_hover = b;
+    if (b && hovering)
+        leaveEvent(nullptr);
 }
 
 /**
@@ -971,10 +987,54 @@ void InteractiveButtonBase::simulateStatePress(bool s, bool a)
 }
 
 /**
+ * 模拟鼠标悬浮的效果
+ * 适用于键盘操作时，模拟鼠标hover状态
+ * 用 discardHoverPress 取消状态
+ */
+void InteractiveButtonBase::simulateHover()
+{
+    if (!hovering)
+    {
+        if (_block_hover)
+            setBlockHover(false); // 可能已经临时屏蔽掉鼠标 enter 事件，强制hover
+        enterEvent(nullptr);
+    }
+}
+
+/**
+ * 强制丢弃hover、press状态
+ * 适用于悬浮/点击后，弹出模态浮窗
+ * 浮窗关闭后调用此方法
+ * @param force 如果鼠标仍在此按钮内，是否强制取消hover/press状态
+ */
+void InteractiveButtonBase::discardHoverPress(bool force)
+{
+    if (!force && inArea(mapFromGlobal(QCursor::pos()))) // 鼠标还在这范围内
+        return ;
+
+    if (hovering)
+    {
+        leaveEvent(nullptr);
+    }
+
+    if (pressing)
+    {
+        mouseReleaseEvent(new QMouseEvent(QMouseEvent::Type::None, QPoint(size().width()/2,size().height()/2), Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
+    }
+}
+
+/**
  * 鼠标移入事件，触发 hover 时间戳
  */
 void InteractiveButtonBase::enterEvent(QEvent *event)
 {
+    if (_block_hover) // 临时屏蔽hover事件
+    {
+        if (event)
+            event->accept();
+        return ;
+    }
+
     if (!anchor_timer->isActive())
     {
         anchor_timer->start();
@@ -1026,8 +1086,9 @@ void InteractiveButtonBase::mousePressEvent(QMouseEvent *event)
                     && last_press_timestamp+SINGLE_PRESS_INTERVAL>release_timestamp
                     && release_pos==press_pos) // 是双击(判断两次单击的间隔)
             {
-                double_prevent = true; // 阻止本次的release识别为双击
-                double_timer->stop();
+                double_prevent = true; // 阻止本次的release识别为单击
+                press_timestamp = 0;   // 避免很可能出现的三击、四击...
+                double_timer->stop();  // 取消延迟一小会儿的单击信号
                 emit doubleClicked();
                 return ;
             }
@@ -1110,6 +1171,11 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
     {
         return ;
     }
+    else if (event->button() == Qt::RightButton && event->buttons() == Qt::NoButton)
+    {
+        if ((release_pos - press_pos).manhattanLength() < QApplication::startDragDistance())
+            emit rightClicked();
+    }
     mouse_release_event = event;
     emit signalMouseRelease(event);
 
@@ -1121,6 +1187,12 @@ void InteractiveButtonBase::mouseReleaseEvent(QMouseEvent* event)
  */
 void InteractiveButtonBase::mouseMoveEvent(QMouseEvent *event)
 {
+    if (_block_hover) // 临时屏蔽hover事件
+    {
+        if (event)
+            event->accept();
+        return ;
+    }
     if (hovering == false) // 失去焦点又回来了
     {
         enterEvent(nullptr);
@@ -1280,7 +1352,8 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
             painter.drawPixmap(QRect(l,t,r-l,b-t), paint_addin.pixmap);
         }
 
-        QRect rect(fore_paddings.left+(fixed_fore_pos?0:offset_pos.x()), fore_paddings.top+(fixed_fore_pos?0:offset_pos.y()), // 原来的位置，不包含点击、出现效果
+        QRect& rect = paint_rect;
+        rect = QRect(fore_paddings.left+(fixed_fore_pos?0:offset_pos.x()), fore_paddings.top+(fixed_fore_pos?0:offset_pos.y()), // 原来的位置，不包含点击、出现效果
                    (size().width()-fore_paddings.left-fore_paddings.right),
                    size().height()-fore_paddings.top-fore_paddings.bottom);
 
@@ -1804,10 +1877,10 @@ void InteractiveButtonBase::anchorTimeOut()
             if (press_progress <= 0)
             {
                 press_progress = 0;
-                if (mouse_press_event)
+                if (mouse_release_event)
                 {
-                    emit signalMousePressLater(mouse_press_event);
-                    mouse_press_event = nullptr;
+                    emit signalMouseReleaseLater(mouse_release_event);
+                    mouse_release_event = nullptr;
                 }
             }
         }
@@ -1820,11 +1893,7 @@ void InteractiveButtonBase::anchorTimeOut()
                 if (hover_progress >= 100)
                 {
                     hover_progress = 100;
-                    if (mouse_release_event)
-                    {
-                        emit signalMouseReleaseLater(mouse_release_event);
-                        mouse_release_event = nullptr;
-                    }
+                    emit signalMouseEnterLater();
                 }
             }
         }

@@ -2,6 +2,7 @@
 #define INTERACTIVEBUTTONBASE_H
 
 #include <QObject>
+#include <QApplication>
 #include <QPushButton>
 #include <QPoint>
 #include <QTimer>
@@ -17,15 +18,15 @@
 #define PI 3.1415926
 #define GOLDEN_RATIO 0.618
 
-#define DOUBLE_PRESS_INTERVAL 300 // 松开和按下的间隔。相等为双击
-#define SINGLE_PRESS_INTERVAL 150 // 按下时间超过这个数就是单击。相等为单击
+#define DOUBLE_PRESS_INTERVAL 500 // /* 300 */松开和按下的间隔。相等为双击
+#define SINGLE_PRESS_INTERVAL 200 // /* 150 */按下时间超过这个数就是单击。相等为单击
 
 /**
  * Copyright (c) 2019 命燃芯乂 All rights reserved.
  ×
- * 邮箱：iwxyiii@gmail.com
+ * 邮箱：wxy@iwxyi.com
  * QQ号：482582886
- * 时间：2020.04.20
+ * 时间：2020.09.09
  *
  * 说明：灵性的自定义按钮，简单又又去
  * 源码：https://github.com/MRXY001/Interactive-Windows-Buttons
@@ -194,6 +195,7 @@ public:
     void setDoubleClicked(bool e = true);
     void setAutoTextColor(bool a = true);
     void setPretendFocus(bool f = true);
+    void setBlockHover(bool b = true);
 
     void setShowAni(bool enable = true);
     void showForeground();
@@ -208,6 +210,8 @@ public:
     virtual void simulateStatePress(bool s = true, bool a = false);
     bool isHovering() { return hovering; }
     bool isPressing() { return pressing; }
+    void simulateHover();
+    void discardHoverPress(bool force = false);
 
     bool getSelfEnabled() { return self_enabled; }
     bool getParentEnabled() { return parent_enabled; }
@@ -281,6 +285,7 @@ signals:
     void pressDisappearAniFinished();
     void jitterAniFinished();
     void doubleClicked();
+    void rightClicked();
     void signalFocusIn();
     void signalFocusOut();
 
@@ -298,7 +303,7 @@ public slots:
     virtual void slotClicked();
     void slotCloseState();
 
-public:
+protected:
     PaintModel model;
     QIcon icon;
     QString text;
@@ -317,6 +322,7 @@ protected:
     qint64 show_timestamp, hide_timestamp;
     int show_ani_progress;
     QPoint show_ani_point;
+    QRect paint_rect;
 
     // 鼠标开始悬浮、按下、松开、离开的坐标和时间戳
     // 鼠标锚点、目标锚点、当前锚点的坐标；当前XY的偏移量
@@ -372,6 +378,7 @@ protected:
     Qt::Alignment align;      // 文字/图标对其方向
     bool _state;              // 一个记录状态的变量，比如是否持续
     bool leave_after_clicked; // 鼠标单击松开后取消悬浮效果（针对菜单、弹窗），按钮必定失去焦点
+    bool _block_hover;        // 如果有出现动画，临时屏蔽hovering效果
 
     // 双击
     bool double_clicked;  // 开启双击
