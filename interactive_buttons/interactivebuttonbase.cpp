@@ -385,7 +385,7 @@ void InteractiveButtonBase::setJitterAni(bool enable)
 void InteractiveButtonBase::setUnifyGeomerey(bool enable)
 {
     unified_geometry = enable;
-    _l = _t = 0; _w = size().width(); _h = size().height();
+    _l = _t = 0; _w = width(); _h = height();
 }
 
 /**
@@ -689,7 +689,7 @@ void InteractiveButtonBase::setPaddings(int x)
 void InteractiveButtonBase::setIconPaddingProper(double x)
 {
     icon_padding_proper = x;
-    int short_side = min(geometry().width(), geometry().height()); // 短边
+    int short_side = min(width(), height()); // 短边
     // 非固定的情况，尺寸大小变了之后所有 padding 都要变
     int padding = short_side*icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
     fore_paddings.left = fore_paddings.top = fore_paddings.right = fore_paddings.bottom = padding;
@@ -879,7 +879,7 @@ void InteractiveButtonBase::showForeground2(QPoint point)
 {
     showForeground();
     if (point == QPoint(0,0))
-        point = mapFromGlobal(QCursor::pos()) - QPoint(size().width()/2, size().height()/2); // 相对于按钮中心
+        point = mapFromGlobal(QCursor::pos()) - QPoint(width()/2, height()/2); // 相对于按钮中心
     show_ani_point = point;
 
     if (unified_geometry) // 统一出现动画
@@ -978,9 +978,9 @@ void InteractiveButtonBase::simulateStatePress(bool s, bool a)
     if (a && inArea(mapFromGlobal(QCursor::pos()))) // 点击当前按钮，不需要再模拟了
         return ;
 
-    mousePressEvent(new QMouseEvent(QMouseEvent::Type::None, QPoint(size().width()/2,size().height()/2), Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
+    mousePressEvent(new QMouseEvent(QMouseEvent::Type::None, QPoint(width()/2,height()/2), Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
 
-    mouseReleaseEvent(new QMouseEvent(QMouseEvent::Type::None, QPoint(size().width()/2,size().height()/2), Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
+    mouseReleaseEvent(new QMouseEvent(QMouseEvent::Type::None, QPoint(width()/2,height()/2), Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
 
     // if (!inArea(mapFromGlobal(QCursor::pos()))) // 针对模拟release 后面 // 必定成立
     hovering = false;
@@ -1019,7 +1019,7 @@ void InteractiveButtonBase::discardHoverPress(bool force)
 
     if (pressing)
     {
-        mouseReleaseEvent(new QMouseEvent(QMouseEvent::Type::None, QPoint(size().width()/2,size().height()/2), Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
+        mouseReleaseEvent(new QMouseEvent(QMouseEvent::Type::None, QPoint(width()/2,height()/2), Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
     }
 }
 
@@ -1056,7 +1056,7 @@ void InteractiveButtonBase::leaveEvent(QEvent *event)
 {
     hovering = false;
     if (!pressing)
-        mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
+        mouse_pos = QPoint(width()/2, height()/2);
     emit signalMouseLeave();
 
     return QPushButton::leaveEvent(event);
@@ -1210,18 +1210,18 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
 {
     if (!pressing && !hovering)
     {
-        mouse_pos = QPoint(geometry().width()/2, geometry().height()/2);
+        mouse_pos = QPoint(width()/2, height()/2);
         anchor_pos = mouse_pos;
     }
-    water_radius = static_cast<int>(max(geometry().width(), geometry().height()) * 1.42); // 长边
+    water_radius = static_cast<int>(max(width(), height()) * 1.42); // 长边
     // 非固定的情况，尺寸大小变了之后所有 padding 都要变
     if (model == PaintModel::Icon || model == PaintModel::PixmapMask)
     {
-        int short_side = min(geometry().width(), geometry().height()); // 短边
+        int short_side = min(width(), height()); // 短边
         int padding = short_side*icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
         fore_paddings.left = fore_paddings.top = fore_paddings.right = fore_paddings.bottom = padding;
     }
-    _l = _t = 0; _w = size().width(); _h = size().height();
+    _l = _t = 0; _w = width(); _h = height();
 
     return QPushButton::resizeEvent(event);
 }
@@ -1327,8 +1327,8 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
         // 绘制额外内容（可能被前景覆盖）
         if (paint_addin.enable)
         {
-            int l = fore_paddings.left, t = fore_paddings.top, r = size().width()-fore_paddings.right, b = size().height()-fore_paddings.bottom;
-            int small_edge = min(size().height(), size().width());
+            int l = fore_paddings.left, t = fore_paddings.top, r = width()-fore_paddings.right, b = height()-fore_paddings.bottom;
+            int small_edge = min(height(), width());
             int pw = paint_addin.size.width() ? paint_addin.size.width() : small_edge-fore_paddings.left-fore_paddings.right;
             int ph = paint_addin.size.height() ? paint_addin.size.height() : small_edge-fore_paddings.top-fore_paddings.bottom;
             if (paint_addin.align & Qt::AlignLeft)
@@ -1337,7 +1337,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
                 l = r - pw;
             else if (paint_addin.align & Qt::AlignHCenter)
             {
-                l = size().width()/2-pw/2;
+                l = width()/2-pw/2;
                 r = l+pw;
             }
             if (paint_addin.align & Qt::AlignTop)
@@ -1346,7 +1346,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
                 t = b - ph;
             else if (paint_addin.align & Qt::AlignVCenter)
             {
-                t = size().height()/2-ph/2;
+                t = height()/2-ph/2;
                 b = t+ph;
             }
             painter.drawPixmap(QRect(l,t,r-l,b-t), paint_addin.pixmap);
@@ -1354,13 +1354,13 @@ void InteractiveButtonBase::paintEvent(QPaintEvent* event)
 
         QRect& rect = paint_rect;
         rect = QRect(fore_paddings.left+(fixed_fore_pos?0:offset_pos.x()), fore_paddings.top+(fixed_fore_pos?0:offset_pos.y()), // 原来的位置，不包含点击、出现效果
-                   (size().width()-fore_paddings.left-fore_paddings.right),
-                   size().height()-fore_paddings.top-fore_paddings.bottom);
+                   (width()-fore_paddings.left-fore_paddings.right),
+                   height()-fore_paddings.top-fore_paddings.bottom);
 
         // 抖动出现动画
         if ((show_ani_appearing || show_ani_disappearing) && show_ani_point != QPoint( 0, 0 ) && ! fixed_fore_pos)
         {
-            //int w = size().width(), h = size().height();
+            //int w = width(), h = height();
             int pro = getSpringBackProgress(show_ani_progress, 50);
 
             // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
@@ -1505,7 +1505,7 @@ void InteractiveButtonBase::drawIconBeforeText(QPainter& painter, QRect icon_rec
  */
 bool InteractiveButtonBase::inArea(QPoint point)
 {
-    return !(point.x() < 0 || point.y() < 0 || point.x() > size().width() || point.y() > size().height());
+    return !(point.x() < 0 || point.y() < 0 || point.x() > width() || point.y() > height());
 }
 
 /**
@@ -1517,9 +1517,9 @@ QPainterPath InteractiveButtonBase::getBgPainterPath()
 {
     QPainterPath path;
     if (radius_x || radius_y)
-        path.addRoundedRect(QRect(0,0,size().width(),size().height()), radius_x, radius_y);
+        path.addRoundedRect(QRect(0,0,width(),height()), radius_x, radius_y);
     else
-        path.addRect(QRect(0,0,size().width(),size().height()));
+        path.addRect(QRect(0,0,width(),height()));
     return path;
 }
 
@@ -1558,7 +1558,7 @@ QRect InteractiveButtonBase::getUnifiedGeometry()
 {
     // 将动画进度转换为回弹动画进度
     int pro = show_ani_appearing ? getSpringBackProgress(show_ani_progress,50) : show_ani_progress;
-    int ul = 0, ut = 0, uw = size().width(), uh = size().height();
+    int ul = 0, ut = 0, uw = width(), uh = height();
 
     // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
     int x = show_ani_point.x(), y = show_ani_point.y();
@@ -1580,7 +1580,7 @@ QRect InteractiveButtonBase::getUnifiedGeometry()
  */
 void InteractiveButtonBase::updateUnifiedGeometry()
 {
-    _l = 0; _t = 0; _w = geometry().width(); _h = geometry().height();
+    _l = 0; _t = 0; _w = width(); _h = height();
     if ((show_ani_appearing || show_ani_disappearing) && show_ani_point != QPoint( 0, 0 ))
     {
         int pro; // 将动画进度转换为回弹动画进度
@@ -2059,10 +2059,10 @@ void InteractiveButtonBase::anchorTimeOut()
         anchor_pos.setX( anchor_pos.x() - quick_sqrt(delta_x) );
         anchor_pos.setY( anchor_pos.y() - quick_sqrt(delta_y) );
 
-        offset_pos.setX(quick_sqrt(static_cast<long>(anchor_pos.x()-(geometry().width()>>1))));
-        offset_pos.setY(quick_sqrt(static_cast<long>(anchor_pos.y()-(geometry().height()>>1))));
-        effect_pos.setX( (geometry().width() >>1) + offset_pos.x());
-        effect_pos.setY( (geometry().height()>>1) + offset_pos.y());
+        offset_pos.setX(quick_sqrt(static_cast<long>(anchor_pos.x()-(width()>>1))));
+        offset_pos.setY(quick_sqrt(static_cast<long>(anchor_pos.y()-(height()>>1))));
+        effect_pos.setX( (width() >>1) + offset_pos.x());
+        effect_pos.setY( (height()>>1) + offset_pos.y());
     }
     else if (!pressing && !hovering && !hover_progress && !press_progress
              && !click_ani_appearing && !click_ani_disappearing && !jitters.size() && !waters.size()
