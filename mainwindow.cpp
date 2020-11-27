@@ -10,6 +10,10 @@ MainWindow::MainWindow(QWidget *parent) :
 
     setMouseTracking(true);
 
+    InteractiveButtonBase* btn0 = new InteractiveButtonBase(this);
+    btn0->setGeometry(0, 0, 100, 32);
+    btn0->setIcon(QIcon(":/icons/point_menu"));
+
     InteractiveButtonBase* btn = new InteractiveButtonBase(this);
     btn->setGeometry(110, 100, 100, 100);
     btn->setBgColor(QColor(128, 0, 0, 100));

@@ -191,6 +191,11 @@ void InteractiveButtonBase::setIcon(QIcon icon)
         QFontMetrics fm(this->font());
         icon_text_size = fm.lineSpacing();
     }
+    else if (model == PaintModel::IconText && text.isEmpty())
+    {
+        setAlign(Qt::AlignCenter);
+        model = PaintModel::Icon;
+    }
     this->icon = icon;
     if (parent_enabled)
         QPushButton::setIcon(icon);
