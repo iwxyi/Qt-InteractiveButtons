@@ -62,7 +62,7 @@ MainWindow::MainWindow(QWidget *parent) :
     par_btn->setGeometry(270, 50, 100, 32);
     par_btn->setParentEnabled(true);
     par_btn->setForeEnabled(false);
-    par_btn->setStyleSheet("qproperty-text: asdasd; color: red; ");
+    par_btn->setStyleSheet("qproperty-text: asdasd; color: red; qproperty-press_color: green;");
 
     QPushButton* push_btn = new QPushButton("parent", this);
     push_btn->setGeometry(370, 50, 100, 32);
@@ -104,7 +104,7 @@ MainWindow::MainWindow(QWidget *parent) :
     });
 
     InteractiveButtonBase* icon_text_btn = new InteractiveButtonBase(QIcon(":/icons/point_menu"), "菜单", this);
-    icon_text_btn->setGeometry(100, 300, 100, 40);
+    icon_text_btn->setGeometry(100, 210, 100, 40);
 }
 
 void MainWindow::enterEvent(QEvent *event)

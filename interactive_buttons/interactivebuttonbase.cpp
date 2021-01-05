@@ -134,18 +134,7 @@ void InteractiveButtonBase::setText(QString text)
     // 根据字体调整大小
     if (text_dynamic_size)
     {
-        if (font_size <= 0)
-        {
-            QFontMetrics fm(font());
-            setMinimumSize(fm.horizontalAdvance(text)+fore_paddings.left+fore_paddings.right, fm.lineSpacing()+fore_paddings.top+fore_paddings.bottom);
-        }
-        else
-        {
-            QFont font;
-            font.setPointSize(font_size);
-            QFontMetrics fm(font);
-            setMinimumSize(fm.horizontalAdvance(text)+fore_paddings.left+fore_paddings.right, fm.lineSpacing()+fore_paddings.top+fore_paddings.bottom);
-        }
+        adjustMinimumSize();
     }
     update();
 }
@@ -745,7 +734,7 @@ void InteractiveButtonBase::setFixedForePos(bool f)
 }
 
 /**
- * 固定按钮为适当尺寸，并且固定四周留白
+ * 固定按钮(最小值)为适当尺寸，并且固定四周留白
  * 前景应为文字/图标对应尺寸的最小尺寸
  * @param f     是否固定前景
  * @param addin 留白的像素大小
@@ -757,12 +746,15 @@ void InteractiveButtonBase::setFixedForeSize(bool f, int addin)
     if (!f) return ;
     if (model == PaintModel::Text || model == PaintModel::IconText || model == PaintModel::PixmapText)
     {
+        int icon_width = (model != PaintModel::Text && icon.isNull()) ? 0 : icon_text_size;
         QFont font = this->font();
         if (font_size > 0)
             font.setPointSize(font_size);
         QFontMetrics fm(font);
+        int w = fm.horizontalAdvance(text);
+        w = icon_width+w+quick_sqrt(w/2)+fore_paddings.left+fore_paddings.right;
         setMinimumSize(
-            fm.horizontalAdvance(text)+fore_paddings.left+fore_paddings.right+addin,
+            w + addin,
             fm.lineSpacing()+fore_paddings.top+fore_paddings.bottom+addin
         );
     }
@@ -958,6 +950,32 @@ void InteractiveButtonBase::setMenu(QMenu *menu)
     this->setFocusPolicy(Qt::FocusPolicy::ClickFocus);
 
     QPushButton::setMenu(menu);
+}
+
+/**
+ * 根据内容，调整最小尺寸（不影响最大值）
+ */
+void InteractiveButtonBase::adjustMinimumSize()
+{
+    int icon_width = icon.isNull() ? 0 : icon_text_size;
+    int w = 0, h = 0;
+    if (font_size <= 0)
+    {
+        QFontMetrics fm(font());
+        w = fm.horizontalAdvance(text);
+        w = icon_width+w+quick_sqrt(w/2)+fore_paddings.left+fore_paddings.right;
+        h = fm.lineSpacing()+fore_paddings.top+fore_paddings.bottom;
+    }
+    else
+    {
+        QFont font;
+        font.setPointSize(font_size);
+        QFontMetrics fm(font);
+        w = fm.horizontalAdvance(text);
+        w = icon_width+w+quick_sqrt(w/2)+fore_paddings.left+fore_paddings.right;
+        h = fm.lineSpacing()+fore_paddings.top+fore_paddings.bottom;
+    }
+    setMinimumSize(w, h);
 }
 
 /**

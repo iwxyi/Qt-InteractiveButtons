@@ -26,7 +26,7 @@
  ×
  * 邮箱：wxy@iwxyi.com
  * QQ号：482582886
- * 时间：2020.11.27
+ * 时间：2020.12.28
  *
  * 说明：灵性的自定义按钮，简单又有趣
  * 源码：https://github.com/MRXY001/Interactive-Windows-Buttons
@@ -205,6 +205,7 @@ public:
 
     QString getText();
     void setMenu(QMenu *menu);
+    void adjustMinimumSize();
     void setState(bool s = true);
     bool getState();
     virtual void simulateStatePress(bool s = true, bool a = false);
