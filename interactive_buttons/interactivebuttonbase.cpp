@@ -702,7 +702,7 @@ void InteractiveButtonBase::setIconPaddingProper(double x)
     icon_padding_proper = x;
     int short_side = min(width(), height()); // 短边
     // 非固定的情况，尺寸大小变了之后所有 padding 都要变
-    int padding = short_side * icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
+    int padding = int(short_side * icon_padding_proper); //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
     fore_paddings.left = fore_paddings.top = fore_paddings.right = fore_paddings.bottom = padding;
     update();
 }
@@ -1257,7 +1257,7 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
     if (model == PaintModel::Icon || model == PaintModel::PixmapMask)
     {
         int short_side = min(width(), height());        // 短边
-        int padding = short_side * icon_padding_proper; //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
+        int padding = int(short_side * icon_padding_proper); //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
         fore_paddings.left = fore_paddings.top = fore_paddings.right = fore_paddings.bottom = padding;
     }
     _l = _t = 0;
@@ -1393,8 +1393,8 @@ void InteractiveButtonBase::paintEvent(QPaintEvent *event)
             painter.drawPixmap(QRect(l, t, r - l, b - t), paint_addin.pixmap);
         }
 
-        QRect &rect = paint_rect;
-        rect = QRect(fore_paddings.left + (fixed_fore_pos ? 0 : offset_pos.x()),
+        QRectF &rect = paint_rect;
+        rect = QRectF(fore_paddings.left + (fixed_fore_pos ? 0 : offset_pos.x()),
                      fore_paddings.top + (fixed_fore_pos ? 0 : offset_pos.y()), // 原来的位置，不包含点击、出现效果
                      width() - fore_paddings.left - fore_paddings.right,
                      height() - fore_paddings.top - fore_paddings.bottom);
@@ -1406,12 +1406,12 @@ void InteractiveButtonBase::paintEvent(QPaintEvent *event)
             int pro = getSpringBackProgress(show_ani_progress, 50);
 
             // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
-            int x = show_ani_point.x(), y = show_ani_point.y();
-            int gen = quick_sqrt(x * x + y * y);
+            double x = show_ani_point.x(), y = show_ani_point.y();
+            int gen = quick_sqrt(long(x * x + y * y));
             x = water_radius * x / gen; // 动画起始中心点横坐标 反向
             y = water_radius * y / gen; // 动画起始中心点纵坐标 反向
 
-            rect = QRect(
+            rect = QRectF(
                 rect.left() - x * (100 - pro) / 100 + rect.width() * (100 - pro) / 100,
                 rect.top() - y * (100 - pro) / 100 + rect.height() * (100 - pro) / 100,
                 rect.width() * pro / 100,
@@ -1419,7 +1419,7 @@ void InteractiveButtonBase::paintEvent(QPaintEvent *event)
         }
         else if (align == Qt::AlignCenter && model != PaintModel::Text && !fixed_fore_size) // 默认的缩放动画
         {
-            int delta_x = 0, delta_y = 0;
+            double delta_x = 0, delta_y = 0;
             if (click_ani_progress != 0) // 图标缩放
             {
                 delta_x = rect.width() * click_ani_progress / 400;
@@ -1448,8 +1448,8 @@ void InteractiveButtonBase::paintEvent(QPaintEvent *event)
                 delta_x = rect.width() * pro;  // (100-show_ani_progress) / 100;
                 delta_y = rect.height() * pro; // (100-show_ani_progress) / 100;
             }
-            if (delta_x || delta_y)
-                rect = QRect(rect.left() + delta_x, rect.top() + delta_y,
+            if (int(delta_x+1e-6) || int(delta_y+1e-6))
+                rect = QRectF(rect.left() + delta_x, rect.top() + delta_y,
                              rect.width() - delta_x * 2, rect.height() - delta_y * 2);
         }
 
@@ -1487,20 +1487,20 @@ void InteractiveButtonBase::paintEvent(QPaintEvent *event)
         }
         else if (model == Icon) // 绘制图标
         {
-            icon.paint(&painter, rect, align, getIconMode());
+            icon.paint(&painter, rect.toRect(), align, getIconMode());
         }
         else if (model == PixmapMask)
         {
             painter.setRenderHint(QPainter::SmoothPixmapTransform, true); // 可以让边缘看起来平滑一些
-            painter.drawPixmap(rect, pixmap);
+            painter.drawPixmap(rect.toRect(), pixmap);
         }
         else if (model == IconText || model == PixmapText) // 强制左对齐；左图标中文字
         {
             // 绘制图标
             int &sz = icon_text_size;
-            QRect icon_rect(rect.left(), rect.top() + rect.height() / 2 - sz / 2, sz, sz);
-            icon_rect.moveTo(icon_rect.left() - quick_sqrt(offset_pos.x()), icon_rect.top() - quick_sqrt(offset_pos.y()));
-            drawIconBeforeText(painter, icon_rect);
+            QRectF icon_rect(rect.left(), rect.top() + rect.height() / 2 - sz / 2, sz, sz);
+            icon_rect.moveTo(icon_rect.left() - quick_sqrt(long(offset_pos.x())), icon_rect.top() - quick_sqrt(long(offset_pos.y())));
+            drawIconBeforeText(painter, icon_rect.toRect());
             rect.setLeft(rect.left() + sz + icon_text_padding);
 
             // 绘制文字
@@ -1548,6 +1548,11 @@ bool InteractiveButtonBase::inArea(QPoint point)
     return !(point.x() < 0 || point.y() < 0 || point.x() > width() || point.y() > height());
 }
 
+bool InteractiveButtonBase::inArea(QPointF point)
+{
+    return !(point.x() < 0 || point.y() < 0 || point.x() > width() || point.y() > height());
+}
+
 /**
  * 获取按钮背景的绘制区域
  * 为子类异形按钮提供支持
@@ -1572,8 +1577,8 @@ QPainterPath InteractiveButtonBase::getBgPainterPath()
 QPainterPath InteractiveButtonBase::getWaterPainterPath(InteractiveButtonBase::Water water)
 {
     double prog = getNolinearProg(water.progress, FastSlower);
-    int ra = water_radius * prog;
-    QRect circle(water.point.x() - ra,
+    double ra = water_radius * prog;
+    QRectF circle(water.point.x() - ra,
                  water.point.y() - ra,
                  ra * 2,
                  ra * 2);
@@ -1594,15 +1599,15 @@ QPainterPath InteractiveButtonBase::getWaterPainterPath(InteractiveButtonBase::W
  * 可直接使用 protected 对象
  * @return 前景绘制区域
  */
-QRect InteractiveButtonBase::getUnifiedGeometry()
+QRectF InteractiveButtonBase::getUnifiedGeometry()
 {
     // 将动画进度转换为回弹动画进度
     int pro = show_ani_appearing ? getSpringBackProgress(show_ani_progress, 50) : show_ani_progress;
-    int ul = 0, ut = 0, uw = width(), uh = height();
+    double ul = 0, ut = 0, uw = width(), uh = height();
 
     // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
-    int x = show_ani_point.x(), y = show_ani_point.y();
-    int gen = quick_sqrt(x * x + y * y);
+    double x = show_ani_point.x(), y = show_ani_point.y();
+    int gen = quick_sqrt(long(x * x + y * y));
     x = -water_radius * x / gen; // 动画起始中心点横坐标 反向
     y = -water_radius * y / gen; // 动画起始中心点纵坐标 反向
 
@@ -1611,7 +1616,7 @@ QRect InteractiveButtonBase::getUnifiedGeometry()
     uw = uw * pro / 100;
     uh = uh * pro / 100;
 
-    return QRect(ul, ut, uw, uh);
+    return QRectF(ul, ut, uw, uh);
 }
 
 /**
@@ -1630,8 +1635,8 @@ void InteractiveButtonBase::updateUnifiedGeometry()
         pro = show_ani_appearing ? getSpringBackProgress(show_ani_progress, 50) : show_ani_progress;
 
         // show_ani_point 是鼠标进入的点，那么起始方向应该是相反的
-        int x = show_ani_point.x(), y = show_ani_point.y();
-        int gen = quick_sqrt(x * x + y * y);
+        double x = show_ani_point.x(), y = show_ani_point.y();
+        int gen = quick_sqrt(long(x * x + y * y));
         x = -water_radius * x / gen; // 动画起始中心点横坐标 反向
         y = -water_radius * y / gen; // 动画起始中心点纵坐标 反向
 
@@ -1676,20 +1681,20 @@ void InteractiveButtonBase::setJitter()
 {
     jitters.clear();
     QPoint center_pos = geometry().center() - geometry().topLeft();
-    int full_manh = (anchor_pos - center_pos).manhattanLength(); // 距离
+    double full_manh = (anchor_pos - center_pos).manhattanLength(); // 距离
     // 是否达到需要抖动的距离
     if (full_manh > (geometry().topLeft() - geometry().bottomRight()).manhattanLength()) // 距离超过外接圆半径，开启抖动
     {
-        QPoint jitter_pos(effect_pos);
+        QPointF jitter_pos(effect_pos);
         full_manh = (jitter_pos - center_pos).manhattanLength();
-        int manh = full_manh;
+        double manh = full_manh;
         int duration = jitter_duration;
         qint64 timestamp = release_timestamp;
         while (manh > elastic_coefficient)
         {
             jitters << Jitter(jitter_pos, timestamp);
             jitter_pos = center_pos - (jitter_pos - center_pos) / elastic_coefficient;
-            duration = jitter_duration * manh / full_manh;
+            duration = int(jitter_duration * manh / full_manh);
             timestamp += duration;
             manh = static_cast<int>(manh / elastic_coefficient);
         }
@@ -2099,14 +2104,14 @@ void InteractiveButtonBase::anchorTimeOut()
     }
     else if (anchor_pos != mouse_pos) // 移动效果
     {
-        int delta_x = anchor_pos.x() - mouse_pos.x(),
-            delta_y = anchor_pos.y() - mouse_pos.y();
+        double delta_x = anchor_pos.x() - mouse_pos.x(),
+               delta_y = anchor_pos.y() - mouse_pos.y();
 
-        anchor_pos.setX(anchor_pos.x() - quick_sqrt(delta_x));
-        anchor_pos.setY(anchor_pos.y() - quick_sqrt(delta_y));
+        anchor_pos.setX(anchor_pos.x() - quick_sqrt(int(delta_x)));
+        anchor_pos.setY(anchor_pos.y() - quick_sqrt(int(delta_y)));
 
-        offset_pos.setX(quick_sqrt(static_cast<long>(anchor_pos.x() - (width() >> 1))));
-        offset_pos.setY(quick_sqrt(static_cast<long>(anchor_pos.y() - (height() >> 1))));
+        offset_pos.setX(quick_sqrt(long(anchor_pos.x() - (width() >> 1))));
+        offset_pos.setY(quick_sqrt(long(anchor_pos.y() - (height() >> 1))));
         effect_pos.setX((width() >> 1) + offset_pos.x());
         effect_pos.setY((height() >> 1) + offset_pos.y());
     }

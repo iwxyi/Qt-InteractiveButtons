@@ -26,12 +26,12 @@ protected:
 	QPainterPath getWaterPainterPath(InteractiveButtonBase::Water water) override;
 
     void simulateStatePress(bool s = true, bool a = false) override;
-    bool inArea(QPoint point) override;
+    bool inArea(QPointF point) override;
 
 private:
-	int cha_cheng(QPoint a, QPoint b);
-	int dian_cheng(QPoint a, QPoint b);
-	QPoint limitPointXY(QPoint v, int w, int h);
+    double cha_cheng(QPointF a, QPointF b);
+    double dian_cheng(QPointF a, QPointF b);
+    QPointF limitPointXY(QPointF v, int w, int h);
 
 protected:
 	QGraphicsDropShadowEffect* shadow_effect;

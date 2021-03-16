@@ -124,32 +124,32 @@ QPainterPath ThreeDimenButton::getBgPainterPath()
 		 */
 		double hp = hover_progress / 100.0;
 		QPoint o(width()/2, height()/2);         // 中心点
-		QPoint m = limitPointXY(mapFromGlobal(QCursor::pos())-o, width()/2, height()/2); // 当前鼠标的点
-        QPoint f = limitPointXY(offset_pos, aop_w, aop_h);  // 偏移点（压力中心）
+        QPointF m = limitPointXY(mapFromGlobal(QCursor::pos())-o, width()/2, height()/2); // 当前鼠标的点
+        QPointF f = limitPointXY(offset_pos, aop_w, aop_h);  // 偏移点（压力中心）
 
-		QPoint lt, lb, rb, rt;
+        QPointF lt, lb, rb, rt;
 		// 左上角
 		{
-			QPoint p = QPoint(aop_w, aop_h) - o;
-			double prob = dian_cheng(m, p) / (double)dian_cheng(p, p);
+            QPointF p = QPoint(aop_w, aop_h) - o;
+            double prob = dian_cheng(m, p) / dian_cheng(p, p);
 			lt = o + (p) * (1-prob*hp/AOPER);
 		}
 		// 右上角
 		{
-			QPoint p = QPoint(width() - aop_w, aop_h) - o;
-			double prob = dian_cheng(m, p) / (double)dian_cheng(p, p);
+            QPointF p = QPoint(width() - aop_w, aop_h) - o;
+            double prob = dian_cheng(m, p) / dian_cheng(p, p);
 			rt = o + (p) * (1-prob*hp/AOPER);
 		}
 		// 左下角
 		{
-			QPoint p = QPoint(aop_w, height() - aop_h) - o;
-			double prob = dian_cheng(m, p) / (double)dian_cheng(p, p);
+            QPointF p = QPoint(aop_w, height() - aop_h) - o;
+            double prob = dian_cheng(m, p) / dian_cheng(p, p);
 			lb = o + (p) * (1-prob*hp/AOPER);
 		}
 		// 右下角
 		{
-			QPoint p = QPoint(width() - aop_w, height() - aop_h) - o;
-			double prob = dian_cheng(m, p) / (double)dian_cheng(p, p);
+            QPointF p = QPoint(width() - aop_w, height() - aop_h) - o;
+            double prob = dian_cheng(m, p) / dian_cheng(p, p);
 			rb = o + (p) * (1-prob*hp/AOPER);
 		}
 
@@ -186,7 +186,7 @@ void ThreeDimenButton::simulateStatePress(bool s, bool a)
     in_rect = false;
 }
 
-bool ThreeDimenButton::inArea(QPoint point)
+bool ThreeDimenButton::inArea(QPointF point)
 {
 	return !(point.x() < aop_w
 		|| point.x() > width()-aop_w
@@ -198,17 +198,17 @@ bool ThreeDimenButton::inArea(QPoint point)
  * 计算两个向量的叉积
  * 获取压力值
  */
-int ThreeDimenButton::cha_cheng(QPoint a, QPoint b)
+double ThreeDimenButton::cha_cheng(QPointF a, QPointF b)
 {
 	return a.x() * b.y() - b.x()* a.y();
 }
 
-int ThreeDimenButton::dian_cheng(QPoint a, QPoint b)
+double ThreeDimenButton::dian_cheng(QPointF a, QPointF b)
 {
 	return a.x() * b.x() + a.y() * b.y();
 }
 
-QPoint ThreeDimenButton::limitPointXY(QPoint v, int w, int h)
+QPointF ThreeDimenButton::limitPointXY(QPointF v, int w, int h)
 {
 	// 注意：成立时，v.x != 0，否则除零错误
 	if (v.x() < -w)
