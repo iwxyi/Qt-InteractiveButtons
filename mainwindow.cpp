@@ -19,6 +19,9 @@ MainWindow::MainWindow(QWidget *parent) :
     btn->setBgColor(QColor(128, 0, 0, 100));
     btn->setRadius(5);
 
+    AppendButton* append_btn = new AppendButton(this);
+    append_btn->setGeometry(304, 10, 32, 32);
+
     WinMenuButton* menu_btn = new WinMenuButton(this);
     menu_btn->setGeometry(368, 10, 32, 32);
 

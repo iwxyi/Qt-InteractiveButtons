@@ -28,7 +28,12 @@ void WinCloseButton::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setPen(QPen(icon_color));
     painter.setRenderHint(QPainter::Antialiasing,true);
-    if (offset_pos != QPoint(0,0))
+    if (offset_pos == QPoint(0,0))
+    {
+        painter.drawLine(QPoint(l,t), QPoint(r,b));
+        painter.drawLine(QPoint(r,t), QPoint(l,b));
+    }
+    else
     {
         QPainterPath path;
         path.moveTo(QPoint(l,t));
@@ -37,11 +42,6 @@ void WinCloseButton::paintEvent(QPaintEvent *event)
         path.cubicTo(QPoint(r,t), QPoint(mx,my), QPoint(l,b));
 
         painter.drawPath(path);
-    }
-    else
-    {
-        painter.drawLine(QPoint(l,t), QPoint(r,b));
-        painter.drawLine(QPoint(r,t), QPoint(l,b));
     }
 }
 

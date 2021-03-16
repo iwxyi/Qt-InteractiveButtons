@@ -27,6 +27,7 @@ CONFIG += c++11
 INCLUDEPATH += interactive_buttons\
 
 SOURCES += \
+    interactive_buttons/appendbutton.cpp \
         main.cpp \
         mainwindow.cpp \
     interactive_buttons/interactivebuttonbase.cpp \
@@ -42,6 +43,7 @@ SOURCES += \
     interactive_buttons/waterfloatbutton.cpp
 
 HEADERS += \
+    interactive_buttons/appendbutton.h \
         mainwindow.h \
     interactive_buttons/interactivebuttonbase.h \
     interactive_buttons/pointmenubutton.h \

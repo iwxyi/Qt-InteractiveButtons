@@ -1,8 +1,6 @@
 #ifndef WATERCIRCLEBUTTON_H
 #define WATERCIRCLEBUTTON_H
 
-#include <QObject>
-#include <QWidget>
 #include "interactivebuttonbase.h"
 
 class WaterCircleButton : public InteractiveButtonBase

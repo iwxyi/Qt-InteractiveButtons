@@ -1,7 +1,6 @@
 #ifndef WINMAXBUTTON_H
 #define WINMAXBUTTON_H
 
-#include <QWidget>
 #include "interactivebuttonbase.h"
 
 class WinMaxButton : public InteractiveButtonBase

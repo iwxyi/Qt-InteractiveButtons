@@ -1,7 +1,6 @@
 #ifndef WATERZOOMBUTTON_H
 #define WATERZOOMBUTTON_H
 
-#include <QObject>
 #include "interactivebuttonbase.h"
 
 const int DEFAULT_CHOKING = 5;

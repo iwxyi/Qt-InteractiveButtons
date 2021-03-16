@@ -12,7 +12,7 @@ void WinMaxButton::paintEvent(QPaintEvent *event)
 
     if (!show_foreground) return ; // 不显示前景
 
-    int w =_w, h = _h;
+    int w = _w, h = _h;
     int dx = offset_pos.x(), dy = offset_pos.y();
     QRect r;
     if (click_ani_appearing || click_ani_disappearing)

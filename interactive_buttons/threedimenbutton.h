@@ -1,7 +1,6 @@
 #ifndef THREEDIMENBUTTON_H
 #define THREEDIMENBUTTON_H
 
-#include <QObject>
 #include <QGraphicsDropShadowEffect>
 #include "interactivebuttonbase.h"
 

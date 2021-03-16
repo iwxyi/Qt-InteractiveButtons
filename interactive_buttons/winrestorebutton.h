@@ -1,8 +1,6 @@
 #ifndef WINRESTOREBUTTON_H
 #define WINRESTOREBUTTON_H
 
-#include <QObject>
-#include <QList>
 #include "interactivebuttonbase.h"
 
 class WinRestoreButton : public InteractiveButtonBase

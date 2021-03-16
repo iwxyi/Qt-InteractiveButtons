@@ -1,7 +1,6 @@
 #ifndef WINCLOSEBUTTON_H
 #define WINCLOSEBUTTON_H
 
-#include <QWidget>
 #include "interactivebuttonbase.h"
 
 #include <QObject>
