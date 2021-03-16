@@ -28,6 +28,7 @@ INCLUDEPATH += interactive_buttons\
 
 SOURCES += \
     interactive_buttons/appendbutton.cpp \
+    interactive_buttons/infobutton.cpp \
         main.cpp \
         mainwindow.cpp \
     interactive_buttons/interactivebuttonbase.cpp \
@@ -44,6 +45,7 @@ SOURCES += \
 
 HEADERS += \
     interactive_buttons/appendbutton.h \
+    interactive_buttons/infobutton.h \
         mainwindow.h \
     interactive_buttons/interactivebuttonbase.h \
     interactive_buttons/pointmenubutton.h \

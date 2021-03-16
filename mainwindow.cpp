@@ -22,6 +22,9 @@ MainWindow::MainWindow(QWidget *parent) :
     AppendButton* append_btn = new AppendButton(this);
     append_btn->setGeometry(304, 10, 32, 32);
 
+    InfoButton* info_btn = new InfoButton(this);
+    info_btn->setGeometry(336, 10, 32, 32);
+
     WinMenuButton* menu_btn = new WinMenuButton(this);
     menu_btn->setGeometry(368, 10, 32, 32);
 

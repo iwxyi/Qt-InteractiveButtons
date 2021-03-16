@@ -30,11 +30,11 @@ void AppendButton::paintEvent(QPaintEvent *event)
     QPainter painter(this);
     painter.setPen(icon_color);
     painter.setRenderHint(QPainter::Antialiasing, true);
+
     painter.translate(mx, my);
     painter.rotate((90+add_angle) * hover_progress / 100);
     painter.translate(-mx, -my);
 
-    QPoint off(-offset_pos.y(), offset_pos.x());
     painter.drawLine(QPointF(l, (t+b)/2), QPointF(r, (t+b)/2));
     painter.drawLine(QPointF((l+r)/2, t), QPointF((l+r)/2, b));
 }
@@ -42,26 +42,28 @@ void AppendButton::paintEvent(QPaintEvent *event)
 void AppendButton::enterEvent(QEvent *event)
 {
     add_angle = 0;
+    rotate_speed = 2;
     InteractiveButtonBase::enterEvent(event);
+}
+
+void AppendButton::mouseReleaseEvent(QMouseEvent *event)
+{
+    rotate_speed = 2;
+    InteractiveButtonBase::mouseReleaseEvent(event);
 }
 
 void AppendButton::anchorTimeOut()
 {
     if (press_progress)
     {
-        if (pressing)
+        add_angle += rotate_speed;
+        if (add_angle > 360)
         {
-            add_angle++;
-            add_angle = (add_angle+1) % 360;
-        }
-        else
-        {
-            if (add_angle == 0)
-                ;
-            else if (add_angle % 90 != 0)
-                add_angle--;
-            else
-                add_angle = 0;
+            add_angle -= 360;
+            if (rotate_speed < 30) // 动态旋转速度
+            {
+                rotate_speed++;
+            }
         }
     }
 
