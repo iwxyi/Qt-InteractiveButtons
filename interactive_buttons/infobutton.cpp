@@ -25,22 +25,23 @@ void InfoButton::paintEvent(QPaintEvent *event)
         path.addEllipse(QRectF(l+w/2-cu, t+h/4, cu*2, cu*2));
 
         // 画线
-        path.addRoundedRect(QRectF(l+w/2-cu/2, t+h*3/8+cu, cu, h/2 - cu - cu/2), cu/2, cu/2);
+        path.addRoundedRect(QRectF(l+w/2-cu/2, t+h*3/8+cu, cu, h/2 - cu*2), cu/2, cu/2);
     }
     else if (hover_progress < 100) // 转换动画
     {
         double prop = hover_progress / 100.0;
 
         // 眼睛出现
-        double ra = cu * prop;
+        double ra = cu * prop * 1.2;
         path.addEllipse(l+w/4-ra, t+h/4-ra, ra*2, ra*2);
         path.addEllipse(l+w*3/4-ra, t+h/4-ra, ra*2, ra*2);
 
         // 鼻子下降
-        double top = t+h/4 + (h/4-cu/2) * prop;
+        double top = t+h/4 + (h/4) * prop;
         path.addEllipse(QRectF(l+w/2-cu, top, cu*2, cu*2));
 
         double h_mv = w / 4 * prop;
+        top += cu*2;
 
         // 左胡子移动
         QPainterPath pathl;
@@ -74,8 +75,9 @@ void InfoButton::paintEvent(QPaintEvent *event)
         }
         else // 点
         {
-            path.addEllipse(l+w/4-cu, t+h/4-cu, cu*2, cu*2);
-            path.addEllipse(l+w*3/4-cu, t+h/4-cu, cu*2, cu*2);
+            double ra = cu * 1.2;
+            path.addEllipse(l+w/4-ra, t+h/4-ra, ra*2, ra*2);
+            path.addEllipse(l+w*3/4-ra, t+h/4-ra, ra*2, cu*2);
         }
 
         // 鼻子
