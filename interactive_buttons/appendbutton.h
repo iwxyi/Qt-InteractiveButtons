@@ -6,7 +6,7 @@
 class AppendButton : public InteractiveButtonBase
 {
 public:
-    AppendButton(QWidget* parent = nullptr);
+    AppendButton(QWidget *parent = nullptr);
 
 protected:
     void paintEvent(QPaintEvent *event) override;
@@ -17,7 +17,7 @@ public slots:
     virtual void anchorTimeOut() override;
 
 private:
-    int add_angle = 0; // 旋转角度
+    int add_angle = 0;    // 旋转角度
     int rotate_speed = 2; // 旋转的速度
 };
 

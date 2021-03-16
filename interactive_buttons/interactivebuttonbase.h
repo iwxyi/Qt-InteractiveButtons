@@ -294,10 +294,10 @@ signals:
     void signalMouseEnterLater(); // 进入后延迟信号（以渐变动画完成为准，相当于可手动设置）
     void signalMouseLeave();
     void signalMouseLeaveLater(); // 离开后延迟的信号（直至渐变动画完成（要是划过一下子离开，这个也会变快））
-    void signalMousePress(QMouseEvent* event);
-    void signalMousePressLater(QMouseEvent* event);
-    void signalMouseRelease(QMouseEvent* event);
-    void signalMouseReleaseLater(QMouseEvent* event);
+    void signalMousePress(QMouseEvent *event);
+    void signalMousePressLater(QMouseEvent *event);
+    void signalMouseRelease(QMouseEvent *event);
+    void signalMouseReleaseLater(QMouseEvent *event);
 
 public slots:
     virtual void anchorTimeOut();
