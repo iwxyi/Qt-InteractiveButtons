@@ -3,6 +3,7 @@
 InfoButton::InfoButton(QWidget *parent) : InteractiveButtonBase(parent)
 {
     setUnifyGeomerey(true);
+    // hover_speed = 1;
 }
 
 void InfoButton::paintEvent(QPaintEvent *event)
@@ -40,22 +41,22 @@ void InfoButton::paintEvent(QPaintEvent *event)
         double top = t+h/4 + (h/4) * prop;
         path.addEllipse(QRectF(l+w/2-cu, top, cu*2, cu*2));
 
-        double h_mv = w / 4 * prop;
-        top += cu*2;
+        double h_mv = w / 4 * prop; // 胡子端点
+        top += cu*2 + h/8*(1-prop); // +点的高度 +点和线距离
 
         // 左胡子移动
         QPainterPath pathl;
-        pathl.moveTo(l+w/2, top);
-        pathl.cubicTo(QPointF(l+w*8/16, t+h*7/8), QPointF(l+w*5/16, t+h*6/8), QPointF(l+w/2-h_mv, t+h*11/16));
+        pathl.moveTo(l+w/2, top); // 竖线顶端
+        pathl.cubicTo(QPointF(l+w*8/16, t+h*7/8), QPointF(l+w*5/16+w*3/16*(1-prop), t+h*6/8), QPointF(l+w/2-h_mv, t+h*11/16+h*3/16*(1-prop)));
         painter.drawPath(pathl);
 
         // 右胡子移动
         QPainterPath pathr;
         pathr.moveTo(l+w/2, top);
-        pathr.cubicTo(QPointF(l+w*8/16, t+h*7/8), QPointF(l+w*11/16, t+h*6/8), QPointF(l+w/2+h_mv, t+h*11/16));
+        pathr.cubicTo(QPointF(l+w*8/16, t+h*7/8), QPointF(l+w*11/16-w*3/16*(1-prop), t+h*6/8), QPointF(l+w/2+h_mv, t+h*11/16+h*3/16*(1-prop)));
         painter.drawPath(pathr);
     }
-    else // 显示笑脸
+    else // 显示静态笑脸
     {
         // 眼睛
         if (pressing) // 横线
