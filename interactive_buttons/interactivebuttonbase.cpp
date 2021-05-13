@@ -1254,7 +1254,7 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
     }
     water_radius = static_cast<int>(max(width(), height()) * 1.42); // 长边
     // 非固定的情况，尺寸大小变了之后所有 padding 都要变
-    if (model == PaintModel::Icon || model == PaintModel::PixmapMask)
+    if (!fixed_fore_size && (model == PaintModel::Icon || model == PaintModel::PixmapMask))
     {
         int short_side = min(width(), height());        // 短边
         int padding = int(short_side * icon_padding_proper); //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);
