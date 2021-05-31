@@ -14,10 +14,14 @@ WaterFallButtonGroup::WaterFallButtonGroup(QWidget *parent)
 
 void WaterFallButtonGroup::initStringList(QStringList list, QStringList selected)
 {
+    clearButtons();
     foreach (QString s, list)
     {
+        if (s.trimmed().isEmpty())
+            continue;
         addButton(s, selected.contains(s));
     }
+    updateButtonPositions();
 }
 
 void WaterFallButtonGroup::setSelects(QStringList list)
@@ -37,6 +41,7 @@ void WaterFallButtonGroup::addButton(QString s, bool selected)
 {
     WaterFloatButton* btn = new WaterFloatButton(s, this);
     btn->setFixedForeSize();
+    btn->show();
     setBtnColors(btn);
     btns.append(btn);
 
@@ -45,6 +50,9 @@ void WaterFallButtonGroup::addButton(QString s, bool selected)
 
     btn->setAutoTextColor(false);
     connect(btn, &InteractiveButtonBase::clicked, this, [=]{
+        if (!selectable)
+            return ;
+
         selectBtn(btn);
         if (btn->getState())
             emit signalSelected(s);
@@ -66,12 +74,26 @@ void WaterFallButtonGroup::addButton(QString s, QColor c, bool selected)
     btn->setAutoTextColor(false);
     btn->setTextColor(c);
     connect(btn, &InteractiveButtonBase::clicked, this, [=]{
+        if (!selectable)
+            return ;
         selectBtn(btn);
         if (btn->getState())
             emit signalSelected(s);
         else
             emit signalUnselected(s);
     });
+}
+
+void WaterFallButtonGroup::clearButtons()
+{
+    foreach (InteractiveButtonBase* btn, btns)
+        btn->deleteLater();
+    btns.clear();
+}
+
+void WaterFallButtonGroup::setSelecteable(bool en)
+{
+    this->selectable = en;
 }
 
 void WaterFallButtonGroup::setColors(QColor normal_bg, QColor hover_bg, QColor press_bg, QColor selected_bg, QColor normal_ft, QColor selected_ft)
@@ -85,6 +107,23 @@ void WaterFallButtonGroup::setColors(QColor normal_bg, QColor hover_bg, QColor p
         this->selected_ft = selected_ft;
     else
         selected_ft = getReverseColor(selected_bg);
+
+    foreach (InteractiveButtonBase* btn, btns)
+    {
+        btn->setTextColor(normal_ft);
+        btn->setBgColor(normal_bg);
+        btn->setBgColor(hover_bg, press_bg);
+    }
+}
+
+void WaterFallButtonGroup::setMouseColor(QColor hover_bg, QColor press_bg)
+{
+    this->hover_bg = hover_bg;
+    this->press_bg = press_bg;
+    foreach (InteractiveButtonBase* btn, btns)
+    {
+        btn->setBgColor(hover_bg, press_bg);
+    }
 }
 
 void WaterFallButtonGroup::updateButtonPositions()
