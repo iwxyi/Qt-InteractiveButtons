@@ -964,6 +964,8 @@ void InteractiveButtonBase::setMenu(QMenu *menu)
 void InteractiveButtonBase::adjustMinimumSize()
 {
     int icon_width = (model == PaintModel::Text || model == PaintModel::None) || icon.isNull() ? 0 : icon_text_size;
+    if (icon_width && !text.isEmpty())
+        icon_width += icon_text_padding;
     int w = 0, h = 0;
     if (font_size <= 0)
     {
