@@ -3,6 +3,7 @@
 InfoButton::InfoButton(QWidget *parent) : InteractiveButtonBase(parent)
 {
     setUnifyGeomerey(true);
+    // hover_speed = 1;
 }
 
 void InfoButton::paintEvent(QPaintEvent *event)
@@ -40,22 +41,22 @@ void InfoButton::paintEvent(QPaintEvent *event)
         double top = t+h/4 + (h/4) * prop;
         path.addEllipse(QRectF(l+w/2-cu, top, cu*2, cu*2));
 
-        double h_mv = w / 4 * prop;
-        top += cu*2;
+        double h_mv = w / 4 * prop; // 胡子端点
+        top += cu*2 + h/8*(1-prop); // +点的高度 +点和线距离
 
         // 左胡子移动
         QPainterPath pathl;
-        pathl.moveTo(l+w/2, top);
-        pathl.cubicTo(QPointF(l+w*8/16, t+h*7/8), QPointF(l+w*5/16, t+h*6/8), QPointF(l+w/2-h_mv, t+h*11/16));
+        pathl.moveTo(l+w/2, top); // 竖线顶端
+        pathl.cubicTo(QPointF(l+w*8/16, t+h*7/8), QPointF(l+w*5/16+w*3/16*(1-prop), t+h*6/8), QPointF(l+w/2-h_mv, t+h*11/16+h*3/16*(1-prop)));
         painter.drawPath(pathl);
 
         // 右胡子移动
         QPainterPath pathr;
         pathr.moveTo(l+w/2, top);
-        pathr.cubicTo(QPointF(l+w*8/16, t+h*7/8), QPointF(l+w*11/16, t+h*6/8), QPointF(l+w/2+h_mv, t+h*11/16));
+        pathr.cubicTo(QPointF(l+w*8/16, t+h*7/8), QPointF(l+w*11/16-w*3/16*(1-prop), t+h*6/8), QPointF(l+w/2+h_mv, t+h*11/16+h*3/16*(1-prop)));
         painter.drawPath(pathr);
     }
-    else // 显示笑脸
+    else // 显示Hover静态猫头
     {
         // 眼睛
         if (pressing) // 横线
@@ -72,6 +73,12 @@ void InfoButton::paintEvent(QPaintEvent *event)
                 painter.drawLine(QPointF(l+w/4-cu*2, t+h/4), QPointF(l+w/4+cu*2, t+h/4));
                 painter.drawLine(QPointF(l+w*3/4-cu*2, t+h/4), QPointF(l+w*3/4+cu*2, t+h/4));
             }
+
+            if (tongue)
+            {
+                double prop = press_progress / 100.0;
+                // TODO: 添加吐舌头……太麻烦，懒得写了
+            }
         }
         else // 点
         {
@@ -80,12 +87,12 @@ void InfoButton::paintEvent(QPaintEvent *event)
             path.addEllipse(l+w*3/4-ra, t+h/4-ra, ra*2, cu*2);
         }
 
-        // 鼻子
+        // 鼻子点
         path.addEllipse(l+w/2-cu, t+h/2-cu/2, cu*2, cu*2);
 
         // 左胡子
         QPainterPath pathl;
-        pathl.moveTo(l+w/2, t+h*4/8);
+        pathl.moveTo(l+w/2, t+h*4/8); // 中心顶点
         pathl.cubicTo(QPointF(l+w*8/16, t+h*7/8), QPointF(l+w*5/16, t+h*6/8), QPointF(l+w/4, t+h*11/16));
         painter.drawPath(pathl);
 
@@ -96,4 +103,15 @@ void InfoButton::paintEvent(QPaintEvent *event)
         painter.drawPath(pathr);
     }
     painter.fillPath(path, icon_color);
+}
+
+void InfoButton::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        // 随机吐舌头
+        tongue = qrand() % 10 == 0;
+    }
+
+    return InteractiveButtonBase::mousePressEvent(event);
 }

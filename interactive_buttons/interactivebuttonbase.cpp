@@ -430,6 +430,7 @@ void InteractiveButtonBase::setBgColor(QColor hover, QColor press)
 void InteractiveButtonBase::setNormalColor(QColor color)
 {
     normal_bg = color;
+    update();
 }
 
 /**
@@ -963,6 +964,8 @@ void InteractiveButtonBase::setMenu(QMenu *menu)
 void InteractiveButtonBase::adjustMinimumSize()
 {
     int icon_width = (model == PaintModel::Text || model == PaintModel::None) || icon.isNull() ? 0 : icon_text_size;
+    if (icon_width && !text.isEmpty())
+        icon_width += icon_text_padding;
     int w = 0, h = 0;
     if (font_size <= 0)
     {
@@ -1254,7 +1257,7 @@ void InteractiveButtonBase::resizeEvent(QResizeEvent *event)
     }
     water_radius = static_cast<int>(max(width(), height()) * 1.42); // 长边
     // 非固定的情况，尺寸大小变了之后所有 padding 都要变
-    if (model == PaintModel::Icon || model == PaintModel::PixmapMask)
+    if (!fixed_fore_size && (model == PaintModel::Icon || model == PaintModel::PixmapMask))
     {
         int short_side = min(width(), height());        // 短边
         int padding = int(short_side * icon_padding_proper); //static_cast<int>(short_side * (1 - GOLDEN_RATIO) / 2);

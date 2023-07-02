@@ -10,6 +10,10 @@ public:
 
 protected:
     void paintEvent(QPaintEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+
+private:
+    bool tongue = false;
 };
 
 #endif // INFOBUTTON_H

@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     InfoButton* info_btn = new InfoButton(this);
     info_btn->setGeometry(336, 10, 32, 32);
+//    info_btn->setGeometry(300, 300, 100, 100);
 
     WinMenuButton* menu_btn = new WinMenuButton(this);
     menu_btn->setGeometry(368, 10, 32, 32);
