@@ -239,7 +239,7 @@ void InteractiveButtonBase::setPixmap(QPixmap pixmap)
         QFontMetrics fm(this->font());
         icon_text_size = fm.lineSpacing();
     }
-    this->pixmap = getMaskPixmap(pixmap, isEnabled() ? icon_color : getOpacityColor(icon_color));
+    this->pixmap = getColoredPixmap(pixmap, isEnabled() ? icon_color : getOpacityColor(icon_color));
     if (parent_enabled)
         QPushButton::setIcon(QIcon(pixmap));
     update();
@@ -470,13 +470,13 @@ void InteractiveButtonBase::setIconColor(QColor color)
     // 绘制图标（如果有）
     if (model == PaintModel::PixmapMask || model == PaintModel::PixmapText)
     {
-        pixmap = getMaskPixmap(pixmap, isEnabled() ? icon_color : getOpacityColor(icon_color));
+        pixmap = getColoredPixmap(pixmap, isEnabled() ? icon_color : getOpacityColor(icon_color));
     }
 
     // 绘制额外角标（如果有的话）
     if (paint_addin.enable)
     {
-        paint_addin.pixmap = getMaskPixmap(paint_addin.pixmap, isEnabled() ? icon_color : getOpacityColor(icon_color));
+        paint_addin.pixmap = getColoredPixmap(paint_addin.pixmap, isEnabled() ? icon_color : getOpacityColor(icon_color));
     }
 
     update();
@@ -646,7 +646,7 @@ void InteractiveButtonBase::setDisabled(bool dis)
 
     if (model == PixmapMask || model == PixmapText)
     {
-        pixmap = getMaskPixmap(pixmap, dis ? getOpacityColor(icon_color) : icon_color);
+        pixmap = getColoredPixmap(pixmap, dis ? getOpacityColor(icon_color) : icon_color);
     }
 
     update(); // 修改透明度
@@ -1818,12 +1818,25 @@ QColor InteractiveButtonBase::getOpacityColor(QColor color, double level)
  * @param  c 颜色
  * @return   对应颜色的图标
  */
-QPixmap InteractiveButtonBase::getMaskPixmap(QPixmap p, QColor c)
+QPixmap InteractiveButtonBase::getColoredPixmap(QPixmap p, QColor c)
 {
-    QBitmap mask = p.mask();
-    p.fill(c);
-    p.setMask(mask);
-    return p;
+    // 创建一个新的 QPixmap 对象，用于修改颜色
+    QPixmap newPixmap(p.size());
+    newPixmap.fill(Qt::transparent); // 设置背景为透明
+
+    QPainter painter(&newPixmap);
+    painter.setCompositionMode(QPainter::CompositionMode_Source);
+    painter.drawPixmap(0, 0, p); // 将原始图片绘制到新的 QPixmap 上
+
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    painter.fillRect(newPixmap.rect(), c); // 以指定颜色填充整个 QPixmap
+
+    painter.setCompositionMode(QPainter::CompositionMode_DestinationOver);
+    painter.drawPixmap(0, 0, p); // 将原始图片再次绘制到新的 QPixmap 上，覆盖指定颜色
+
+    painter.end();
+
+    return newPixmap;
 }
 
 double InteractiveButtonBase::getNolinearProg(int p, InteractiveButtonBase::NolinearType type)

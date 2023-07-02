@@ -45,3 +45,4 @@ GTAGS
 Makefile
 *.opt
 .history/
+*.user
